@@ -33,25 +33,15 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
 
   if ('views_ui_config_item_form' == $form_id && !empty($form['options']['expose'])) {
 
-    // Is this a field we can override?
-    $overrideable = array('select', 'checkboxes', 'radios');
-    if (!in_array($form['options']['value']['#type'], $overrideable)) {
-      return;
-    }
-
-    // Get current BEF values or set default values
+    // Collect current BEF values or set default values
     $curr = array();
-    $curr['format'] = empty($form_state['handler']->options['expose']['bef_format']) ?
-      'default' : $form_state['handler']->options['expose']['bef_format'];
-    $curr['allnone'] = empty($form_state['handler']->options['expose']['bef_select_all_none']) ?
-      FALSE : $form_state['handler']->options['expose']['bef_select_all_none'];
-    $curr['collapsible'] = empty($form_state['handler']->options['expose']['bef_collapsible']) ?
-      FALSE : $form_state['handler']->options['expose']['bef_collapsible'];
+
+    // Build additional form elements to inject into the exposed filter configuration form
+    $left = $right = array();
+    
+    // Description is now allowed for any exposed filter
     $curr['description'] = empty($form_state['handler']->options['expose']['bef_filter_description']) ?
       '' : $form_state['handler']->options['expose']['bef_filter_description'];
-
-    // Build form elements for the left side of the exposed filter form
-    $left = array();
 
     // Build a description option form element
     $left['bef_filter_description'] = array(
@@ -59,61 +49,74 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
       '#title' => t('Description'),
       '#default_value' => $curr['description'],
     );
+    
+    // Is this a field we can fully override?  If so, add additional BEF configuration options
+    $overrideable = array('select', 'checkboxes', 'radios');
+    if (in_array($form['options']['value']['#type'], $overrideable)) {
 
-    // Build format selection element
-    $left['bef_format'] = array(
-      '#type' => 'select',
-      '#title' => t('Display exposed filter as'),
-      '#default_value' => $curr['format'],
-      '#options' => array(
-        'default' => t('Default select list'),
-        'bef' => t('Checkboxes/Radio Buttons'),
-        'bef_ul' => t('Nested Checkboxes/Radio Buttons'),
-        'bef_hidden' => t('Hidden'),
-      ),
-      '#description' => t(
-        'Select a format for the exposed filter.  The "Nested" option places
-         hierarchical taxonomy filters in a nested, unordered list.
-         The "Hidden" option is
-         generally used for multi-step filters.  Note: if "Force single"
-         is checked, radio buttons will be used.  If "Force single" is
-         unchecked, checkboxes will be used.'
-      ),
-    );
-
-    // Build form elements for the right side of the exposed filter form
-    $right = array();
-
-    // Build check all/none option form element
-    $right['bef_select_all_none'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Add select all/none links'),
-      '#default_value' => $curr['allnone'],
-      '#description' => t(
-        'Add a "Select All/None" link when rendering the exposed filter using
-         checkboxes. NOTE: The link is built at page load, so it will not appear
-         in the "Live Preview" which is loaded dynamically.'
-      ),
-    );
-
-    // Put filter in collapsible fieldset option
-    $right['bef_collapsible'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Make this filter collapsible'),
-      '#default_value' => $curr['collapsible'],
-      '#description' => t(
-        'Puts this filter in a collapsible fieldset'
-      ),
-    );
+      // Collect the remaining existing/default values for BEF-operable exposed filters
+      $curr['format'] = empty($form_state['handler']->options['expose']['bef_format']) ?
+        'default' : $form_state['handler']->options['expose']['bef_format'];
+      $curr['allnone'] = empty($form_state['handler']->options['expose']['bef_select_all_none']) ?
+        FALSE : $form_state['handler']->options['expose']['bef_select_all_none'];
+      $curr['collapsible'] = empty($form_state['handler']->options['expose']['bef_collapsible']) ?
+        FALSE : $form_state['handler']->options['expose']['bef_collapsible'];
+  
+      // Build format selection element
+      $left['bef_format'] = array(
+        '#type' => 'select',
+        '#title' => t('Display exposed filter as'),
+        '#default_value' => $curr['format'],
+        '#options' => array(
+          'default' => t('Default select list'),
+          'bef' => t('Checkboxes/Radio Buttons'),
+          'bef_ul' => t('Nested Checkboxes/Radio Buttons'),
+          'bef_hidden' => t('Hidden'),
+        ),
+        '#description' => t(
+          'Select a format for the exposed filter.  The "Nested" option places
+           hierarchical taxonomy filters in a nested, unordered list.
+           The "Hidden" option is
+           generally used for multi-step filters.  Note: if "Force single"
+           is checked, radio buttons will be used.  If "Force single" is
+           unchecked, checkboxes will be used.'
+        ),
+      );
+  
+      // Build check all/none option form element
+      $right['bef_select_all_none'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Add select all/none links'),
+        '#default_value' => $curr['allnone'],
+        '#description' => t(
+          'Add a "Select All/None" link when rendering the exposed filter using
+           checkboxes. NOTE: The link is built at page load, so it will not appear
+           in the "Live Preview" which is loaded dynamically.'
+        ),
+      );
+  
+      // Put filter in collapsible fieldset option
+      $right['bef_collapsible'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Make this filter collapsible'),
+        '#default_value' => $curr['collapsible'],
+        '#description' => t(
+          'Puts this filter in a collapsible fieldset'
+        ),
+      );
+   }                    // if (in_array($form['options']['value']['#type'], $overrideable)) {                     
   
     // Insert BEF form elements into the exposed filter form
-    $expose = $form['options']['expose'];
-    $first_chunk = array_splice($expose, 0, array_search('end_left', array_keys($expose)));
-    $form['options']['expose'] = array_merge($first_chunk, $left, $expose);
-
-    $expose = $form['options']['expose'];
-    $first_chunk = array_splice($expose, 0, array_search('end_checkboxes', array_keys($expose)));
-    $form['options']['expose'] = array_merge($first_chunk, $right, $expose);
+    if (!empty($left)) {
+      $expose = $form['options']['expose'];
+      $first_chunk = array_splice($expose, 0, array_search('end_left', array_keys($expose)));
+      $form['options']['expose'] = array_merge($first_chunk, $left, $expose);
+    }
+    if (!empty($right)) {
+      $expose = $form['options']['expose'];
+      $first_chunk = array_splice($expose, 0, array_search('end_checkboxes', array_keys($expose)));
+      $form['options']['expose'] = array_merge($first_chunk, $right, $expose);
+    }
 
   }     // if ('views_ui_config_item_form' ...) {
 
