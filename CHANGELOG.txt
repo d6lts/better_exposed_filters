@@ -18,6 +18,7 @@ Better Exposed Filters 6.x-x.x  xxxx-xx-xx
 mikeker: Adds nested list display for hierarchical taxonomy filters
 #894312 by kenorb, mikeker: Adds links as a BEF option
 #1006716 by attiks: Corrects <label>/<input> tag order 
+Issue #1149254 by aaronbauman, mikeker: Hides Apply button when all filters are hidden
 
 Better Exposed Filters 6.x-1.0  2010-05-25
 ------------------------------------------

@@ -184,10 +184,18 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
   function exposed_form_alter(&$form, &$form_state) {
     parent::exposed_form_alter($form, $form_state);
     
+    // If we have no visible elements, we don't show the Apply button.
+    $show_apply = FALSE;
+
     /*
-     * Handle exposed sort elements
+     * Handle exposed sort elements. Sort options can be removed after BEF
+     * settings are specified, so we sanity check here.
      */
-    if (isset($this->options['bef']['sort'])) {
+    if (isset($this->options['bef']['sort'])
+      && !empty($form['sort_by'])
+      && !empty($form['sort_order'])) {
+
+      $show_apply = TRUE;
 
       // Check for combined sort_by and sort_order
       if ($this->options['bef']['sort']['combine']) {
@@ -266,6 +274,8 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
      * Handle exposed pager elements
      */
     if (isset($this->options['bef']['pager'])) {
+      $show_apply = TRUE;
+
       switch($this->options['bef']['pager']['bef_format']) {
         case 'bef':
           $form['items_per_page']['#type'] = 'radios';
@@ -292,13 +302,24 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
     $filters = $form_state['view']->display_handler->handlers['filter'];
     
     // Go through each saved option looking for Better Exposed Filter settings
-    foreach ($this->options['bef'] as $label => $options) {
+    foreach ($filters as $label => $filter) {
+    // foreach ($this->options['bef'] as $label => $options) {
 
       // Sanity check: Ensure this filter is an exposed filter
-      if (empty($filters[$label]) || !$filters[$label]->options['exposed']) {
+      if (!$filter->options['exposed']) {
         continue;
       }
       
+      // Grab the options for this filter
+      $options = array();
+      if (empty($this->options['bef'][$label])) {
+        $show_apply = TRUE;
+        continue;
+      }
+      else {
+        $options = $this->options['bef'][$label];
+      }
+
       // Form element is designated by the element ID which is user-configurable
       $field_id = $form['#info']["filter-$label"]['value'];
 
@@ -309,14 +330,17 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       
       switch ($options['bef_format']) {
         case 'bef_links':
+          $show_apply = TRUE;
           $form[$field_id]['#theme'] = 'select_as_links';
           break;
           
         case 'bef_ul':
+          $show_apply = TRUE;
           $form[$field_id]['#bef_nested'] = TRUE;
           // Intentionally falling through to case 'bef':
           
         case 'bef':
+          $show_apply = TRUE;
           if (empty($form[$field_id]['#multiple'])) {
             // Single-select -- display as radio buttons
             $form[$field_id]['#type'] = 'radios';
@@ -388,15 +412,18 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
 
               // Add select all/none functionality to this filter.
               if (!isset($form[$field_id]['#attributes']['class'])) {
-                $form[$field_id]['#attributes']['class'] = '';
+                $form[$field_id]['#attributes']['class'] = 'bef-select-all-none';
               }
-              $form[$field_id]['#attributes']['class'] .= 'bef-select-all-none';
+              else {
+                $form[$field_id]['#attributes']['class'] .= ' bef-select-all-none';
+              }
             }
           }           // if (empty($form[$field_id]['#multiple'])) { ... } else {
           break;      // case 'bef':
               
         case 'bef_hidden':
           $form['#info']["filter-$field_id"]['label'] = '';     // Hide the label
+          $form["filter-$field_id"]['label'] = '';
           if (empty($form[$field_id]['#multiple'])) {
             $form[$field_id]['#type'] = 'hidden';
           }
@@ -407,5 +434,9 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
 
       }     // switch ($options['bef_format'])
     }       // foreach ($this->options['bef']...)
+
+    // If our form has no visible filters, hide the submit button.
+    $form['submit']['#access'] = $show_apply;
+
   }         // function exposed_form_alter(...)
 }

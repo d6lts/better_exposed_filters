@@ -124,6 +124,9 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
    * Update exposed filters to show either checkboxes or radio buttons
    */
   if ('views_exposed_form' == $form_id) {
+    // If we have no visible filters, we don't show the Apply button
+    $show_apply = FALSE;
+
     // Go through each filter checking for a Better Exposed Filter setting
     foreach ($form_state['view']->filter as $field => $filter) {
       if ($filter->options['exposed']) {
@@ -139,10 +142,12 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
         if (isset($filter->options['expose']['bef_format'])) {
           switch ($filter->options['expose']['bef_format']) {
             case 'bef_ul':
+              $show_apply = TRUE;
               $form[$field_id]['#bef_nested'] = TRUE;
               // Intentionally falling through
               
             case 'bef':
+              $show_apply = TRUE;
               if (empty($form[$field_id]['#multiple'])) {
                 // Single-select -- display as radio buttons
                 $form[$field_id]['#type'] = 'radios';
@@ -233,10 +238,19 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
                 $form[$field_id]['#theme'] = 'select_as_hidden';
               }
               break;
+
           } // switch
         }   // if (isset($filter->options['expose']['bef_format'])) {
+        else {
+          // This is an exposed filter that is not controled by BEF.
+          $show_apply = TRUE;
+        }
       }     // if ($filter->options['exposed']) {
     }       // foreach (...)
+
+    // If our form has no visible filters, hide the submit button.
+    $form['submit']['#access'] = $show_apply;
+
   }         // if ('views_exposed_form' == $form_id)
 }
 
