@@ -221,10 +221,12 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
                   if (!isset($form[$field_id]['#attributes'])) {
                     $form[$field_id]['#attributes'] = array();
                   }
-
-                  // If the 'class' index doesn't exist, PHP will throw a notice if the error_reporting
-                  // level includes E_NOTICE.  Suppress the notice with the '@' operator.
-                  @$form[$field_id]['#attributes']['class'] .= 'bef-select-all-none';
+                  if (empty($form[$field_id]['#attributes']['class'])) {
+                    $form[$field_id]['#attributes']['class'] = 'bef-select-all-none';
+                  }
+                  else {
+                    $form[$field_id]['#attributes']['class'] .= ' bef-select-all-none';
+                  }
                 }
               }         // if (empty($form[$field_id]['#multiple'])) { ... } else {
               break;

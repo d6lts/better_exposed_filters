@@ -20,6 +20,7 @@ mikeker: Adds nested list display for hierarchical taxonomy filters
 #1006716 by attiks: Corrects <label>/<input> tag order 
 Issue #1149254 by aaronbauman, mikeker: Hides Apply button when all filters are hidden
 Issue #1042502 by joelstein: Adds highlight class for selected checkboxes
+Issue #782480 by mikeker: Fixes concat problem with select-all-none class in Views 2.x
 
 Better Exposed Filters 6.x-1.0  2010-05-25
 ------------------------------------------
