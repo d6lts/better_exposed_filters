@@ -65,15 +65,15 @@ if (Drupal.jsEnabled) {
     }
     
     // Add highlight class to checked checkboxes for better theming
-    $('.bef-tree input[@type="checkbox"], .bef-checkboxes input[@type="checkbox"]')
-      // Highlight ones that are checked on page load
-      .filter(':checked').parent().addClass('highlight')
+    $('.bef-tree input[type="checkbox"], .bef-checkboxes input[type="checkbox"]')
       // Highlight newly selected checkboxes
       .click(function() {
         this.checked
           ? $(this).parent().addClass('highlight')
           : $(this).parent().removeClass('highlight');
       })
+      // Highlight ones that are checked on page load
+      .filter(':checked').parent().addClass('highlight')
     ;
   };
 }
