@@ -13,7 +13,7 @@ if (Drupal.jsEnabled) {
       var selNone = Drupal.t('Select None');
       
       // Set up a prototype link and event handlers
-      var link = $('<a class="bef-toggle" href="#">'+ selAll +'</a>')
+      var link = $('<a class="bef-toggle" href="#">'+ selAll +'</a>');
       link.click(function() {
         if (selAll == $(this).text()) {
           // Select all the checkboxes
@@ -48,7 +48,7 @@ if (Drupal.jsEnabled) {
         return false;
       });
 
-      // Add link to the page for each set of checkboxes.
+      // Add Select all/none link to the page for each set of checkboxes.
       selected
         .addClass('bef-processed')
         .each(function(index) {
@@ -63,5 +63,17 @@ if (Drupal.jsEnabled) {
           }
         });
     }
+    
+    // Add highlight class to checked checkboxes for better theming
+    $('.bef-tree input[@type="checkbox"], .bef-checkboxes input[@type="checkbox"]')
+      // Highlight ones that are checked on page load
+      .filter(':checked').parent().addClass('highlight')
+      // Highlight newly selected checkboxes
+      .click(function() {
+        this.checked
+          ? $(this).parent().addClass('highlight')
+          : $(this).parent().removeClass('highlight');
+      })
+    ;
   };
 }

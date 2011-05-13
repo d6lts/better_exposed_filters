@@ -406,11 +406,11 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
               $form[$field_id]['#theme'] = 'select_as_checkboxes';
             }
             
-            if ($options['more_options']['bef_select_all_none']) {
-              // Add BEF's JavaScript to the mix to handle select all/none functionality
-              drupal_add_js(drupal_get_path('module', 'better_exposed_filters') .'/better_exposed_filters.js');
+            // Add BEF's JavaScript to the mix to handle select all/none functionality
+            drupal_add_js(drupal_get_path('module', 'better_exposed_filters') .'/better_exposed_filters.js');
 
-              // Add select all/none functionality to this filter.
+            // Add select all/none functionality to this filter.
+            if ($options['more_options']['bef_select_all_none']) {
               if (!isset($form[$field_id]['#attributes']['class'])) {
                 $form[$field_id]['#attributes']['class'] = 'bef-select-all-none';
               }

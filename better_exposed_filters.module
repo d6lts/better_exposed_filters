@@ -213,11 +213,11 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
                   $form[$field_id]['#theme'] = 'select_as_checkboxes';
                 }
 
-                if ($filter->options['expose']['bef_select_all_none']) {
-                  // Add BEF's JavaScript to the mix to handle select all/none functionality
-                  drupal_add_js(drupal_get_path('module', 'better_exposed_filters') .'/better_exposed_filters.js');
+                // Add BEF's JavaScript to the mix to handle select all/none functionality
+                drupal_add_js(drupal_get_path('module', 'better_exposed_filters') .'/better_exposed_filters.js');
 
-                  // Add select all/none functionality to this filter.
+                // Add select all/none functionality to this filter.
+                if ($filter->options['expose']['bef_select_all_none']) {
                   if (!isset($form[$field_id]['#attributes'])) {
                     $form[$field_id]['#attributes'] = array();
                   }
