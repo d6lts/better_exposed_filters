@@ -351,8 +351,9 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
             $form[$field_id]['#options'] = array();
             foreach ($opts as $index => $opt) {
               if (is_object($opt)) {
-                list($key, $val) = each($opt->option);
-                $form[$field_id]['#options'][$key] = $val;
+                foreach ($option->option as $key => $val) {
+                  $form[$field_id]['#options'][$key] = $val;
+                }
               }
               else {
                 $form[$field_id]['#options'][$index] = $opt;

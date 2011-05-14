@@ -158,8 +158,9 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
                 $form[$field_id]['#options'] = array();
                 foreach ($options as $index => $option) {
                   if (is_object($option)) {
-                    list($key, $val) = each($option->option);
-                    $form[$field_id]['#options'][$key] = $val;
+                    foreach ($option->option as $key => $val) {
+                      $form[$field_id]['#options'][$key] = $val;
+                    }
                   }
                   else {
                     $form[$field_id]['#options'][$index] = $option;

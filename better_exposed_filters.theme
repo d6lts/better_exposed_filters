@@ -236,6 +236,8 @@ function theme_select_as_tree($element) {
         );
       }
       else {
+        // Remove prefixed '-' characters
+        $element[$option_value]['#title'] = ltrim($element[$option_value]['#title'], '-');
         $html = theme('radio', $element[$option_value]);
       }
       
