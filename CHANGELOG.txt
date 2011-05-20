@@ -22,6 +22,7 @@ Issue #1149254 by aaronbauman, mikeker: Hides Apply button when all filters are 
 Issue #1042502 by joelstein: Adds highlight class for selected checkboxes
 Issue #782480 by mikeker: Fixes concat problem with select-all-none class in Views 2.x
 Issue #967510 by tokimeki, mikeker: Fixes issues with radio buttons in block displays and nested displays
+Issue #1162488 by klickreflex: Fixes incorrect HTML in nested displays
 
 Better Exposed Filters 6.x-1.0  2010-05-25
 ------------------------------------------
