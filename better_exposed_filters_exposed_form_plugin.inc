@@ -432,6 +432,10 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
             $form[$field_id]['#theme'] = 'select_as_hidden';
           }
           break;
+          
+        case 'default':
+          $show_apply = TRUE;
+          break;
 
       }     // switch ($options['bef_format'])
     }       // foreach ($this->options['bef']...)

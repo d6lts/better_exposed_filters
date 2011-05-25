@@ -241,8 +241,12 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
                 $form[$field_id]['#theme'] = 'select_as_hidden';
               }
               break;
+              
+            case 'default':
+              $show_apply = TRUE;
+              break;
 
-          } // switch
+          } // switch ($filter->options['expose']['bef_format']) {
         }   // if (isset($filter->options['expose']['bef_format'])) {
         else {
           // This is an exposed filter that is not controled by BEF.
