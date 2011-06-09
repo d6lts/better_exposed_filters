@@ -23,6 +23,7 @@ Issue #1042502 by joelstein: Adds highlight class for selected checkboxes
 Issue #782480 by mikeker: Fixes concat problem with select-all-none class in Views 2.x
 Issue #967510 by tokimeki, mikeker: Fixes issues with radio buttons in block displays and nested displays
 Issue #1162488 by klickreflex: Fixes incorrect HTML in nested displays
+Issue #1164764 by mikeker: Apply button hidden when using default select list.  See issue #1149254.
 Issue #1072658 by tkoterwas: Fieldset #title not set in exposed filter block/panel
 
 Better Exposed Filters 6.x-1.0  2010-05-25

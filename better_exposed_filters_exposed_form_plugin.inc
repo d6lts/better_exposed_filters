@@ -351,7 +351,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
             $form[$field_id]['#options'] = array();
             foreach ($opts as $index => $opt) {
               if (is_object($opt)) {
-                foreach ($option->option as $key => $val) {
+                foreach ($opt->option as $key => $val) {
                   $form[$field_id]['#options'][$key] = $val;
                 }
               }
@@ -431,6 +431,10 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
           else {
             $form[$field_id]['#theme'] = 'select_as_hidden';
           }
+          break;
+          
+        case 'default':
+          $show_apply = TRUE;
           break;
 
       }     // switch ($options['bef_format'])
