@@ -183,8 +183,8 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
                 // Render as radio buttons or radio buttons in a collapsible fieldset
                 if (!empty($filter->options['expose']['bef_collapsible'])) {
                   // Use the option label for the title of the fieldset
-                  $form[$field_id]['#title'] = $form['#info']["filter-$field_id"]['label'];
-                  unset($form['#info']["filter-$field_id"]['label']);
+                  $form[$field_id]['#title'] = $form['#info']["filter-$field"]['label'];
+                  unset($form['#info']["filter-$field"]['label']);
                   
                   // Pass the description and title along in a way such that it doesn't get rendered as part of
                   // the exposed form widget.  We'll render them as part of the fieldset.
@@ -205,8 +205,8 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
                 // Render as checkboxes or checkboxes enclosed in a collapsible fieldset
                 if (!empty($filter->options['expose']['bef_collapsible'])) {
                   // Use exposed filter widget label as legend for this fieldset
-                  $form[$field_id]['#title'] = $form['#info']["filter-$field_id"]['label'];
-                  unset($form['#info']["filter-$field_id"]['label']);
+                  $form[$field_id]['#title'] = $form['#info']["filter-$field"]['label'];
+                  unset($form['#info']["filter-$field"]['label']);
                   
                   $form[$field_id]['#theme'] = 'select_as_checkboxes_fieldset';
                 }
@@ -233,7 +233,7 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
               break;
 
             case 'bef_hidden':
-              $form['#info']["filter-$field_id"]['label'] = '';     // Hide the label
+              $form['#info']["filter-$field"]['label'] = '';     // Hide the label
               if (empty($form[$field_id]['#multiple'])) {
                 $form[$field_id]['#type'] = 'hidden';
               }
