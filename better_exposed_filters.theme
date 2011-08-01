@@ -15,10 +15,10 @@ function theme_select_as_checkboxes_fieldset($element) {
     '#collapsed' => empty($element['#value']),
     '#attribute' => array('class' => 'bef-select-as-checkboxes-fieldset'),
   );
-  
+
   // Description is rendered as part of the fieldset, don't render it twice.
   unset($element['#description']);
-  
+
   $fieldset['#children'] = theme('select_as_checkboxes', $element);
   return theme('fieldset', $fieldset);
 }
@@ -33,12 +33,13 @@ function theme_select_as_checkboxes_fieldset($element) {
  */
 function theme_select_as_checkboxes($element) {
   if (!empty($element['#bef_nested'])) {
+    $element['#attributes']['class'] .= ' form-checkboxes';
     return theme('select_as_tree', $element);
   }
-  
+
   // the selected keys from #options
   $selected_options = !empty($element['#post'][$element['#name']]) ? (array)$element['#post'][$element['#name']] : $element['#default_value'];
-  
+
   $output = '<div class="bef-checkboxes">';
   foreach ($element['#options'] as $option => $elem) {
     if ('All' === $option) {
@@ -184,7 +185,7 @@ function theme_select_as_radios($element) {
   if (!empty($element['#bef_nested'])) {
     return theme('select_as_tree', $element);
   }
-  
+
   $output = '';
   foreach (element_children($element) as $key) {
     $output .= theme('radio', $element[$key]);
@@ -210,12 +211,12 @@ function theme_select_as_tree($element) {
   $output = '<ul class="bef-tree">';
   $curr_depth = 0;
   foreach ($element['#options'] as $option_value => $option_label) {
-    
+
     // Check for Taxonomy-based filters
     if (is_object($option_label)) {
       list($option_value, $option_label) = each(array_slice($option_label->option, 0, 1, TRUE));
     }
-    
+
     // Check for optgroups -- which is basically a two-level deep tree
     if (is_array($option_label)) {
       // TODO:
@@ -224,7 +225,7 @@ function theme_select_as_tree($element) {
       // Build hierarchy based on prefixed '-' on the element label
       preg_match('/^(-*).*$/', $option_label, $matches);
       $depth = strlen($matches[1]);
-      
+
       // Build either checkboxes or radio buttons, depending on Views' Force single option
       $html = '';
       if ($element['#multiple']) {
@@ -240,7 +241,7 @@ function theme_select_as_tree($element) {
         $element[$option_value]['#title'] = ltrim($element[$option_value]['#title'], '-');
         $html = theme('radio', $element[$option_value]);
       }
-      
+
       if ($depth > $curr_depth) {
         // We've moved down a level: create a new nested <ul>
         // TODO: Is there is a way to jump more than one level deeper at a time?  I don't think so...
@@ -267,7 +268,7 @@ function theme_select_as_tree($element) {
       }
     }
   }                             // foreach ($element['#options'] as $option_value => $option_label)
-  
+
   if (!$curr_depth) {
     // Close last <li> tag
     $output .= '</li>';
@@ -279,17 +280,17 @@ function theme_select_as_tree($element) {
       $output .= '</li></ul></li>';
     }
   }
-  
+
   // Close the opening <ul class="bef-tree"> tag
   $output .= '</ul>';
-  
+
   // Add exposed filter description
-  $class = (isset($element['#attributes']['class']) ? $element['#attributes']['class'] : '');
+  $class = (isset($element['#attributes']['class']) ? 'class="' . $element['#attributes']['class'] . '"' : '');
   $description = '';
   if (!empty($element['#description'])) {
     $description = '<div class="description">'. $element['#description'] .'</div>';
   }
-  
+
   return "<div $class>$description$output</div>";
 }
 
@@ -348,7 +349,7 @@ function theme_select_as_links($element) {
     '#title' => $element['#title'],
     '#description' => $element['#description'],
   );
-  
+
   return '<div class="bef-select-as-links">'
     . theme('form_element', $properties, $output)
     . '</div>';
@@ -378,7 +379,7 @@ function bef_checkbox($element, $value, $label, $selected) {
     '#required' => FALSE,
     '#id' => $id,
   );
-  
+
   $checkbox = '<input type="checkbox" '
     . 'name="'. $element['#name'] .'[]" '    // brackets are key -- just like select
     . 'id="'. $id .'" '
