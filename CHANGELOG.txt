@@ -4,7 +4,7 @@ Better Exposed Filters change log
 
 Better Exposed Filters 6.x-3.x  xxxx-xx-xx
 ------------------------------------------
-by mikeker: Removed Views 2.x support.
+by mikeker: Removed Views 2.x support, cleaned up settings form
 
 Better Exposed Filters 6.x-2.x  xxxx-xx-xx
 ------------------------------------------

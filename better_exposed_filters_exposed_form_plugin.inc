@@ -86,16 +86,36 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         '#description' => t('Select a format for the exposed pager options.'),
       );
     }
-    
-    /*
-     * Changes to the options form need to be mirrored in hook_form_alter in
-     * better_exposed_filters.module to maintain Views 2.x support
-     */
-    
+
+    // Only add the description text once -- it was getting a little long to be added to
+    // each filter
+    $bef_filter_intro = FALSE;
+
     // Go through each filter and add the same options we used to add in hook_form_alter()
     foreach ($this->display->handler->get_handlers('filter') as $label => $filter) {
       if (!$filter->options['exposed']) {
         continue;
+      }
+
+      // If we're adding BEF filter options, add an intro to explain what's going on
+      if (!$bef_filter_intro) {
+        $bef_options['bef_intro'] = array(
+          '#value' => '<div class="form-item"><h3>'
+            . t('Exposed Filter Settings')
+            . '</h3><p>'
+            . t('Select a format and additional options for each exposed filter.')
+            . '</p><p>'
+            . t('If <em>Force single</em> option is checked in the <em>Configure
+                filter</em> form then radio buttons will be used, otherwise
+                checkboxes. The "Nested" option allows hierarchical taxonomy
+                filters will be rendered as nested, unordered lists. The "Hidden"
+                option is generally used for multi-step filters.')
+            . '</p><p>'
+            . t('Additional options are available for each filter by clicking the
+                <em>More options</em> link.')
+            . '</p></div>',
+        );
+        $bef_filter_intro = TRUE;
       }
 
       // Is this a type of field we can't tweak?  (eg: text fields)
@@ -115,22 +135,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
           'bef_ul' => t('Nested Checkboxes/Radio Buttons'),
           'bef_hidden' => t('Hidden'),
         ),
-        '#description' => t(
-          'Select a format for the exposed filter. The "Nested" option places
-           filter options is an unordered list. Hierarchical taxonomy filters
-           will be rendered as nested, unordered lists. "Links" will render filter
-           options as links, but may cause problems with AJAX views.
-           The "Hidden" option is
-           generally used for multi-step filters.  Note: if "Force single"
-           is checked, radio buttons will be used.  If "Force single" is
-           unchecked, checkboxes will be used.'
-        ),
       );
-      
-      // Link option is available if "Force single" is selected
-//      if ($filter->options['expose']['single']) {
-//
-//      }
 
       // Fieldset to keep the UI from getting out of hand
       $bef_options[$label]['more_options'] = array(
@@ -153,7 +158,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
             in the "Live Preview" which is loaded dynamically.'
         ),
       );
-      
+
       // Put filter in collapsible fieldset option
       $bef_options[$label]['more_options']['bef_collapsible'] = array(
         '#type' => 'checkbox',
@@ -163,7 +168,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
           'Puts this filter in a collapsible fieldset'
         ),
       );
-      
+
       // Build a description option form element
       $bef_options[$label]['more_options']['bef_filter_description'] = array(
         '#type' => 'textarea',
@@ -183,7 +188,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
    */
   function exposed_form_alter(&$form, &$form_state) {
     parent::exposed_form_alter($form, $form_state);
-    
+
     // If we have no visible elements, we don't show the Apply button.
     $show_apply = FALSE;
 
@@ -206,7 +211,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         if ($this->options['bef']['sort']['reset']) {
           $options[' '] = t($this->options['bef']['sort']['reset_label']);
         }
-        
+
         $selected = '';
         foreach ($form['sort_by']['#options'] as $by_key => $by_val) {
           foreach ($form['sort_order']['#options'] as $order_key => $order_val) {
@@ -214,30 +219,30 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
             $options["$by_key $order_key"] = "$by_val $order_val";
           }
         }
-        
+
         $form['sort_bef_combine'] = array(
           '#type' => 'radios',
           '#options' => $options,
           '#title' => $form['sort_by']['#title'],
         );
-        
+
         // Handle display-specific details
         switch ($this->options['bef']['sort']['bef_format']) {
           case 'bef':
             $form['sort_bef_combine']['#prefix'] = '<div class="bef-sort-combined bef-select-as-radios">';
             $form['sort_bef_combine']['#suffix'] = '</div>';
             break;
-            
+
           case 'bef_links':
             $form['sort_bef_combine']['#theme'] = 'select_as_links';
             unset($form['sort_bef_combine']['#title']);
             break;
-            
+
           case 'default':
             $form['sort_bef_combine']['#type'] = 'select';
             break;
         }
-        
+
         // Add our submit routine to process
         $form['#submit'][] = 'bef_sort_combine_submit';
 
@@ -283,7 +288,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
           $form['items_per_page']['#prefix'] = '<div class="bef-sortby bef-select-as-radios">';
           $form['items_per_page']['#suffix'] = '</div>';
           break;
-          
+
         case 'bef_links':
           if (count($form['items_per_page']['#options']) > 1) {
             $form['items_per_page']['#theme'] = 'select_as_links';
@@ -292,24 +297,18 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         break;
       }
     }
-    
-    /*
-     * Changes to the display of BEF filters need to be mirrored in hook_form_alter in
-     * better_exposed_filters.module to maintain Views 2.x support
-     */
-    
+
     // Shorthand for all filters in this view
     $filters = $form_state['view']->display_handler->handlers['filter'];
-    
+
     // Go through each saved option looking for Better Exposed Filter settings
     foreach ($filters as $label => $filter) {
-    // foreach ($this->options['bef'] as $label => $options) {
 
       // Sanity check: Ensure this filter is an exposed filter
       if (!$filter->options['exposed']) {
         continue;
       }
-      
+
       // Grab the options for this filter
       $options = array();
       if (empty($this->options['bef'][$label])) {
@@ -327,25 +326,25 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       if (!empty($options['more_options']['bef_filter_description'])) {
         $form[$field_id]['#description'] = $options['more_options']['bef_filter_description'];
       }
-      
+
       switch ($options['bef_format']) {
         case 'bef_links':
           $show_apply = TRUE;
           $form[$field_id]['#theme'] = 'select_as_links';
           break;
-          
+
         case 'bef_ul':
           $show_apply = TRUE;
           $form[$field_id]['#bef_nested'] = TRUE;
           // Intentionally falling through to case 'bef':
-          
+
         case 'bef':
           $show_apply = TRUE;
           if (empty($form[$field_id]['#multiple'])) {
             // Single-select -- display as radio buttons
             $form[$field_id]['#type'] = 'radios';
             $form[$field_id]['#process'] = array('expand_radios', 'views_process_dependency');
-        
+
             // Clean up objects from the options array (happens for taxonomy-based filters)
             $opts = $form[$field_id]['#options'];
             $form[$field_id]['#options'] = array();
@@ -372,20 +371,20 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
                 $form[$field_id]['#options']['All'] = check_plain($form[$field_id]['#options']['All']);
               }
             }
-          
+
             // Render as radio buttons or radio buttons in a collapsible fieldset
             if (!empty($options['more_options']['bef_collapsible'])) {
               // Use the option label for the title of the fieldset
               $form[$field_id]['#title'] = $form['#info']["filter-$label"]['label'];
               unset($form['#info']["filter-$label"]['label']);
-              
+
               // Pass the description and title along in a way such that it doesn't get rendered as part of
               // the exposed form widget.  We'll render them as part of the fieldset.
               $form[$field_id]['#bef_description'] = $form[$field_id]['#description'];
               unset($form[$field_id]['#description']);
               $form[$field_id]['#bef_title'] = $form[$field_id]['#title'];
               unset($form[$field_id]['#title']);
-              
+
               // Take care of adding the fieldset in the theme layer
               $form[$field_id]['#theme'] = 'select_as_radios_fieldset';
             }
@@ -400,13 +399,13 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
               // Use exposed filter widget label as legend for this fieldset
               $form[$field_id]['#title'] = $form['#info']["filter-$label"]['label'];
               unset($form['#info']["filter-$label"]['label']);
-              
+
               $form[$field_id]['#theme'] = 'select_as_checkboxes_fieldset';
             }
             else {
               $form[$field_id]['#theme'] = 'select_as_checkboxes';
             }
-            
+
             // Add BEF's JavaScript to the mix to handle select all/none functionality
             drupal_add_js(drupal_get_path('module', 'better_exposed_filters') .'/better_exposed_filters.js');
 
@@ -421,7 +420,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
             }
           }           // if (empty($form[$field_id]['#multiple'])) { ... } else {
           break;      // case 'bef':
-              
+
         case 'bef_hidden':
           $form['#info']["filter-$field_id"]['label'] = '';     // Hide the label
           $form["filter-$field_id"]['label'] = '';
@@ -432,7 +431,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
             $form[$field_id]['#theme'] = 'select_as_hidden';
           }
           break;
-          
+
         case 'default':
           $show_apply = TRUE;
           break;
