@@ -4,14 +4,14 @@ if (Drupal.jsEnabled) {
     /*
      * Add Select all/none links to specified checkboxes
      */
-    
+
     // Check for selected that already has the select all/none element for pages with outside ajaxy
     // things going on.
     var selected = $('.form-checkboxes.bef-select-all-none:not(.bef-processed)');
     if (selected.length) {
       var selAll = Drupal.t('Select All');
       var selNone = Drupal.t('Select None');
-      
+
       // Set up a prototype link and event handlers
       var link = $('<a class="bef-toggle" href="#">'+ selAll +'</a>');
       link.click(function() {
@@ -19,30 +19,30 @@ if (Drupal.jsEnabled) {
           // Select all the checkboxes
           $(this)
             .html(selNone)
-            .siblings('.bef-checkboxes')
+            .siblings('.bef-checkboxes, .bef-tree')
               .find('.form-item input:checkbox').each(function() {
                 $(this).attr('checked', 'checked');
               })
             .end()
 
-            // attr() doesn't trigger a change event, so we do it ourselves. But just on 
+            // attr() doesn't trigger a change event, so we do it ourselves. But just on
             // one checkbox otherwise we have many spinning cursors
-            .find('input[@type=checkbox]:first').change() 
+            .find('input[@type=checkbox]:first').change()
           ;
         }
         else {
           // Unselect all the checkboxes
           $(this)
             .html(selAll)
-            .siblings('.bef-checkboxes')
+            .siblings('.bef-checkboxes, .bef-tree')
               .find('.form-item input:checkbox').each(function() {
                 $(this).attr('checked', '');
               })
             .end()
 
-            // attr() doesn't trigger a change event, so we do it ourselves. But just on 
+            // attr() doesn't trigger a change event, so we do it ourselves. But just on
             // one checkbox otherwise we have many spinning cursors
-            .find('input[@type=checkbox]:first').change() 
+            .find('input[@type=checkbox]:first').change()
           ;
         }
         return false;
@@ -54,16 +54,16 @@ if (Drupal.jsEnabled) {
         .each(function(index) {
           // Clone the link prototype and insert into the DOM
           var newLink = link.clone(true);
-          
-          newLink.insertBefore($('.bef-checkboxes', this));
-          
+
+          newLink.insertBefore($('.bef-checkboxes, .bef-tree', this));
+
           // If all checkboxes are already checked by default then switch to Select None
           if ($('input:checkbox:checked', this).length == $('input:checkbox', this).length) {
             newLink.click();
           }
         });
     }
-    
+
     // Add highlight class to checked checkboxes for better theming
     $('.bef-tree input[type="checkbox"], .bef-checkboxes input[type="checkbox"]')
       // Highlight newly selected checkboxes
