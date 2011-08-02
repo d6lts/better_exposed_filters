@@ -2,7 +2,11 @@
 Better Exposed Filters change log
 ---------------------------------
 
-Better Exposed Filters 6.x-x.x  xxxx-xx-xx
+Better Exposed Filters 6.x-3.x  xxxx-xx-xx
+------------------------------------------
+by mikeker: Removed Views 2.x support.
+
+Better Exposed Filters 6.x-2.x  xxxx-xx-xx
 ------------------------------------------
 #864614 by OxideInteractive: Fixes extra space in class attributes
 #874978 by vosechu: select_as_checkboxes now respects #default_value
