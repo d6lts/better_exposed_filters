@@ -62,6 +62,8 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
         FALSE : $form_state['handler']->options['expose']['bef_select_all_none'];
       $curr['collapsible'] = empty($form_state['handler']->options['expose']['bef_collapsible']) ?
         FALSE : $form_state['handler']->options['expose']['bef_collapsible'];
+      $curr['termcount'] = empty($form_state['handler']->options['expose']['bef_show_term_count']) ?
+        FALSE : $form_state['handler']->options['expose']['bef_show_term_count'];
 
       // Build format selection element
       $left['bef_format'] = array(
@@ -105,6 +107,19 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
           'Puts this filter in a collapsible fieldset'
         ),
       );
+
+      // Build show term count form element
+      if (t('Taxonomy') == $form_state['handler']->definition['group']) {
+        $right['bef_show_term_count'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Show term node count'),
+          '#default_value' => $curr['termcount'],
+          '#description' => t(
+            'Show number of nodes after each term, in paranthesis, like this:
+            "Term A (4), Term B (10)", etc.'
+          ),
+        );
+      }
    }                    // if (in_array($form['options']['value']['#type'], $overrideable)) {
 
     // Insert BEF form elements into the exposed filter form
@@ -134,6 +149,11 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
 
         // Form element is designated by the element ID which is user-configurable
         $field_id = $form['#info']["filter-$field"]['value'];
+
+        // Show number of nodes after each term
+        if ($filter->options['expose']['bef_show_term_count']) {
+          $form[$field_id]['#termcount'] = $filter->options['expose']['bef_show_term_count'];
+        }
 
         // Add a description to the exposed filter
         if (isset($filter->options['expose']['bef_filter_description'])) {

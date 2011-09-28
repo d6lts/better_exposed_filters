@@ -386,7 +386,10 @@ function bef_checkbox($element, $value, $label, $selected) {
     . 'value="'. $value .'" '
     . ($selected ? 'checked="checked" ' : '')
     . drupal_attributes($element['#attributes']) .' />';
-  $item = "$checkbox <label class='option' for='$id'>$label</label>";
+    if (!empty($element['#termcount'])) {
+      $print_term_count = ' (' . taxonomy_term_count_nodes($value, $type = 0) . ')';
+    }
+  $item = "$checkbox <label class='option' for='$id'>$label$print_term_count</label>";
   $output .= theme('form_element', $properties, $item);
   return $output;
 }
