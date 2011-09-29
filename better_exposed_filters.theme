@@ -182,6 +182,16 @@ function theme_select_as_radios_fieldset($element) {
  * @return HTML string representing the form element.
  */
 function theme_select_as_radios($element) {
+  if (!empty($element['#termcount'])) {
+    // Add term counts to labels
+    foreach (element_children($element) as $key) {
+      $count = taxonomy_term_count_nodes($element[$key]['#return_value']);
+      if ($count) {
+        $element[$key]['#title'] .= " ($count)";
+      }
+    }
+  }
+
   if (!empty($element['#bef_nested'])) {
     return theme('select_as_tree', $element);
   }
