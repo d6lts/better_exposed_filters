@@ -169,6 +169,19 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         ),
       );
 
+      // Add node count for Taxonomy-based filters
+      if (t('Taxonomy') == $filter->definition['group']) {
+        $bef_options[$label]['more_options']['bef_show_term_count'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Show term node count'),
+          '#default_value' => $this->options['bef'][$label]['more_options']['bef_show_term_count'],
+          '#description' => t(
+            'Show number of nodes after each term, in paranthesis, like this:
+            "Term A (4), Term B (10)", etc.'
+          ),
+        );
+      }
+
       // Build a description option form element
       $bef_options[$label]['more_options']['bef_filter_description'] = array(
         '#type' => 'textarea',
@@ -325,6 +338,11 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       // Add a description to the exposed filter
       if (!empty($options['more_options']['bef_filter_description'])) {
         $form[$field_id]['#description'] = $options['more_options']['bef_filter_description'];
+      }
+
+      // Add termcount for Taxonomy-based filters
+      if (!empty($options['more_options']['bef_show_term_count'])) {
+        $form[$field_id]['#termcount'] = $options['more_options']['bef_show_term_count'];
       }
 
       switch ($options['bef_format']) {
