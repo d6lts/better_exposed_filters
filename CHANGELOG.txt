@@ -6,6 +6,7 @@ Better Exposed Filters 6.x-3.x  xxxx-xx-xx
 ------------------------------------------
 by mikeker: Removed Views 2.x support, cleaned up settings form
 Issue #1291994 by ressa, mikeker: Adds node counts to taxonomy filters (ported from original patch).
+Issue #1260384 by IRuslan: Adds required 'arguement' parameter
 
 Better Exposed Filters 6.x-2.x  xxxx-xx-xx
 ------------------------------------------
