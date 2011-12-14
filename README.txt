@@ -29,7 +29,7 @@ that comes with Views or visit the online version:
 
 -- REQUIREMENTS --
 
-This module requires the Views module:
+This module requires the Views 3.x module:
   http://drupal.org/project/views
 
 
@@ -68,7 +68,7 @@ Themers can override the theme_select_as_checkboxes() routine to allow for
 addition markup in the exposed filter.  However, this routine is updated
 often with bug fixes and enhancements.  If you have suggestions on how to
 improve Better Exposed Filters, please add them to the issue queue:
-  http://drupal.org/project/issues/bef
+  http://drupal.org/project/issues/better_exposed_filters
 
 
 -- TROUBLESHOOTING --
