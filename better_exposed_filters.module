@@ -13,21 +13,36 @@
 function better_exposed_filters_theme($existing, $type, $theme, $path) {
   return array(
     'select_as_checkboxes'          => array('function' => 'theme_select_as_checkboxes',
-                                             'file' => 'better_exposed_filters.theme'),
+                                             'arguments' => array('element' => NULL),
+                                             'file' => 'better_exposed_filters.theme',
+    ),
     'select_as_checkboxes_fieldset' => array('function' => 'theme_select_as_checkboxes_fieldset',
-                                             'file' => 'better_exposed_filters.theme'),
+                                             'arguments' => array('element' => NULL),
+                                             'file' => 'better_exposed_filters.theme',
+    ),
     'select_as_radios'              => array('function' => 'theme_select_as_radios',
-                                             'file' => 'better_exposed_filters.theme'),
+                                             'arguments' => array('element' => NULL),
+                                             'file' => 'better_exposed_filters.theme',
+    ),
     'select_as_radios_fieldset'     => array('function' => 'theme_select_as_radios_fieldset',
-                                             'file' => 'better_exposed_filters.theme'),
+                                             'arguments' => array('element' => NULL),
+                                             'file' => 'better_exposed_filters.theme',
+    ),
     'select_as_hidden'              => array('function' => 'theme_select_as_hidden',
-                                             'file' => 'better_exposed_filters.theme'),
+                                             'arguments' => array('element' => NULL),
+                                             'file' => 'better_exposed_filters.theme',
+    ),
     'select_as_tree'                => array('function' => 'theme_select_as_tree',
-                                             'file' => 'better_exposed_filters.theme'),
+                                             'arguments' => array('element' => NULL),
+                                             'file' => 'better_exposed_filters.theme',
+    ),
     'select_as_links'               => array('function' => 'theme_select_as_links',
-                                             'file' => 'better_exposed_filters.theme'),
+                                             'arguments' => array('element' => NULL),
+                                             'file' => 'better_exposed_filters.theme',
+    ),
   );
 }
+
 
 
 /**
