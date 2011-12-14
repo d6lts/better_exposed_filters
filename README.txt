@@ -20,7 +20,7 @@ additional documentation and tips:
   http://drupal.org/node/766974
 
 To submit bug reports and feature suggestions, or to track changes:
-  http://drupal.org/project/issues/bef
+  http://drupal.org/project/issues/better_exposed_filters
 
 For more information on Views filters, see the Advanced Help documentation
 that comes with Views or visit the online version:
