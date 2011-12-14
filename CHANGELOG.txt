@@ -13,8 +13,6 @@ Better Exposed Filters 6.x-2.0-beta2  2011-08-03
 #874978 by vosechu: select_as_checkboxes now respects #default_value
 #812778 by mikeker: Fixes problem with "Show hierarchy in dropdown enabled"
 #811954 by pivica: Fixes duplicate Select All/None links with multiple Behavior executions
-#657148 by mikeker: Adds support for exposed sort manipulation
-#965388 by mikeker: Adds support for collapsible fieldsets
 #965388 by mikeker: Adds support for collapsible fieldsets
 mikeker: Adds nested list display for hierarchical taxonomy filters
 #894312 by kenorb, mikeker: Adds links as a BEF option
