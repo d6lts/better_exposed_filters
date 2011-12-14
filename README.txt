@@ -13,7 +13,7 @@ with specific tags.  Better Exposed Filters gives you greater control
 over the rendering of exposed filters.
 
 For a full description of the module, visit the project page:
-  http://drupal.org/project/bef
+  http://drupal.org/project/better_exposed_filters
 
 A handbook page has been started to document some use cases, provide
 additional documentation and tips:
@@ -29,7 +29,7 @@ that comes with Views or visit the online version:
 
 -- REQUIREMENTS --
 
-This module requires the Views module:
+This module requires the Views 2.x module:
   http://drupal.org/project/views
 
 
@@ -59,7 +59,7 @@ Themers can override the theme_select_as_checkboxes() routine to allow for
 addition markup in the exposed filter.  However, this routine is updated
 often with bug fixes and enhancements.  If you have suggestions on how to
 improve Better Exposed Filters, please add them to the issue queue:
-  http://drupal.org/project/issues/bef
+  http://drupal.org/project/issues/better_exposed_filters
 
 
 -- TROUBLESHOOTING --
