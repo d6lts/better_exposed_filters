@@ -64,6 +64,8 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
         FALSE : $form_state['handler']->options['expose']['bef_collapsible'];
       $curr['termcount'] = empty($form_state['handler']->options['expose']['bef_show_term_count']) ?
         FALSE : $form_state['handler']->options['expose']['bef_show_term_count'];
+      $curr['termdepth'] = empty($form_state['handler']->options['expose']['bef_taxonomy_depth']) ?
+        0 : $form_state['handler']->options['expose']['bef_taxonomy_depth'];
 
       // Build format selection element
       $left['bef_format'] = array(
@@ -119,7 +121,25 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
             "Term A (4), Term B (10)", etc.'
           ),
         );
-      }
+        
+        // Add option to limit depth of hierarchical taxonomy vocabs
+        if ('views_handler_filter_term_node_tid_depth' == $form_state['handler']->definition['handler']) {
+          $options = array();
+          $options[0] = t('No limit');
+          for ($i = 1; $i <= 10; $i++) {
+            $options[$i] = format_plural($i, '1 level deep', '@count levels deep');
+          }
+          $right['bef_taxonomy_depth'] = array(
+            '#type' => 'select',
+            '#title' => t('Limit taxonomy w/ depth filter to'),
+            '#options' => $options,
+            '#default_value' => $curr['termdepth'],
+            '#description' => t(
+              'Limit the depth of a hierarchical taxonomy filter to this depth based on Views\' prepending of hyphens to indicate depth'
+            ),
+          );
+        }        
+      }                 // if (t('Taxonomy') == $form_state['handler']->definition['group']) {
    }                    // if (in_array($form['options']['value']['#type'], $overrideable)) {
 
     // Insert BEF form elements into the exposed filter form
@@ -153,6 +173,38 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
         // Show number of nodes after each term
         if ($filter->options['expose']['bef_show_term_count']) {
           $form[$field_id]['#termcount'] = $filter->options['expose']['bef_show_term_count'];
+        }
+
+        // Limit the depth of hierarchical taxonomy term filters
+        if ($filter->options['expose']['bef_taxonomy_depth']) {
+          $limit = $filter->options['expose']['bef_taxonomy_depth'];
+          
+          // Because top level terms have no '-' prepended to them and
+          // "no limit" is set to 0.
+          $limit--;
+          
+          $remaining = array();
+          foreach ($form[$field_id]['#options'] as $index => $option) {
+            if (!is_object($option)) {
+              // Most likely the "Any" option
+              $remaining[] = $option;
+              continue; 
+            }
+            $option_text = $option->option;
+            if (!$option_text) {
+              // ????
+              continue;
+            }
+            $option_text = array_pop($option_text);
+            $true_option = ltrim($option_text[0], '-');
+            if (!empty($true_option)) {
+              $depth = strpos($option_text, $true_option);
+              if ($depth === FALSE || $depth <= $limit) {
+                $remaining[] = $option;
+              }
+            }
+          }
+          $form[$field_id]['#options'] = $remaining;
         }
 
         // Add a description to the exposed filter
