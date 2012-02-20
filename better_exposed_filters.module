@@ -135,7 +135,7 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
             '#options' => $options,
             '#default_value' => $curr['termdepth'],
             '#description' => t(
-              'Limit the depth of a hierarchical taxonomy filter to this depth based on Views\' prepending of hyphens to indicate depth'
+              'Limit the depth of a hierarchical taxonomy filter to this depth. For example, if your taxonomy includes Country -> State -> City, setting a limit of 2 would show only Country and State in the filter.'
             ),
           );
         }        
@@ -176,11 +176,10 @@ function better_exposed_filters_form_alter(&$form, $form_state, $form_id) {
         }
 
         // Limit the depth of hierarchical taxonomy term filters
-        if ($filter->options['expose']['bef_taxonomy_depth']) {
+        if (!empty($filter->options['expose']['bef_taxonomy_depth'])) {
           $limit = $filter->options['expose']['bef_taxonomy_depth'];
           
-          // Because top level terms have no '-' prepended to them and
-          // "no limit" is set to 0.
+          // Because top level terms have no '-' prepended to them 
           $limit--;
           
           $remaining = array();
