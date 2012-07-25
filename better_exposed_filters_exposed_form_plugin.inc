@@ -87,8 +87,8 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       );
     }
 
-    // Only add the description text once -- it was getting a little long to be added to
-    // each filter
+    // Only add the description text once -- it was getting a little long to be
+    // added to each filter
     $bef_filter_intro = FALSE;
 
     // Go through each filter and add the same options we used to add in hook_form_alter()
@@ -97,68 +97,72 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         continue;
       }
 
-      // We can work with these types of filter handlers (and their children)
+      // Set to TRUE if this is a BEF-specific filter, namely one that we can
+      // rewrite in the theme layer. We still offer some additional options for
+      // all filters such as adding a description field.
+      $is_bef_filter = FALSE;
+
+      // We can tweak with these types of filter handlers (and their children)
       $valid_classes = array(
         'views_handler_filter_boolean_operator',
         'views_handler_filter_in_operator',
       );
-      $valid = FALSE;
+
       foreach($valid_classes as $class) {
         if ($filter instanceof $class) {
-          $valid = TRUE;
+          $is_bef_filter = TRUE;
           break;
         }
       }
-      if (!$valid) {
-        continue;
-      }
 
-      // If we're adding BEF filter options, add an intro to explain what's going on
-      if (!$bef_filter_intro) {
-        $bef_options['bef_intro'] = array(
-          '#value' => '<div class="form-item"><h3>'
-            . t('Exposed Filter Settings')
-            . '</h3><p>'
-            . t('Select a format and additional options for each exposed filter.')
-            . '</p><p>'
-            . t('If <em>Force single</em> option is checked in the <em>Configure
-                filter</em> form then radio buttons will be used, otherwise
-                checkboxes. The "Nested" option allows hierarchical taxonomy
-                filters will be rendered as nested, unordered lists. The "Hidden"
-                option is generally used for multi-step filters.')
-            . '</p><p>'
-            . t('Additional options are available for each filter by clicking the
-                <em>More options</em> link.')
-            . '</p></div>',
+      if ($is_bef_filter) {
+        // If we're adding BEF filter options, add an intro to explain what's going on
+        if (!$bef_filter_intro) {
+          $bef_options['bef_intro'] = array(
+            '#value' => '<div class="form-item"><h3>'
+              . t('Exposed Filter Settings')
+              . '</h3><p>'
+              . t('Select a format and additional options for each exposed filter.')
+              . '</p><p>'
+              . t('If <em>Force single</em> option is checked in the <em>Configure
+                  filter</em> form then radio buttons will be used, otherwise
+                  checkboxes. The "Nested" option allows hierarchical taxonomy
+                  filters will be rendered as nested, unordered lists. The "Hidden"
+                  option is generally used for multi-step filters.')
+              . '</p><p>'
+              . t('Additional options are available for each filter by clicking the
+                  <em>More options</em> link.')
+              . '</p></div>',
+          );
+          $bef_filter_intro = TRUE;
+        }
+
+        // Main BEF option: default or radios/checkboxes
+        $display_options = array(
+          'default' => t('Default select list'),
+          'bef' => t('Checkboxes/Radio Buttons'),
         );
-        $bef_filter_intro = TRUE;
+
+        // Taxonomy filters get the "nested" option
+        if ($filter instanceof views_handler_filter_term_node_tid) {
+          $display_options['bef_ul'] = t('Nested Checkboxes/Radio Buttons');
+        }
+
+        // Check for other display options based on the filter
+        if ($filter instanceof views_handler_filter_boolean_operator && $filter->options['expose']['single']) {
+          $display_options['bef_single'] = t('Single on/off checkbox');
+        }
+
+        // Hidden option is least used, so put it last
+        $display_options['bef_hidden'] = t('Hidden');
+
+        $bef_options[$label]['bef_format'] = array(
+          '#type' => 'select',
+          '#title' => t('Display "@label" exposed filter as', array('@label' => $filter->options['expose']['label'])),
+          '#default_value' => $this->options['bef'][$label]['bef_format'],
+          '#options' => $display_options,
+        );
       }
-
-      // Main BEF option: default or radios/checkboxes
-      $display_options = array(
-        'default' => t('Default select list'),
-        'bef' => t('Checkboxes/Radio Buttons'),
-      );
-
-      // Taxonomy filters get the "nested" option
-      if ($filter instanceof views_handler_filter_term_node_tid) {
-        $display_options['bef_ul'] = t('Nested Checkboxes/Radio Buttons');
-      }
-
-      // Check for other display options based on the filter
-      if ($filter instanceof views_handler_filter_boolean_operator && $filter->options['expose']['single']) {
-        $display_options['bef_single'] = t('Single on/off checkbox');
-      }
-
-      // Hidden option is least used, so put it last
-      $display_options['bef_hidden'] = t('Hidden');
-
-      $bef_options[$label]['bef_format'] = array(
-        '#type' => 'select',
-        '#title' => t('Display "@label" exposed filter as', array('@label' => $filter->options['expose']['label'])),
-        '#default_value' => $this->options['bef'][$label]['bef_format'],
-        '#options' => $display_options,
-      );
 
       // Fieldset to keep the UI from getting out of hand
       $bef_options[$label]['more_options'] = array(
@@ -169,28 +173,30 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
       );
 
       // Select all checkbox
-      $bef_options[$label]['more_options']['bef_select_all_none'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Add select all/none links'),
-        '#default_value' => $this->options['bef'][$label]['more_options']['bef_select_all_none'],
-        '#disabled' => $filter->options['expose']['single'],
-        '#description' => t(
-          'Add a "Select All/None" link when rendering the exposed filter using
-            checkboxes. If this option is disabled, edit the filter and uncheck
-            "Force single". NOTE: The link is built at page load, so it will not appear
-            in the "Live Preview" which is loaded dynamically.'
-        ),
-      );
+      if ($is_bef_filter) {
+        $bef_options[$label]['more_options']['bef_select_all_none'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Add select all/none links'),
+          '#default_value' => $this->options['bef'][$label]['more_options']['bef_select_all_none'],
+          '#disabled' => $filter->options['expose']['single'],
+          '#description' => t(
+            'Add a "Select All/None" link when rendering the exposed filter using
+              checkboxes. If this option is disabled, edit the filter and uncheck
+              "Force single". NOTE: The link is built at page load, so it will not appear
+              in the "Live Preview" which is loaded dynamically.'
+          ),
+        );
 
-      // Put filter in collapsible fieldset option
-      $bef_options[$label]['more_options']['bef_collapsible'] = array(
-        '#type' => 'checkbox',
-        '#title' => t('Make this filter collapsible'),
-        '#default_value' => $this->options['bef'][$label]['more_options']['bef_collapsible'],
-        '#description' => t(
-          'Puts this filter in a collapsible fieldset'
-        ),
-      );
+        // Put filter in collapsible fieldset option
+        $bef_options[$label]['more_options']['bef_collapsible'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Make this filter collapsible'),
+          '#default_value' => $this->options['bef'][$label]['more_options']['bef_collapsible'],
+          '#description' => t(
+            'Puts this filter in a collapsible fieldset'
+          ),
+        );
+      }
 
       // Add node count for Taxonomy-based filters
       if (t('Taxonomy') == $filter->definition['group']) {
@@ -469,7 +475,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
           $form[$field_id]['#title'] = $form['#info']["filter-$label"]['label'];
           unset($form['#info']["filter-$label"]['label']);
 
-          $form[$field_id]['#description'] = $filter->definition['help'];
+          $form[$field_id]['#description'] = $this->options['bef'][$field_id]['more_options']['bef_filter_description'];
           $form[$field_id]['#return_value'] = 1;
 
           // Handoff to the theme layer
