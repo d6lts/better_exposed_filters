@@ -97,6 +97,22 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         continue;
       }
 
+      // We can work with these types of filter handlers (and their children)
+      $valid_classes = array(
+        'views_handler_filter_boolean_operator',
+        'views_handler_filter_in_operator',
+      );
+      $valid = FALSE;
+      foreach($valid_classes as $class) {
+        if ($filter instanceof $class) {
+          $valid = TRUE;
+          break;
+        }
+      }
+      if (!$valid) {
+        continue;
+      }
+
       // If we're adding BEF filter options, add an intro to explain what's going on
       if (!$bef_filter_intro) {
         $bef_options['bef_intro'] = array(
@@ -118,23 +134,30 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
         $bef_filter_intro = TRUE;
       }
 
-      // Is this a type of field we can't tweak?  (eg: text fields)
-      if (('=' == $filter->operator) && !is_bool($filter->value)) {
-        // others?
-        continue;
+      // Main BEF option: default or radios/checkboxes
+      $display_options = array(
+        'default' => t('Default select list'),
+        'bef' => t('Checkboxes/Radio Buttons'),
+      );
+
+      // Taxonomy filters get the "nested" option
+      if ($filter instanceof views_handler_filter_term_node_tid) {
+        $display_options['bef_ul'] = t('Nested Checkboxes/Radio Buttons');
       }
 
-      // Main BEF option: default/checkboxes/hidden
+      // Check for other display options based on the filter
+      if ($filter instanceof views_handler_filter_boolean_operator && $filter->options['expose']['single']) {
+        $display_options['bef_single'] = t('Single on/off checkbox');
+      }
+
+      // Hidden option is least used, so put it last
+      $display_options['bef_hidden'] = t('Hidden');
+
       $bef_options[$label]['bef_format'] = array(
         '#type' => 'select',
         '#title' => t('Display "@label" exposed filter as', array('@label' => $filter->options['expose']['label'])),
         '#default_value' => $this->options['bef'][$label]['bef_format'],
-        '#options' => array(
-          'default' => t('Default select list'),
-          'bef' => t('Checkboxes/Radio Buttons'),
-          'bef_ul' => t('Nested Checkboxes/Radio Buttons'),
-          'bef_hidden' => t('Hidden'),
-        ),
+        '#options' => $display_options,
       );
 
       // Fieldset to keep the UI from getting out of hand
@@ -438,6 +461,20 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
             }
           }           // if (empty($form[$field_id]['#multiple'])) { ... } else {
           break;      // case 'bef':
+
+        case 'bef_single':
+          $show_apply = TRUE;
+
+          // Use filter label as checkbox label
+          $form[$field_id]['#title'] = $form['#info']["filter-$label"]['label'];
+          unset($form['#info']["filter-$label"]['label']);
+
+          $form[$field_id]['#description'] = $filter->definition['help'];
+          $form[$field_id]['#return_value'] = 1;
+
+          // Handoff to the theme layer
+          $form[$field_id]['#theme'] = 'select_as_single_checkbox';
+          break;
 
         case 'bef_hidden':
           $form['#info']["filter-$field_id"]['label'] = '';     // Hide the label

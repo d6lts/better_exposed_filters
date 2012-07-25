@@ -204,6 +204,18 @@ function theme_select_as_radios($element) {
 }
 
 /**
+ * Themes a single-selection select element as an on/off checkbox
+ *
+ * @param object $element - An associative array containing the properties of the element.
+ *                          Properties used: return_value, value, attributes, title, description
+ * @return HTML string representing the form element.
+ */
+function theme_select_as_single_checkbox($element) {
+  $element['#printed'] = FALSE;
+  return theme('checkbox', $element);
+}
+
+/**
  * Themes a taxonomy-based exposed filter select element as a nested unordered list.  Note: this
  * routine depends on the '-' char prefixed on the term names by Views to determine depth.
  *
