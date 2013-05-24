@@ -226,7 +226,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       $bef_slider = FALSE;
 
       // Check various filter types and determine what options are available.
-      if ($filter instanceof views_handler_filter_string || $filter instanceof views_handler_filter_in_operator) {
+      dsm($filter, get_class($filter));
+      if ($filter instanceof Drupal\views\Plugin\views\filter\String || $filter instanceof Drupal\views\Plugin\views\filter\InOperator) {
         if (in_array($filter->operator, array('in', 'or', 'and'))) {
           $bef_standard = TRUE;
         }
@@ -238,7 +239,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         }
       }
 
-      if ($filter instanceof views_handler_filter_boolean_operator) {
+      if ($filter instanceof Drupal\views\Plugin\views\filter\BooleanOperator) {
         $bef_standard = TRUE;
         if (!$filter->options['expose']['multiple']) {
           $bef_single = TRUE;
@@ -257,13 +258,13 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         }
       }
 
-      if ($filter instanceof views_handler_filter_date || !empty($filter->date_handler)) {
+      if ($filter instanceof Drupal\views\Plugin\views\filter\Date || !empty($filter->date_handler)) {
         $bef_datepicker = TRUE;
       }
 
       // The date filter handler extends the numeric filter handler so we have
       // to exclude it specifically.
-      if ($filter instanceof views_handler_filter_numeric && !($filter instanceof views_handler_filter_date)) {
+      if ($filter instanceof Drupal\views\Plugin\views\filter\Numeric && !($filter instanceof Drupal\views\Plugin\views\filter\Date)) {
         $bef_slider = TRUE;
       }
 
@@ -529,803 +530,803 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
   }
 
 
-//   /**
-//    * Tweak the exposed filter form to show Better Exposed Filter options.
-//    *
-//    * @param array $form
-//    *   Exposed form array
-//    * @param array $form_state
-//    *   Current state of form variables
-//    */
-//   function exposed_form_alter(&$form, &$form_state) {
-//     parent::exposed_form_alter($form, $form_state);
-
-//     // If we have no visible elements, we don't show the Apply button.
-//     $show_apply = FALSE;
-
-//     // Collect BEF's Javascript settings, add to Drupal.settings at the end.
-//     $bef_add_js = FALSE;
-//     $bef_js = array(
-//       'datepicker' => FALSE,
-//       'slider' => FALSE,
-//       'settings' => array(),
-//     );
-
-//     // Some widgets will require additional CSS.
-//     $bef_add_css = FALSE;
-
-//     // Grab BEF settings.
-//     $settings = $this->_bef_get_settings();
-
-//     // Some elements may be placed in a secondary fieldset (eg: "Advanced
-//     // search options"). Place this after the exposed filters and before the
-//     // rest of the items in the exposed form.
-//     if ($allow_secondary = $settings['general']['allow_secondary']) {
-//       $secondary = array(
-//         '#type' => 'fieldset',
-//         '#title' => $settings['general']['secondary_label'],
-//         '#collapsible' => TRUE,
-//         '#collapsed' => TRUE,
-//         '#theme' => 'secondary_exposed_elements',
-//       );
-//     }
-
-//     /*
-//      * Handle exposed sort elements.
-//      */
-//     if (isset($settings['sort']) && !empty($form['sort_by']) && !empty($form['sort_order'])) {
-//       $show_apply = TRUE;
-
-//       // If selected, collect all sort-related form elements and put them
-//       // in a collapsible fieldset.
-//       $collapse = $settings['sort']['advanced']['collapsible']
-//         && !empty($settings['sort']['advanced']['collapsible_label']);
-//       $sort_elems = array();
-
-//       // Check for combined sort_by and sort_order.
-//       if ($settings['sort']['advanced']['combine']) {
-//         // Combine sort_by and sort_order into a single element.
-//         $form['sort_bef_combine'] = array(
-//           '#type' => 'radios',
-//           // Already sanitized by Views.
-//           '#title' => $form['sort_by']['#title'],
-//         );
-//         $options = array();
-
-//         // Add reset sort option at the top of the list.
-//         if ($settings['sort']['advanced']['reset']) {
-//           $options[' '] = t($settings['sort']['advanced']['reset_label']);
-//         }
-//         else {
-//           $form['sort_bef_combine']['#default_value'] = '';
-//         }
-
-//         $selected = '';
-//         foreach ($form['sort_by']['#options'] as $by_key => $by_val) {
-//           foreach ($form['sort_order']['#options'] as $order_key => $order_val) {
-//             // Use a space to separate the two keys, we'll unpack them in our
-//             // submit handler.
-//             $options["$by_key $order_key"] = "$by_val $order_val";
-
-//             if ($form['sort_order']['#default_value'] == $order_key && empty($selected)) {
-//               // Respect default sort order set in Views. The default sort field
-//               // will be the first one if there are multiple sort criteria.
-//               $selected = "$by_key $order_key";
-//             }
-//           }
-//         }
-
-//         // Rewrite the option values if any were specified.
-//         if (!empty($settings['sort']['advanced']['combine_rewrite'])) {
-//           $lines = explode("\n", trim($settings['sort']['advanced']['combine_rewrite']));
-//           $rewrite = array();
-//           foreach ($lines as $line) {
-//             list($search, $replace) = explode('|', $line);
-//             if (!empty($search)) {
-//               $rewrite[$search] = $replace;
-//             }
-//           }
-//           foreach ($options as $index => $option) {
-//             if (isset($rewrite[$option])) {
-//               if ('' == $rewrite[$option]) {
-//                 unset($options[$index]);
-//                 if ($selected == $index) {
-//                   // Avoid "Illegal choice" errors.
-//                   $selected = NULL;
-//                 }
-//               }
-//               else {
-//                 $options[$index] = $rewrite[$option];
-//               }
-//             }
-//           }
-//         }
-
-//         $form['sort_bef_combine'] = array(
-//           '#type' => 'radios',
-//           '#options' => $options,
-//           '#default_value' => $selected,
-//           // Already sanitized by Views.
-//           '#title' => $form['sort_by']['#title'],
-//         );
-
-//         // Handle display-specific details.
-//         switch ($settings['sort']['bef_format']) {
-//           case 'bef':
-//             $form['sort_bef_combine']['#prefix'] = '<div class="bef-sort-combined bef-select-as-radios">';
-//             $form['sort_bef_combine']['#suffix'] = '</div>';
-//             break;
-
-//           case 'bef_links':
-//             $form['sort_bef_combine']['#theme'] = 'select_as_links';
-
-//             // Exposed form displayed as blocks can appear on pages other than
-//             // the view results appear on. This can cause problems with
-//             // select_as_links options as they will use the wrong path. We
-//             // provide a hint for theme functions to correct this.
-//             if (!empty($this->display->display_options['exposed_block'])) {
-//               $form['sort_bef_combine']['#bef_path'] = $this->display->display_options['path'];
-//             }
-//             break;
-
-//           case 'default':
-//             $form['sort_bef_combine']['#type'] = 'select';
-//             break;
-//         }
-
-//         // Add our submit routine to process.
-//         $form['#submit'][] = 'bef_sort_combine_submit';
-
-//         // Pretend we're another exposed form widget.
-//         $form['#info']['sort-sort_bef_combine'] = array(
-//           'value' => 'sort_bef_combine',
-//         );
-
-//         // Remove the existing sort_by and sort_order elements.
-//         unset($form['sort_by']);
-//         unset($form['sort_order']);
-
-//         if ($collapse) {
-//           $sort_elems[] = 'sort_bef_combine';
-//         }
-//       }
-//       /* if ($settings['sort']['advanced']['combine']) { } */
-//       else {
-//         // Leave sort_by and sort_order as separate elements.
-//         if ('bef' == $settings['sort']['bef_format']) {
-//           $form['sort_by']['#type'] = 'radios';
-//           if (empty($form['sort_by']['#process'])) {
-//             $form['sort_by']['#process'] = array();
-//           }
-//           array_unshift($form['sort_by']['#process'], 'form_process_radios');
-//           $form['sort_by']['#prefix'] = '<div class="bef-sortby bef-select-as-radios">';
-//           $form['sort_by']['#suffix'] = '</div>';
-
-//           $form['sort_order']['#type'] = 'radios';
-//           if (empty($form['sort_order']['#process'])) {
-//             $form['sort_order']['#process'] = array();
-//           }
-//           array_unshift($form['sort_order']['#process'], 'form_process_radios');
-//           $form['sort_order']['#prefix'] = '<div class="bef-sortorder bef-select-as-radios">';
-//           $form['sort_order']['#suffix'] = '</div>';
-//         }
-//         elseif ('bef_links' == $settings['sort']['bef_format']) {
-//           $form['sort_by']['#theme'] = 'select_as_links';
-//           $form['sort_order']['#theme'] = 'select_as_links';
-
-//           // Exposed form displayed as blocks can appear on pages other than the
-//           // view results appear on. This can cause problems with
-//           // select_as_links options as they will use the wrong path. We provide
-//           // a hint for theme functions to correct this.
-//           if (!empty($this->display->display_options['exposed_block'])) {
-//             $form['sort_by']['#bef_path'] = $this->display->display_options['path'];
-//             $form['sort_order']['#bef_path'] = $this->display->display_options['path'];
-//           }
-//         }
-
-//         if ($collapse) {
-//           $sort_elems[] = 'sort_by';
-//           $sort_elems[] = 'sort_order';
-//         }
-
-//         // Add reset sort option if selected.
-//         if ($settings['sort']['advanced']['reset']) {
-//           array_unshift($form['sort_by']['#options'], $settings['sort']['advanced']['reset_label']);
-//         }
-//       }
-//       /* Ends: if ($settings['sort']['advanced']['combine']) { ... } else { */
-
-//       if ($collapse) {
-//         $form['bef_sort_options'] = array(
-//           '#type' => 'fieldset',
-//           '#collapsible' => TRUE,
-//           '#collapsed' => TRUE,
-//           '#title' => $settings['sort']['advanced']['collapsible_label'],
-//         );
-//         foreach ($sort_elems as $elem) {
-//           $form['bef_sort_options'][$elem] = $form[$elem];
-//           unset($form[$elem]);
-//         }
-//       }
-
-//       // Check if this is a secondary form element.
-//       if ($allow_secondary && $settings['sort']['advanced']['is_secondary']) {
-//         foreach (array('sort_bef_combine', 'sort_by', 'sort_order') as $elem) {
-//           if (!empty($form[$elem])) {
-//             $secondary[$elem] = $form[$elem];
-//             unset($form[$elem]);
-//           }
-//         }
-//       }
-//     }
-//     /* Ends: if (isset($settings['sort'])) { */
-
-//     /*
-//      * Handle exposed pager elements.
-//      */
-//     if (isset($settings['pager'])) {
-//       $show_apply = TRUE;
-
-//       switch ($settings['pager']['bef_format']) {
-//         case 'bef':
-//           $form['items_per_page']['#type'] = 'radios';
-//           if (empty($form['items_per_page']['#process'])) {
-//             $form['items_per_page']['#process'] = array();
-//           }
-//           array_unshift($form['items_per_page']['#process'], 'form_process_radios');
-//           $form['items_per_page']['#prefix'] = '<div class="bef-sortby bef-select-as-radios">';
-//           $form['items_per_page']['#suffix'] = '</div>';
-//           break;
-
-//         case 'bef_links':
-//           if (count($form['items_per_page']['#options']) > 1) {
-//             $form['items_per_page']['#theme'] = 'select_as_links';
-//             $form['items_per_page']['#items_per_page'] = max($form['items_per_page']['#default_value'], key($form['items_per_page']['#options']));
-
-//             // Exposed form displayed as blocks can appear on pages other than
-//             // the view results appear on. This can cause problems with
-//             // select_as_links options as they will use the wrong path. We
-//             // provide a hint for theme functions to correct this.
-//             if (!empty($this->display->display_options['exposed_block'])) {
-//               $form['items_per_page']['#bef_path'] = $this->display->display_options['path'];
-//             }
-//           }
-//           break;
-//       }
-
-//       // Check if this is a secondary form element.
-//       if ($allow_secondary && $settings['pager']['is_secondary']) {
-//         foreach (array('items_per_page', 'offset') as $elem) {
-//           if (!empty($form[$elem])) {
-//             $secondary[$elem] = $form[$elem];
-//             unset($form[$elem]);
-//           }
-//         }
-//       }
-//     }
-
-//     // Shorthand for all filters in this view.
-//     $filters = $form_state['view']->display_handler->handlers['filter'];
-
-//     // Go through each saved option looking for Better Exposed Filter settings.
-//     foreach ($settings as $label => $options) {
-
-//       // Sanity check: Ensure this filter is an exposed filter.
-//       if (empty($filters[$label]) || !$filters[$label]->options['exposed']) {
-//         continue;
-//       }
-
-//       // Form element is designated by the element ID which is user-
-//       // configurable.
-//       $field_id = $form['#info']["filter-$label"]['value'];
-
-//       // Token replacement on BEF Description fields.
-//       if (!empty($options['more_options']['bef_filter_description'])) {
-//         // Collect replacement data.
-//         $data = array();
-//         $available = $options['more_options']['tokens']['available'];
-//         if (in_array('vocabulary', $available)) {
-//           $vocabs = taxonomy_get_vocabularies();
-//           $data['vocabulary'] = $vocabs[$filters[$label]->options['vid']];
-//         }
-//         /* Others? */
-
-//         // Replace tokens.
-//         $options['more_options']['bef_filter_description'] = token_replace(
-//           $options['more_options']['bef_filter_description'], $data
-//         );
-//         $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
-//       }
-
-//       // Handle filter value rewrites.
-//       if (!empty($options['more_options']['rewrite']['filter_rewrite_values'])) {
-//         $lines = explode("\n", trim($options['more_options']['rewrite']['filter_rewrite_values']));
-//         $rewrite = array();
-//         foreach ($lines as $line) {
-//           list($search, $replace) = explode('|', $line);
-//           if (!empty($search)) {
-//             $rewrite[$search] = $replace;
-//           }
-//         }
-
-//         foreach ($form[$field_id]['#options'] as $index => $option) {
-//           $is_object = FALSE;
-//           if (is_object($option)) {
-//             // Taxonomy filters use objects instead of text.
-//             $is_object = TRUE;
-//             $option = reset($option->option);
-
-//             // Hierarchical filters prepend hyphens to indicate depth. We need
-//             // to remove them for comparison, but keep them after replacement to
-//             // ensure nested options display correctly.
-//             $option = ltrim($option, '-');
-//           }
-
-//           if (isset($rewrite[$option])) {
-//             if ('' == $rewrite[$option]) {
-//               unset($form[$field_id]['#options'][$index]);
-//               if ($selected == $index) {
-//                 // Avoid "Illegal choice" errors.
-//                 $form[$field_id]['#default_value'] = NULL;
-//               }
-//             }
-//             else {
-//               if ($is_object) {
-//                 // dsm($form[$field_id]['#options'][$index]->option, "$field_id at $index");
-//                 // Taxonomy term filters are stored as objects. Use str_replace
-//                 // to ensure that keep hyphens for hierarchical filters.
-//                 list($tid, $original) = each($form[$field_id]['#options'][$index]->option);
-//                 $form[$field_id]['#options'][$index]->option[$tid] = str_replace($option, $rewrite[$option], $original);
-//               }
-//               else {
-//                 $form[$field_id]['#options'][$index] = $rewrite[$option];
-//               }
-//             }
-//           }
-//         }
-//       }
-
-//       // @TODO: Is this conditional needed anymore after the existing settings
-//       // array default values were added?
-//       if (!isset($options['bef_format'])) {
-//         $options['bef_format'] = '';
-//       }
-
-//       // These BEF options require a set of given options to work (namely,
-//       // $form[$field_id]['#options'] needs to set). But it is possilbe to
-//       // adjust settings elsewhere in the view that removes these options from
-//       // the form (eg: changing a taxonomy term filter from dropdown to
-//       // autocomplete). Check for that here and revert to Views' default filter
-//       // in those cases.
-//       $requires_options = array('bef', 'bef_ul', 'bef_links', 'bef_hidden');
-//       if (in_array($options['bef_format'], $requires_options) && empty($form[$field_id]['#options'])) {
-//         $options['bef_format'] = 'default';
-//       }
-
-//       switch ($options['bef_format']) {
-//         case 'bef_datepicker':
-//           $show_apply = TRUE;
-//           $bef_add_js = TRUE;
-//           $bef_js['datepicker'] = TRUE;
-//           $bef_js['datepicker_options'] = array();
-
-//           if ((
-//             // Single Date API-based input element.
-//             isset($form[$field_id]['value']['#type'])
-//               && 'date_text' == $form[$field_id]['value']['#type']
-//           )
-//           // Double Date-API-based input elements such as "in-between".
-//           || (isset($form[$field_id]['min']) && isset($form[$field_id]['max'])
-//             && 'date_text' == $form[$field_id]['min']['#type']
-//             && 'date_text' == $form[$field_id]['max']['#type']
-//           )) {
-//             /*
-//              * Convert Date API formatting to jQuery formatDate formatting.
-//              *
-//              * @TODO: To be honest, I'm not sure this is needed.  Can you set a
-//              * Date API field to accept anything other than Y-m-d? Well, better
-//              * safe than sorry...
-//              *
-//              * @see http://us3.php.net/manual/en/function.date.php
-//              * @see http://docs.jquery.com/UI/Datepicker/formatDate
-//              *
-//              * Array format: PHP date format => jQuery formatDate format
-//              * (comments are for the PHP format, lines that are commented out do
-//              * not have a jQuery formatDate equivalent, but maybe someday they
-//              * will...)
-//              */
-//             $convert = array(
-//               /* Day */
-
-//               // Day of the month, 2 digits with leading zeros 01 to 31.
-//               'd' => 'dd',
-//               // A textual representation of a day, three letters  Mon through
-//               // Sun.
-//               'D' => 'D',
-//               // Day of the month without leading zeros  1 to 31.
-//               'j' => 'd',
-//               // (lowercase 'L') A full textual representation of the day of the
-//               // week Sunday through Saturday.
-//               'l' => 'DD',
-//               // ISO-8601 numeric representation of the day of the week (added
-//               // in PHP 5.1.0) 1 (for Monday) through 7 (for Sunday).
-//               // 'N' => ' ',
-//               // English ordinal suffix for the day of the month, 2 characters
-//               // st, nd, rd or th. Works well with j.
-//               // 'S' => ' ',
-//               // Numeric representation of the day of the week 0 (for Sunday)
-//               // through 6 (for Saturday).
-//               // 'w' => ' ',
-//               // The day of the year (starting from 0) 0 through 365.
-//               'z' => 'o',
-
-//               /* Week */
-//               // ISO-8601 week number of year, weeks starting on Monday (added
-//               // in PHP 4.1.0) Example: 42 (the 42nd week in the year).
-//               // 'W' => ' ',
-//               //
-//               /* Month */
-//               // A full textual representation of a month, such as January or
-//               // March  January through December.
-//               'F' => 'MM',
-//               // Numeric representation of a month, with leading zeros 01
-//               // through 12.
-//               'm' => 'mm',
-//               // A short textual representation of a month, three letters  Jan
-//               // through Dec.
-//               'M' => 'M',
-//               // Numeric representation of a month, without leading zeros  1
-//               // through 12.
-//               'n' => 'm',
-//               // Number of days in the given month 28 through 31.
-//               // 't' => ' ',
-//               //
-//               /* Year */
-//               // Whether it's a leap year  1 if it is a leap year, 0 otherwise.
-//               // 'L' => ' ',
-//               // ISO-8601 year number. This has the same value as Y, except that
-//               // if the ISO week number (W) belongs to the previous or next
-//               // year, that year is used instead. (added in PHP 5.1.0).
-//               // Examples: 1999 or 2003.
-//               // 'o' => ' ',
-//               // A full numeric representation of a year, 4 digits Examples:
-//               // 1999 or 2003.
-//               'Y' => 'yy',
-//               // A two digit representation of a year  Examples: 99 or 03.
-//               'y' => 'y',
-
-//               /* Time */
-//               // Lowercase Ante meridiem and Post meridiem am or pm.
-//               // 'a' => ' ',
-//               // Uppercase Ante meridiem and Post meridiem AM or PM.
-//               // 'A' => ' ',
-//               // Swatch Internet time  000 through 999.
-//               // 'B' => ' ',
-//               // 12-hour format of an hour without leading zeros 1 through 12.
-//               // 'g' => ' ',
-//               // 24-hour format of an hour without leading zeros 0 through 23.
-//               // 'G' => ' ',
-//               // 12-hour format of an hour with leading zeros  01 through 12.
-//               // 'h' => ' ',
-//               // 24-hour format of an hour with leading zeros  00 through 23.
-//               // 'H' => ' ',
-//               // Minutes with leading zeros  00 to 59.
-//               // 'i' => ' ',
-//               // Seconds, with leading zeros 00 through 59.
-//               // 's' => ' ',
-//               // Microseconds (added in PHP 5.2.2) Example: 654321.
-//               // 'u' => ' ',
-//             );
-
-//             $format = '';
-//             if (isset($form[$field_id]['value'])) {
-//               $format = $form[$field_id]['value']['#date_format'];
-//               $form[$field_id]['value']['#attributes']['class'][] = 'bef-datepicker';
-//             }
-//             else {
-//               // Both min and max share the same format.
-//               $format = $form[$field_id]['min']['#date_format'];
-//               $form[$field_id]['min']['#attributes']['class'][] = 'bef-datepicker';
-//               $form[$field_id]['max']['#attributes']['class'][] = 'bef-datepicker';
-//             }
-//             $bef_js['datepicker_options']['dateformat'] = str_replace(array_keys($convert), array_values($convert), $format);
-//           }
-//           else {
-//             /*
-//              * Standard Drupal date field.  Depending on the settings, the field
-//              * can be at $form[$field_id] (single field) or
-//              * $form[$field_id][subfield] for two-value date fields or filters
-//              * with exposed operators.
-//              */
-//             $fields = array('min', 'max', 'value');
-//             if (count(array_intersect($fields, array_keys($form[$field_id])))) {
-//               foreach ($fields as $field) {
-//                 if (isset($form[$field_id][$field])) {
-//                   $form[$field_id][$field]['#attributes']['class'][] = 'bef-datepicker';
-//                 }
-//               }
-//             }
-//             else {
-//               $form[$field_id]['#attributes']['class'][] = 'bef-datepicker';
-//             }
-//           }
-//           break;
-
-//         case 'bef_slider':
-//           $show_apply = TRUE;
-//           $bef_add_js = TRUE;
-//           $bef_add_css = TRUE;
-//           $bef_js['slider'] = TRUE;
-
-//           // Add js options for the slider for this filter.
-//           $bef_js['slider_options'][$field_id] = array(
-//             'min' => $options['slider_options']['bef_slider_min'],
-//             'max' => $options['slider_options']['bef_slider_max'],
-//             'step' => $options['slider_options']['bef_slider_step'],
-//             'animate' => $options['slider_options']['bef_slider_animate'],
-//             'orientation' => $options['slider_options']['bef_slider_orientation'],
-//             'id' => drupal_html_id($field_id),
-//             'viewId' => $form['#id'],
-//           );
-//           break;
-
-//         case 'bef_links':
-//           $show_apply = TRUE;
-//           $form[$field_id]['#theme'] = 'select_as_links';
-
-//           // Exposed form displayed as blocks can appear on pages other than
-//           // the view results appear on. This can cause problems with
-//           // select_as_links options as they will use the wrong path. We provide
-//           // a hint for theme functions to correct this.
-//           if (!empty($this->display->display_options['exposed_block'])) {
-//             $form[$field_id]['#bef_path'] = $this->display->display_options['path'];
-//           }
-//           break;
-
-//         case 'bef_single':
-//           $show_apply = TRUE;
-
-//           // Use filter label as checkbox label.
-//           $form[$field_id]['#title'] = $filters[$label]->options['expose']['label'];
-//           $form[$field_id]['#description'] = $options['more_options']['bef_filter_description'];
-//           $form[$field_id]['#return_value'] = 1;
-//           $form[$field_id]['#type'] = 'checkbox';
-
-//           // Handoff to the theme layer.
-//           $form[$field_id]['#theme'] = 'checkbox';
-//           break;
-
-//         case 'bef_ul':
-//           $show_apply = TRUE;
-
-//           $form[$field_id]['#bef_nested'] = TRUE;
-//           /* Intentionally falling through to case 'bef'. */
-
-//         case 'bef':
-//           $show_apply = TRUE;
-
-//           if (empty($form[$field_id]['#multiple'])) {
-//             // Single-select -- display as radio buttons.
-//             $form[$field_id]['#type'] = 'radios';
-//             if (empty($form[$field_id]['#process'])) {
-//               $form[$field_id]['#process'] = array();
-//             }
-//             array_unshift($form[$field_id]['#process'], 'form_process_radios');
-
-//             // Add description
-//             if (!empty($form[$field_id]['#bef_description'])) {
-//               $form[$field_id]['#description'] = $form[$field_id]['#bef_description'];
-//             }
-
-//             // Clean up objects from the options array (happens for taxonomy-
-//             // based filters).
-//             $opts = $form[$field_id]['#options'];
-//             $form[$field_id]['#options'] = array();
-//             foreach ($opts as $index => $opt) {
-//               if (is_object($opt)) {
-//                 reset($opt->option);
-//                 list($key, $val) = each($opt->option);
-//                 $form[$field_id]['#options'][$key] = $val;
-//               }
-//               else {
-//                 $form[$field_id]['#options'][$index] = $opt;
-//               }
-//             }
-
-//             if (isset($form[$field_id]['#options']['All'])) {
-//               // @TODO: The terms 'All' and 'Any' are customizable in Views.
-//               if ($filters[$label]->options['expose']['multiple']) {
-//                 // Some third-party filter handlers still add the "Any" option
-//                 // even if this is not an optional filter.  Zap it here if they
-//                 // do.
-//                 unset($form[$field_id]['#options']['All']);
-//               }
-//               else {
-//                 // Otherwise, make sure the "Any" text is clean.
-//                 $form[$field_id]['#options']['All'] = check_plain($form[$field_id]['#options']['All']);
-//               }
-//             }
-
-//             // Render as radio buttons or radio buttons in a collapsible
-//             // fieldset.
-//             if (!empty($options['more_options']['bef_collapsible'])) {
-//               // Pass the description and title along in a way such that it
-//               // doesn't get rendered as part of the exposed form widget.  We'll
-//               // render them as part of the fieldset.
-//               if (isset($form['#info']["filter-$label"]['label'])) {
-//                 $form[$field_id]['#bef_title'] = $form['#info']["filter-$label"]['label'];
-//                 unset($form['#info']["filter-$label"]['label']);
-//               }
-//               if (!empty($options['more_options']['bef_filter_description'])) {
-//                 $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
-//                 if (isset($form[$field_id]['#description'])) {
-//                   unset($form[$field_id]['#description']);
-//                 }
-//               }
-
-//               // If the operator is exposed as well, put it inside the fieldset.
-//               if ($filters[$label]->options['expose']['use_operator']) {
-//                 $operator_id = $filters[$label]->options['expose']['operator_id'];
-//                 $form[$field_id]['#bef_operator'] = $form[$operator_id];
-//                 unset ($form[$operator_id]);
-//               }
-
-//               // Add collapse/expand Javascript and BEF CSS to prevent collapsed
-//               // fieldset from disappearing.
-//               if (empty($form[$field_id]['#attached']['js'])) {
-//                 $form[$field_id]['#attached']['js'] = array();
-//               }
-//               $form[$field_id]['#attached']['js'][] = 'misc/form.js';
-//               $form[$field_id]['#attached']['js'][] = 'misc/collapse.js';
-
-//               if (empty($form[$field_id]['#attached']['css'])) {
-//                 $form[$field_id]['#attached']['css'] = array();
-//               }
-//               $form[$field_id]['#attached']['css'][] = drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css';
-
-//               // Take care of adding the fieldset in the theme layer.
-//               $form[$field_id]['#theme'] = 'select_as_radios_fieldset';
-//             }
-//             /* if (!empty($options['more_options']['bef_collapsible'])) { */
-//             else {
-//               // Render select element as radio buttons.
-//               $form[$field_id]['#attributes']['class'][] = 'bef-select-as-radios';
-//               $form[$field_id]['#theme'] = 'select_as_radios';
-//             }
-//           }
-//           /* if (empty($form[$field_id]['#multiple'])) { */
-//           else {
-//             // Render as checkboxes or checkboxes enclosed in a collapsible
-//             // fieldset.
-//             if (!empty($options['more_options']['bef_collapsible'])) {
-//               // Pass the description and title along in a way such that it
-//               // doesn't get rendered as part of the exposed form widget.  We'll
-//               // render them as part of the fieldset.
-//               if (isset($form['#info']["filter-$label"]['label'])) {
-//                 $form[$field_id]['#bef_title'] = $form['#info']["filter-$label"]['label'];
-//                 unset($form['#info']["filter-$label"]['label']);
-//               }
-//               if (!empty($options['more_options']['bef_filter_description'])) {
-//                 $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
-//                 if (isset($form[$field_id]['#description'])) {
-//                   unset($form[$field_id]['#description']);
-//                 }
-//               }
-
-//               // If the operator is exposed as well, put it inside the fieldset.
-//               if ($filters[$label]->options['expose']['use_operator']) {
-//                 $operator_id = $filters[$label]->options['expose']['operator_id'];
-//                 $form[$field_id]['#bef_operator'] = $form[$operator_id];
-//                 unset ($form[$operator_id]);
-//               }
-
-//               // Add collapse/expand Javascript and BEF CSS to prevent collapsed
-//               // fieldset from disappearing.
-//               if (empty($form[$field_id]['#attached']['js'])) {
-//                 $form[$field_id]['#attached']['js'] = array();
-//               }
-//               $form[$field_id]['#attached']['js'][] = 'misc/form.js';
-//               $form[$field_id]['#attached']['js'][] = 'misc/collapse.js';
-
-//               if (empty($form[$field_id]['#attached']['css'])) {
-//                 $form[$field_id]['#attached']['css'] = array();
-//               }
-//               $form[$field_id]['#attached']['css'][] = drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css';
-
-//               // Take care of adding the fieldset in the theme layer.
-//               $form[$field_id]['#theme'] = 'select_as_checkboxes_fieldset';
-//             }
-//             else {
-//               $form[$field_id]['#theme'] = 'select_as_checkboxes';
-//             }
-
-//             if ($options['more_options']['bef_select_all_none'] || $options['more_options']['bef_select_all_none_nested']) {
-//               $bef_add_js = TRUE;
-
-//               if ($options['more_options']['bef_select_all_none']) {
-//                 $form[$field_id]['#bef_select_all_none'] = TRUE;
-//               }
-//               if ($options['more_options']['bef_select_all_none_nested']) {
-//                 $form[$field_id]['#bef_select_all_none_nested'] = TRUE;
-//               }
-//             }
-
-//           }
-//           /* Ends: if (empty($form[$field_id]['#multiple'])) { ... } else { */
-//           break;
-
-//         case 'bef_hidden':
-//           // Hide the label.
-//           $form['#info']["filter-$label"]['label'] = '';
-//           if (empty($form[$field_id]['#multiple'])) {
-//             $form[$field_id]['#type'] = 'hidden';
-//           }
-//           else {
-//             $form[$field_id]['#theme'] = 'select_as_hidden';
-//           }
-//           break;
-
-//         default:
-//           // Handle functionality for exposed filters that are not limited to
-//           // BEF only filters.
-//           $show_apply = TRUE;
-
-//           // Add a description to the exposed filter.
-//           if (!empty($options['more_options']['bef_filter_description'])) {
-//             $form[$field_id]['#description'] = t($options['more_options']['bef_filter_description']);
-//           }
-//           break;
-//       }
-//       /* Ends switch ($options['bef_format']) */
-
-//       // Check if this is a secondary form element.
-//       if ($allow_secondary && $settings[$label]['more_options']['is_secondary']) {
-//         $identifier = $form['#info']["filter-$label"]['value'];
-//         if (!empty($form[$identifier])) {
-//           // Move exposed operators with exposed filters
-//           if (!empty($this->display->display_options['filters'][$identifier]['expose']['use_operator'])) {
-//             $op_id = $this->display->display_options['filters'][$identifier]['expose']['operator_id'];
-//             $secondary[$op_id] = $form[$op_id];
-//             unset($form[$op_id]);
-//           }
-//           $secondary[$identifier] = $form[$identifier];
-//           unset($form[$identifier]);
-//           $secondary[$identifier]['#title'] = $form['#info']["filter-$label"]['label'];
-//           unset($form['#info']["filter-$label"]);
-//         }
-//       }
-//     }
-
-//     // If our form has no visible filters, hide the submit button.
-//     $form['submit']['#access'] = $show_apply;
-//     $form['reset']['#access'] = $show_apply;
-
-//     // Add Javascript as needed.
-//     if ($bef_add_js) {
-//       // Add jQuery UI library code as needed.
-//       if ($bef_js['datepicker']) {
-//         drupal_add_library('system', 'ui.datepicker');
-//       }
-//       if ($bef_js['slider']) {
-//         drupal_add_library('system', 'ui.slider');
-//       }
-
-//       drupal_add_js(array('better_exposed_filters' => $bef_js), 'setting');
-//       drupal_add_js(drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.js');
-//     }
-//     if ($bef_add_css) {
-//       drupal_add_css(drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css');
-//     }
-
-//     // Check for secondary elements.
-//     if ($allow_secondary && !empty($secondary)) {
-//       // Add secondary elements after regular exposed filter elements.
-//       $remaining = array_splice($form, count($form['#info']) + 1);
-//       $form['secondary'] = $secondary;
-//       $form = array_merge($form, $remaining);
-//       $form['#info']['filter-secondary']['value'] = 'secondary';
-//     }
-//   }
+  /**
+   * Tweak the exposed filter form to show Better Exposed Filter options.
+   *
+   * @param array $form
+   *   Exposed form array
+   * @param array $form_state
+   *   Current state of form variables
+   */
+  function exposed_form_alter(&$form, &$form_state) {
+    parent::exposed_form_alter($form, $form_state);
+
+    // If we have no visible elements, we don't show the Apply button.
+    $show_apply = FALSE;
+
+    // Collect BEF's Javascript settings, add to Drupal.settings at the end.
+    $bef_add_js = FALSE;
+    $bef_js = array(
+      'datepicker' => FALSE,
+      'slider' => FALSE,
+      'settings' => array(),
+    );
+
+    // Some widgets will require additional CSS.
+    $bef_add_css = FALSE;
+
+    // Grab BEF settings.
+    $settings = $this->_bef_get_settings();
+
+    // Some elements may be placed in a secondary fieldset (eg: "Advanced
+    // search options"). Place this after the exposed filters and before the
+    // rest of the items in the exposed form.
+    if ($allow_secondary = $settings['general']['allow_secondary']) {
+      $secondary = array(
+        '#type' => 'fieldset',
+        '#title' => $settings['general']['secondary_label'],
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+        '#theme' => 'secondary_exposed_elements',
+      );
+    }
+
+    /*
+     * Handle exposed sort elements.
+     */
+    if (isset($settings['sort']) && !empty($form['sort_by']) && !empty($form['sort_order'])) {
+      $show_apply = TRUE;
+
+      // If selected, collect all sort-related form elements and put them
+      // in a collapsible fieldset.
+      $collapse = $settings['sort']['advanced']['collapsible']
+        && !empty($settings['sort']['advanced']['collapsible_label']);
+      $sort_elems = array();
+
+      // Check for combined sort_by and sort_order.
+      if ($settings['sort']['advanced']['combine']) {
+        // Combine sort_by and sort_order into a single element.
+        $form['sort_bef_combine'] = array(
+          '#type' => 'radios',
+          // Already sanitized by Views.
+          '#title' => $form['sort_by']['#title'],
+        );
+        $options = array();
+
+        // Add reset sort option at the top of the list.
+        if ($settings['sort']['advanced']['reset']) {
+          $options[' '] = t($settings['sort']['advanced']['reset_label']);
+        }
+        else {
+          $form['sort_bef_combine']['#default_value'] = '';
+        }
+
+        $selected = '';
+        foreach ($form['sort_by']['#options'] as $by_key => $by_val) {
+          foreach ($form['sort_order']['#options'] as $order_key => $order_val) {
+            // Use a space to separate the two keys, we'll unpack them in our
+            // submit handler.
+            $options["$by_key $order_key"] = "$by_val $order_val";
+
+            if ($form['sort_order']['#default_value'] == $order_key && empty($selected)) {
+              // Respect default sort order set in Views. The default sort field
+              // will be the first one if there are multiple sort criteria.
+              $selected = "$by_key $order_key";
+            }
+          }
+        }
+
+        // Rewrite the option values if any were specified.
+        if (!empty($settings['sort']['advanced']['combine_rewrite'])) {
+          $lines = explode("\n", trim($settings['sort']['advanced']['combine_rewrite']));
+          $rewrite = array();
+          foreach ($lines as $line) {
+            list($search, $replace) = explode('|', $line);
+            if (!empty($search)) {
+              $rewrite[$search] = $replace;
+            }
+          }
+          foreach ($options as $index => $option) {
+            if (isset($rewrite[$option])) {
+              if ('' == $rewrite[$option]) {
+                unset($options[$index]);
+                if ($selected == $index) {
+                  // Avoid "Illegal choice" errors.
+                  $selected = NULL;
+                }
+              }
+              else {
+                $options[$index] = $rewrite[$option];
+              }
+            }
+          }
+        }
+
+        $form['sort_bef_combine'] = array(
+          '#type' => 'radios',
+          '#options' => $options,
+          '#default_value' => $selected,
+          // Already sanitized by Views.
+          '#title' => $form['sort_by']['#title'],
+        );
+
+        // Handle display-specific details.
+        switch ($settings['sort']['bef_format']) {
+          case 'bef':
+            $form['sort_bef_combine']['#prefix'] = '<div class="bef-sort-combined bef-select-as-radios">';
+            $form['sort_bef_combine']['#suffix'] = '</div>';
+            break;
+
+          case 'bef_links':
+            $form['sort_bef_combine']['#theme'] = 'select_as_links';
+
+            // Exposed form displayed as blocks can appear on pages other than
+            // the view results appear on. This can cause problems with
+            // select_as_links options as they will use the wrong path. We
+            // provide a hint for theme functions to correct this.
+            if (!empty($this->display->display_options['exposed_block'])) {
+              $form['sort_bef_combine']['#bef_path'] = $this->display->display_options['path'];
+            }
+            break;
+
+          case 'default':
+            $form['sort_bef_combine']['#type'] = 'select';
+            break;
+        }
+
+        // Add our submit routine to process.
+        $form['#submit'][] = 'bef_sort_combine_submit';
+
+        // Pretend we're another exposed form widget.
+        $form['#info']['sort-sort_bef_combine'] = array(
+          'value' => 'sort_bef_combine',
+        );
+
+        // Remove the existing sort_by and sort_order elements.
+        unset($form['sort_by']);
+        unset($form['sort_order']);
+
+        if ($collapse) {
+          $sort_elems[] = 'sort_bef_combine';
+        }
+      }
+      /* if ($settings['sort']['advanced']['combine']) { } */
+      else {
+        // Leave sort_by and sort_order as separate elements.
+        if ('bef' == $settings['sort']['bef_format']) {
+          $form['sort_by']['#type'] = 'radios';
+          if (empty($form['sort_by']['#process'])) {
+            $form['sort_by']['#process'] = array();
+          }
+          array_unshift($form['sort_by']['#process'], 'form_process_radios');
+          $form['sort_by']['#prefix'] = '<div class="bef-sortby bef-select-as-radios">';
+          $form['sort_by']['#suffix'] = '</div>';
+
+          $form['sort_order']['#type'] = 'radios';
+          if (empty($form['sort_order']['#process'])) {
+            $form['sort_order']['#process'] = array();
+          }
+          array_unshift($form['sort_order']['#process'], 'form_process_radios');
+          $form['sort_order']['#prefix'] = '<div class="bef-sortorder bef-select-as-radios">';
+          $form['sort_order']['#suffix'] = '</div>';
+        }
+        elseif ('bef_links' == $settings['sort']['bef_format']) {
+          $form['sort_by']['#theme'] = 'select_as_links';
+          $form['sort_order']['#theme'] = 'select_as_links';
+
+          // Exposed form displayed as blocks can appear on pages other than the
+          // view results appear on. This can cause problems with
+          // select_as_links options as they will use the wrong path. We provide
+          // a hint for theme functions to correct this.
+          if (!empty($this->display->display_options['exposed_block'])) {
+            $form['sort_by']['#bef_path'] = $this->display->display_options['path'];
+            $form['sort_order']['#bef_path'] = $this->display->display_options['path'];
+          }
+        }
+
+        if ($collapse) {
+          $sort_elems[] = 'sort_by';
+          $sort_elems[] = 'sort_order';
+        }
+
+        // Add reset sort option if selected.
+        if ($settings['sort']['advanced']['reset']) {
+          array_unshift($form['sort_by']['#options'], $settings['sort']['advanced']['reset_label']);
+        }
+      }
+      /* Ends: if ($settings['sort']['advanced']['combine']) { ... } else { */
+
+      if ($collapse) {
+        $form['bef_sort_options'] = array(
+          '#type' => 'fieldset',
+          '#collapsible' => TRUE,
+          '#collapsed' => TRUE,
+          '#title' => $settings['sort']['advanced']['collapsible_label'],
+        );
+        foreach ($sort_elems as $elem) {
+          $form['bef_sort_options'][$elem] = $form[$elem];
+          unset($form[$elem]);
+        }
+      }
+
+      // Check if this is a secondary form element.
+      if ($allow_secondary && $settings['sort']['advanced']['is_secondary']) {
+        foreach (array('sort_bef_combine', 'sort_by', 'sort_order') as $elem) {
+          if (!empty($form[$elem])) {
+            $secondary[$elem] = $form[$elem];
+            unset($form[$elem]);
+          }
+        }
+      }
+    }
+    /* Ends: if (isset($settings['sort'])) { */
+
+    /*
+     * Handle exposed pager elements.
+     */
+    if (isset($settings['pager'])) {
+      $show_apply = TRUE;
+
+      switch ($settings['pager']['bef_format']) {
+        case 'bef':
+          $form['items_per_page']['#type'] = 'radios';
+          if (empty($form['items_per_page']['#process'])) {
+            $form['items_per_page']['#process'] = array();
+          }
+          array_unshift($form['items_per_page']['#process'], 'form_process_radios');
+          $form['items_per_page']['#prefix'] = '<div class="bef-sortby bef-select-as-radios">';
+          $form['items_per_page']['#suffix'] = '</div>';
+          break;
+
+        case 'bef_links':
+          if (count($form['items_per_page']['#options']) > 1) {
+            $form['items_per_page']['#theme'] = 'select_as_links';
+            $form['items_per_page']['#items_per_page'] = max($form['items_per_page']['#default_value'], key($form['items_per_page']['#options']));
+
+            // Exposed form displayed as blocks can appear on pages other than
+            // the view results appear on. This can cause problems with
+            // select_as_links options as they will use the wrong path. We
+            // provide a hint for theme functions to correct this.
+            if (!empty($this->display->display_options['exposed_block'])) {
+              $form['items_per_page']['#bef_path'] = $this->display->display_options['path'];
+            }
+          }
+          break;
+      }
+
+      // Check if this is a secondary form element.
+      if ($allow_secondary && $settings['pager']['is_secondary']) {
+        foreach (array('items_per_page', 'offset') as $elem) {
+          if (!empty($form[$elem])) {
+            $secondary[$elem] = $form[$elem];
+            unset($form[$elem]);
+          }
+        }
+      }
+    }
+
+    // Shorthand for all filters in this view.
+    $filters = $form_state['view']->display_handler->handlers['filter'];
+
+    // Go through each saved option looking for Better Exposed Filter settings.
+    foreach ($settings as $label => $options) {
+
+      // Sanity check: Ensure this filter is an exposed filter.
+      if (empty($filters[$label]) || !$filters[$label]->options['exposed']) {
+        continue;
+      }
+
+      // Form element is designated by the element ID which is user-
+      // configurable.
+      $field_id = $form['#info']["filter-$label"]['value'];
+
+      // Token replacement on BEF Description fields.
+      if (!empty($options['more_options']['bef_filter_description'])) {
+        // Collect replacement data.
+        $data = array();
+        $available = $options['more_options']['tokens']['available'];
+        if (in_array('vocabulary', $available)) {
+          $vocabs = taxonomy_get_vocabularies();
+          $data['vocabulary'] = $vocabs[$filters[$label]->options['vid']];
+        }
+        /* Others? */
+
+        // Replace tokens.
+        $options['more_options']['bef_filter_description'] = token_replace(
+          $options['more_options']['bef_filter_description'], $data
+        );
+        $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
+      }
+
+      // Handle filter value rewrites.
+      if (!empty($options['more_options']['rewrite']['filter_rewrite_values'])) {
+        $lines = explode("\n", trim($options['more_options']['rewrite']['filter_rewrite_values']));
+        $rewrite = array();
+        foreach ($lines as $line) {
+          list($search, $replace) = explode('|', $line);
+          if (!empty($search)) {
+            $rewrite[$search] = $replace;
+          }
+        }
+
+        foreach ($form[$field_id]['#options'] as $index => $option) {
+          $is_object = FALSE;
+          if (is_object($option)) {
+            // Taxonomy filters use objects instead of text.
+            $is_object = TRUE;
+            $option = reset($option->option);
+
+            // Hierarchical filters prepend hyphens to indicate depth. We need
+            // to remove them for comparison, but keep them after replacement to
+            // ensure nested options display correctly.
+            $option = ltrim($option, '-');
+          }
+
+          if (isset($rewrite[$option])) {
+            if ('' == $rewrite[$option]) {
+              unset($form[$field_id]['#options'][$index]);
+              if ($selected == $index) {
+                // Avoid "Illegal choice" errors.
+                $form[$field_id]['#default_value'] = NULL;
+              }
+            }
+            else {
+              if ($is_object) {
+                // dsm($form[$field_id]['#options'][$index]->option, "$field_id at $index");
+                // Taxonomy term filters are stored as objects. Use str_replace
+                // to ensure that keep hyphens for hierarchical filters.
+                list($tid, $original) = each($form[$field_id]['#options'][$index]->option);
+                $form[$field_id]['#options'][$index]->option[$tid] = str_replace($option, $rewrite[$option], $original);
+              }
+              else {
+                $form[$field_id]['#options'][$index] = $rewrite[$option];
+              }
+            }
+          }
+        }
+      }
+
+      // @TODO: Is this conditional needed anymore after the existing settings
+      // array default values were added?
+      if (!isset($options['bef_format'])) {
+        $options['bef_format'] = '';
+      }
+
+      // These BEF options require a set of given options to work (namely,
+      // $form[$field_id]['#options'] needs to set). But it is possilbe to
+      // adjust settings elsewhere in the view that removes these options from
+      // the form (eg: changing a taxonomy term filter from dropdown to
+      // autocomplete). Check for that here and revert to Views' default filter
+      // in those cases.
+      $requires_options = array('bef', 'bef_ul', 'bef_links', 'bef_hidden');
+      if (in_array($options['bef_format'], $requires_options) && empty($form[$field_id]['#options'])) {
+        $options['bef_format'] = 'default';
+      }
+
+      switch ($options['bef_format']) {
+        case 'bef_datepicker':
+          $show_apply = TRUE;
+          $bef_add_js = TRUE;
+          $bef_js['datepicker'] = TRUE;
+          $bef_js['datepicker_options'] = array();
+
+          if ((
+            // Single Date API-based input element.
+            isset($form[$field_id]['value']['#type'])
+              && 'date_text' == $form[$field_id]['value']['#type']
+          )
+          // Double Date-API-based input elements such as "in-between".
+          || (isset($form[$field_id]['min']) && isset($form[$field_id]['max'])
+            && 'date_text' == $form[$field_id]['min']['#type']
+            && 'date_text' == $form[$field_id]['max']['#type']
+          )) {
+            /*
+             * Convert Date API formatting to jQuery formatDate formatting.
+             *
+             * @TODO: To be honest, I'm not sure this is needed.  Can you set a
+             * Date API field to accept anything other than Y-m-d? Well, better
+             * safe than sorry...
+             *
+             * @see http://us3.php.net/manual/en/function.date.php
+             * @see http://docs.jquery.com/UI/Datepicker/formatDate
+             *
+             * Array format: PHP date format => jQuery formatDate format
+             * (comments are for the PHP format, lines that are commented out do
+             * not have a jQuery formatDate equivalent, but maybe someday they
+             * will...)
+             */
+            $convert = array(
+              /* Day */
+
+              // Day of the month, 2 digits with leading zeros 01 to 31.
+              'd' => 'dd',
+              // A textual representation of a day, three letters  Mon through
+              // Sun.
+              'D' => 'D',
+              // Day of the month without leading zeros  1 to 31.
+              'j' => 'd',
+              // (lowercase 'L') A full textual representation of the day of the
+              // week Sunday through Saturday.
+              'l' => 'DD',
+              // ISO-8601 numeric representation of the day of the week (added
+              // in PHP 5.1.0) 1 (for Monday) through 7 (for Sunday).
+              // 'N' => ' ',
+              // English ordinal suffix for the day of the month, 2 characters
+              // st, nd, rd or th. Works well with j.
+              // 'S' => ' ',
+              // Numeric representation of the day of the week 0 (for Sunday)
+              // through 6 (for Saturday).
+              // 'w' => ' ',
+              // The day of the year (starting from 0) 0 through 365.
+              'z' => 'o',
+
+              /* Week */
+              // ISO-8601 week number of year, weeks starting on Monday (added
+              // in PHP 4.1.0) Example: 42 (the 42nd week in the year).
+              // 'W' => ' ',
+              //
+              /* Month */
+              // A full textual representation of a month, such as January or
+              // March  January through December.
+              'F' => 'MM',
+              // Numeric representation of a month, with leading zeros 01
+              // through 12.
+              'm' => 'mm',
+              // A short textual representation of a month, three letters  Jan
+              // through Dec.
+              'M' => 'M',
+              // Numeric representation of a month, without leading zeros  1
+              // through 12.
+              'n' => 'm',
+              // Number of days in the given month 28 through 31.
+              // 't' => ' ',
+              //
+              /* Year */
+              // Whether it's a leap year  1 if it is a leap year, 0 otherwise.
+              // 'L' => ' ',
+              // ISO-8601 year number. This has the same value as Y, except that
+              // if the ISO week number (W) belongs to the previous or next
+              // year, that year is used instead. (added in PHP 5.1.0).
+              // Examples: 1999 or 2003.
+              // 'o' => ' ',
+              // A full numeric representation of a year, 4 digits Examples:
+              // 1999 or 2003.
+              'Y' => 'yy',
+              // A two digit representation of a year  Examples: 99 or 03.
+              'y' => 'y',
+
+              /* Time */
+              // Lowercase Ante meridiem and Post meridiem am or pm.
+              // 'a' => ' ',
+              // Uppercase Ante meridiem and Post meridiem AM or PM.
+              // 'A' => ' ',
+              // Swatch Internet time  000 through 999.
+              // 'B' => ' ',
+              // 12-hour format of an hour without leading zeros 1 through 12.
+              // 'g' => ' ',
+              // 24-hour format of an hour without leading zeros 0 through 23.
+              // 'G' => ' ',
+              // 12-hour format of an hour with leading zeros  01 through 12.
+              // 'h' => ' ',
+              // 24-hour format of an hour with leading zeros  00 through 23.
+              // 'H' => ' ',
+              // Minutes with leading zeros  00 to 59.
+              // 'i' => ' ',
+              // Seconds, with leading zeros 00 through 59.
+              // 's' => ' ',
+              // Microseconds (added in PHP 5.2.2) Example: 654321.
+              // 'u' => ' ',
+            );
+
+            $format = '';
+            if (isset($form[$field_id]['value'])) {
+              $format = $form[$field_id]['value']['#date_format'];
+              $form[$field_id]['value']['#attributes']['class'][] = 'bef-datepicker';
+            }
+            else {
+              // Both min and max share the same format.
+              $format = $form[$field_id]['min']['#date_format'];
+              $form[$field_id]['min']['#attributes']['class'][] = 'bef-datepicker';
+              $form[$field_id]['max']['#attributes']['class'][] = 'bef-datepicker';
+            }
+            $bef_js['datepicker_options']['dateformat'] = str_replace(array_keys($convert), array_values($convert), $format);
+          }
+          else {
+            /*
+             * Standard Drupal date field.  Depending on the settings, the field
+             * can be at $form[$field_id] (single field) or
+             * $form[$field_id][subfield] for two-value date fields or filters
+             * with exposed operators.
+             */
+            $fields = array('min', 'max', 'value');
+            if (count(array_intersect($fields, array_keys($form[$field_id])))) {
+              foreach ($fields as $field) {
+                if (isset($form[$field_id][$field])) {
+                  $form[$field_id][$field]['#attributes']['class'][] = 'bef-datepicker';
+                }
+              }
+            }
+            else {
+              $form[$field_id]['#attributes']['class'][] = 'bef-datepicker';
+            }
+          }
+          break;
+
+        case 'bef_slider':
+          $show_apply = TRUE;
+          $bef_add_js = TRUE;
+          $bef_add_css = TRUE;
+          $bef_js['slider'] = TRUE;
+
+          // Add js options for the slider for this filter.
+          $bef_js['slider_options'][$field_id] = array(
+            'min' => $options['slider_options']['bef_slider_min'],
+            'max' => $options['slider_options']['bef_slider_max'],
+            'step' => $options['slider_options']['bef_slider_step'],
+            'animate' => $options['slider_options']['bef_slider_animate'],
+            'orientation' => $options['slider_options']['bef_slider_orientation'],
+            'id' => drupal_html_id($field_id),
+            'viewId' => $form['#id'],
+          );
+          break;
+
+        case 'bef_links':
+          $show_apply = TRUE;
+          $form[$field_id]['#theme'] = 'select_as_links';
+
+          // Exposed form displayed as blocks can appear on pages other than
+          // the view results appear on. This can cause problems with
+          // select_as_links options as they will use the wrong path. We provide
+          // a hint for theme functions to correct this.
+          if (!empty($this->display->display_options['exposed_block'])) {
+            $form[$field_id]['#bef_path'] = $this->display->display_options['path'];
+          }
+          break;
+
+        case 'bef_single':
+          $show_apply = TRUE;
+
+          // Use filter label as checkbox label.
+          $form[$field_id]['#title'] = $filters[$label]->options['expose']['label'];
+          $form[$field_id]['#description'] = $options['more_options']['bef_filter_description'];
+          $form[$field_id]['#return_value'] = 1;
+          $form[$field_id]['#type'] = 'checkbox';
+
+          // Handoff to the theme layer.
+          $form[$field_id]['#theme'] = 'checkbox';
+          break;
+
+        case 'bef_ul':
+          $show_apply = TRUE;
+
+          $form[$field_id]['#bef_nested'] = TRUE;
+          /* Intentionally falling through to case 'bef'. */
+
+        case 'bef':
+          $show_apply = TRUE;
+
+          if (empty($form[$field_id]['#multiple'])) {
+            // Single-select -- display as radio buttons.
+            $form[$field_id]['#type'] = 'radios';
+            if (empty($form[$field_id]['#process'])) {
+              $form[$field_id]['#process'] = array();
+            }
+            array_unshift($form[$field_id]['#process'], 'form_process_radios');
+
+            // Add description
+            if (!empty($form[$field_id]['#bef_description'])) {
+              $form[$field_id]['#description'] = $form[$field_id]['#bef_description'];
+            }
+
+            // Clean up objects from the options array (happens for taxonomy-
+            // based filters).
+            $opts = $form[$field_id]['#options'];
+            $form[$field_id]['#options'] = array();
+            foreach ($opts as $index => $opt) {
+              if (is_object($opt)) {
+                reset($opt->option);
+                list($key, $val) = each($opt->option);
+                $form[$field_id]['#options'][$key] = $val;
+              }
+              else {
+                $form[$field_id]['#options'][$index] = $opt;
+              }
+            }
+
+            if (isset($form[$field_id]['#options']['All'])) {
+              // @TODO: The terms 'All' and 'Any' are customizable in Views.
+              if ($filters[$label]->options['expose']['multiple']) {
+                // Some third-party filter handlers still add the "Any" option
+                // even if this is not an optional filter.  Zap it here if they
+                // do.
+                unset($form[$field_id]['#options']['All']);
+              }
+              else {
+                // Otherwise, make sure the "Any" text is clean.
+                $form[$field_id]['#options']['All'] = check_plain($form[$field_id]['#options']['All']);
+              }
+            }
+
+            // Render as radio buttons or radio buttons in a collapsible
+            // fieldset.
+            if (!empty($options['more_options']['bef_collapsible'])) {
+              // Pass the description and title along in a way such that it
+              // doesn't get rendered as part of the exposed form widget.  We'll
+              // render them as part of the fieldset.
+              if (isset($form['#info']["filter-$label"]['label'])) {
+                $form[$field_id]['#bef_title'] = $form['#info']["filter-$label"]['label'];
+                unset($form['#info']["filter-$label"]['label']);
+              }
+              if (!empty($options['more_options']['bef_filter_description'])) {
+                $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
+                if (isset($form[$field_id]['#description'])) {
+                  unset($form[$field_id]['#description']);
+                }
+              }
+
+              // If the operator is exposed as well, put it inside the fieldset.
+              if ($filters[$label]->options['expose']['use_operator']) {
+                $operator_id = $filters[$label]->options['expose']['operator_id'];
+                $form[$field_id]['#bef_operator'] = $form[$operator_id];
+                unset ($form[$operator_id]);
+              }
+
+              // Add collapse/expand Javascript and BEF CSS to prevent collapsed
+              // fieldset from disappearing.
+              if (empty($form[$field_id]['#attached']['js'])) {
+                $form[$field_id]['#attached']['js'] = array();
+              }
+              $form[$field_id]['#attached']['js'][] = 'misc/form.js';
+              $form[$field_id]['#attached']['js'][] = 'misc/collapse.js';
+
+              if (empty($form[$field_id]['#attached']['css'])) {
+                $form[$field_id]['#attached']['css'] = array();
+              }
+              $form[$field_id]['#attached']['css'][] = drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css';
+
+              // Take care of adding the fieldset in the theme layer.
+              $form[$field_id]['#theme'] = 'select_as_radios_fieldset';
+            }
+            /* if (!empty($options['more_options']['bef_collapsible'])) { */
+            else {
+              // Render select element as radio buttons.
+              $form[$field_id]['#attributes']['class'][] = 'bef-select-as-radios';
+              $form[$field_id]['#theme'] = 'select_as_radios';
+            }
+          }
+          /* if (empty($form[$field_id]['#multiple'])) { */
+          else {
+            // Render as checkboxes or checkboxes enclosed in a collapsible
+            // fieldset.
+            if (!empty($options['more_options']['bef_collapsible'])) {
+              // Pass the description and title along in a way such that it
+              // doesn't get rendered as part of the exposed form widget.  We'll
+              // render them as part of the fieldset.
+              if (isset($form['#info']["filter-$label"]['label'])) {
+                $form[$field_id]['#bef_title'] = $form['#info']["filter-$label"]['label'];
+                unset($form['#info']["filter-$label"]['label']);
+              }
+              if (!empty($options['more_options']['bef_filter_description'])) {
+                $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
+                if (isset($form[$field_id]['#description'])) {
+                  unset($form[$field_id]['#description']);
+                }
+              }
+
+              // If the operator is exposed as well, put it inside the fieldset.
+              if ($filters[$label]->options['expose']['use_operator']) {
+                $operator_id = $filters[$label]->options['expose']['operator_id'];
+                $form[$field_id]['#bef_operator'] = $form[$operator_id];
+                unset ($form[$operator_id]);
+              }
+
+              // Add collapse/expand Javascript and BEF CSS to prevent collapsed
+              // fieldset from disappearing.
+              if (empty($form[$field_id]['#attached']['js'])) {
+                $form[$field_id]['#attached']['js'] = array();
+              }
+              $form[$field_id]['#attached']['js'][] = 'misc/form.js';
+              $form[$field_id]['#attached']['js'][] = 'misc/collapse.js';
+
+              if (empty($form[$field_id]['#attached']['css'])) {
+                $form[$field_id]['#attached']['css'] = array();
+              }
+              $form[$field_id]['#attached']['css'][] = drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css';
+
+              // Take care of adding the fieldset in the theme layer.
+              $form[$field_id]['#theme'] = 'select_as_checkboxes_fieldset';
+            }
+            else {
+              $form[$field_id]['#theme'] = 'select_as_checkboxes';
+            }
+
+            if ($options['more_options']['bef_select_all_none'] || $options['more_options']['bef_select_all_none_nested']) {
+              $bef_add_js = TRUE;
+
+              if ($options['more_options']['bef_select_all_none']) {
+                $form[$field_id]['#bef_select_all_none'] = TRUE;
+              }
+              if ($options['more_options']['bef_select_all_none_nested']) {
+                $form[$field_id]['#bef_select_all_none_nested'] = TRUE;
+              }
+            }
+
+          }
+          /* Ends: if (empty($form[$field_id]['#multiple'])) { ... } else { */
+          break;
+
+        case 'bef_hidden':
+          // Hide the label.
+          $form['#info']["filter-$label"]['label'] = '';
+          if (empty($form[$field_id]['#multiple'])) {
+            $form[$field_id]['#type'] = 'hidden';
+          }
+          else {
+            $form[$field_id]['#theme'] = 'select_as_hidden';
+          }
+          break;
+
+        default:
+          // Handle functionality for exposed filters that are not limited to
+          // BEF only filters.
+          $show_apply = TRUE;
+
+          // Add a description to the exposed filter.
+          if (!empty($options['more_options']['bef_filter_description'])) {
+            $form[$field_id]['#description'] = t($options['more_options']['bef_filter_description']);
+          }
+          break;
+      }
+      /* Ends switch ($options['bef_format']) */
+
+      // Check if this is a secondary form element.
+      if ($allow_secondary && $settings[$label]['more_options']['is_secondary']) {
+        $identifier = $form['#info']["filter-$label"]['value'];
+        if (!empty($form[$identifier])) {
+          // Move exposed operators with exposed filters
+          if (!empty($this->display->display_options['filters'][$identifier]['expose']['use_operator'])) {
+            $op_id = $this->display->display_options['filters'][$identifier]['expose']['operator_id'];
+            $secondary[$op_id] = $form[$op_id];
+            unset($form[$op_id]);
+          }
+          $secondary[$identifier] = $form[$identifier];
+          unset($form[$identifier]);
+          $secondary[$identifier]['#title'] = $form['#info']["filter-$label"]['label'];
+          unset($form['#info']["filter-$label"]);
+        }
+      }
+    }
+
+    // If our form has no visible filters, hide the submit button.
+    $form['submit']['#access'] = $show_apply;
+    $form['reset']['#access'] = $show_apply;
+
+    // Add Javascript as needed.
+    if ($bef_add_js) {
+      // Add jQuery UI library code as needed.
+      if ($bef_js['datepicker']) {
+        drupal_add_library('system', 'ui.datepicker');
+      }
+      if ($bef_js['slider']) {
+        drupal_add_library('system', 'ui.slider');
+      }
+
+      drupal_add_js(array('better_exposed_filters' => $bef_js), 'setting');
+      drupal_add_js(drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.js');
+    }
+    if ($bef_add_css) {
+      drupal_add_css(drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css');
+    }
+
+    // Check for secondary elements.
+    if ($allow_secondary && !empty($secondary)) {
+      // Add secondary elements after regular exposed filter elements.
+      $remaining = array_splice($form, count($form['#info']) + 1);
+      $form['secondary'] = $secondary;
+      $form = array_merge($form, $remaining);
+      $form['#info']['filter-secondary']['value'] = 'secondary';
+    }
+  }
 
   /**
    * Fills in missing settings with default values.
