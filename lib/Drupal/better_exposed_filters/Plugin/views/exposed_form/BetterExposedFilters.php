@@ -22,11 +22,6 @@ use Drupal\Core\Annotation\Translation;
  * )
  */
 class BetterExposedFilters extends Basic {
-// class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_form_basic {
-
-  function summary_title() {
-    return t('BEF Settings');
-  }
 
 //   function option_definition() {
 //     $options = parent::option_definition();
