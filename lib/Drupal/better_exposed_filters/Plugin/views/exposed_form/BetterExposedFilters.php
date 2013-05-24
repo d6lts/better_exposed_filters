@@ -9,6 +9,7 @@ namespace Drupal\better_exposed_filters\Plugin\views\exposed_form;
 
 use Drupal\Component\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
+use Drupal\views\Plugin\views\exposed_form\ExposedFormPluginBase;
 
 /**
  * Exposed form plugin that provides additional filter and sort options.
@@ -18,10 +19,10 @@ use Drupal\Core\Annotation\Translation;
  * @Plugin(
  *   id = "bef",
  *   title = @Translation("Better Exposed Filters"),
- *   help = @Translation("Basic exposed form")
+ *   help = @Translation("Provides additional options for exposed form elements.")
  * )
  */
-class BetterExposedFilters extends Basic {
+class BetterExposedFilters extends ExposedFormPluginBase {
 
   protected function defineOptions() {
     $options = parent::defineOptions();
@@ -34,490 +35,499 @@ class BetterExposedFilters extends Basic {
     return $options;
   }
 
-//   function options_form(&$form, &$form_state) {
-//     parent::options_form($form, $form_state);
+  public function buildOptionsForm(&$form, &$form_state) {
+    parent::buildOptionsForm($form, $form_state);
 
-//     $bef_options = array();
+    $bef_options = array();
 
-//     // Get current settings and default values for new filters/
-//     $existing = $this->_bef_get_settings();
+    // Get current settings and default values for new filters/
+    $existing = $this->_bef_get_settings();
 
-//     /*
-//      * Add general options for exposed form items.
-//      */
-//     $bef_options['general']['allow_secondary'] = array(
-//       '#type' => 'checkbox',
-//       '#title' => t('Enable secondary exposed form options'),
-//       '#default_value' => $existing['general']['allow_secondary'],
-//       '#description' => t('Allows you to specify some exposed form elements as being secondary options and places those elements in a collapsible fieldset. Use this option to place some exposed filters in an "Advanced Search" area of the form, for example.'),
-//     );
-//     $bef_options['general']['secondary_label'] = array(
-//       '#type' => 'textfield',
-//       '#default_value' => $existing['general']['secondary_label'],
-//       '#title' => t('Secondary options label'),
-//       '#description' => t(
-//         'The name of the fieldset to hold secondary options. This cannot be left blank or there will be no way to show/hide these options.'
-//       ),
-//       '#states' => array(
-//         'required' => array(
-//           ':input[name="allow_secondary"]' => array('checked' => TRUE),
-//         ),
-//       ),
-//       // Use CTool's #dependency as it adds some margin-left which looks nice.
-//       // Also, you can't change the required state via #dependency...
-//       '#dependency' => array('edit-exposed-form-options-bef-general-allow-secondary' => array(1)),
-//     );
+    /*
+     * Add general options for exposed form items.
+     */
+    $bef_options['general']['allow_secondary'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Enable secondary exposed form options'),
+      '#default_value' => $existing['general']['allow_secondary'],
+      '#description' => t('Allows you to specify some exposed form elements as being secondary options and places those elements in a collapsible fieldset. Use this option to place some exposed filters in an "Advanced Search" area of the form, for example.'),
+    );
+    $bef_options['general']['secondary_label'] = array(
+      '#type' => 'textfield',
+      '#default_value' => $existing['general']['secondary_label'],
+      '#title' => t('Secondary options label'),
+      '#description' => t(
+        'The name of the fieldset to hold secondary options. This cannot be left blank or there will be no way to show/hide these options.'
+      ),
+      '#states' => array(
+        'required' => array(
+          ':input[name="allow_secondary"]' => array('checked' => TRUE),
+        ),
+      ),
+      // Use CTool's #dependency as it adds some margin-left which looks nice.
+      // Also, you can't change the required state via #dependency...
+      '#dependency' => array('edit-exposed-form-options-bef-general-allow-secondary' => array(1)),
+    );
 
-//     /*
-//      * Add options for exposed sorts.
-//      */
-//     $exposed = FALSE;
-//     foreach ($this->display->handler->get_handlers('sort') as $label => $sort) {
-//       if ($sort->options['exposed']) {
-//         $exposed = TRUE;
-//         break;
-//       }
-//     }
-//     if ($exposed) {
-//       $bef_options['sort']['bef_format'] = array(
-//         '#type' => 'select',
-//         '#title' => t('Display exposed sort options as'),
-//         '#default_value' => $existing['sort']['bef_format'],
-//         '#options' => array(
-//           'default' => t('Default select list'),
-//           'bef' => t('Radio Buttons'),
-//           'bef_links' => t('Links'),
-//         ),
-//         '#description' => t('Select a format for the exposed sort options.'),
-//       );
-//       $bef_options['sort']['advanced'] = array(
-//         '#type' => 'fieldset',
-//         '#title' => t('Advanced sort options'),
-//         '#collapsible' => TRUE,
-//         '#collapsed' => TRUE,
-//       );
-//       $bef_options['sort']['advanced']['collapsible'] = array(
-//         '#type' => 'checkbox',
-//         '#title' => t('Make sort options collapsible'),
-//         '#default_value' => $existing['sort']['advanced']['collapsible'],
-//         '#description' => t(
-//           'Puts the sort options in a collapsible fieldset'
-//         ),
-//       );
-//       $bef_options['sort']['advanced']['collapsible_label'] = array(
-//         '#type' => 'textfield',
-//         '#title' => t('Collapsible fieldset title'),
-//         '#default_value' => empty($existing['sort']['advanced']['collapsible_label']) ? t('Sort options') : $existing['sort']['advanced']['collapsible_label'],
-//         '#description' => t('This cannot be left blank or there will be no way to show/hide sort options.'),
-//         '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-collapsible' => array(1)),
-//       );
-//       $bef_options['sort']['advanced']['combine'] = array(
-//         '#type' => 'checkbox',
-//         '#title' => t('Combine sort order with sort by'),
-//         '#default_value' => $existing['sort']['advanced']['combine'],
-//         '#description' => t('Combines the sort by options and order (ascending or decending) into a single list.  Use this to display "Option1 (ascending)", "Option1 (descending)", "Option2 (ascending)", "Option2 (descending)" in a single form element.'),
-//       );
-//       $bef_options['sort']['advanced']['combine_rewrite'] = array(
-//         '#type' => 'textarea',
-//         '#title' => t('Rewrite the text displayed'),
-//         '#default_value' => $existing['sort']['advanced']['combine_rewrite'],
-//         '#description' => t('Use this field to rewrite the text displayed for combined sort options and sort order. Use the format of current_value|replacement_value, one replacement per line. For example: <pre>
-// Post date Asc|Oldest first
-// Post date Desc|Newest first
-// Title Asc|A -> Z
-// Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option altogether.'),
-//         '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-combine' => array(1)),
-//       );
-//       $bef_options['sort']['advanced']['reset'] = array(
-//         '#type' => 'checkbox',
-//         '#title' => t('Include a "Reset sort" option'),
-//         '#default_value' => $existing['sort']['advanced']['reset'],
-//         '#description' => t('Adds a "Reset sort" link; Views will use the default sort order.'),
-//       );
-//       $bef_options['sort']['advanced']['reset_label'] = array(
-//         '#type' => 'textfield',
-//         '#title' => t('"Reset sort" label'),
-//         '#default_value' => $existing['sort']['advanced']['reset_label'],
-//         '#description' => t('This cannot be left blank if the above option is checked'),
-//         '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-reset' => array(1)),
-//       );
-//       $bef_options['sort']['advanced']['is_secondary'] = array(
-//         '#type' => 'checkbox',
-//         '#title' => t('This is a secondary option'),
-//         '#default_value' => $existing['sort']['advanced']['is_secondary'],
-//         '#states' => array(
-//           'visible' => array(
-//             ':input[name="allow_secondary"]' => array('checked' => TRUE),
-//           ),
-//         ),
-//         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
-//       );
-//     }
+    /*
+     * Add options for exposed sorts.
+     */
+    $exposed = FALSE;
+    foreach ($this->view->display_handler->getHandlers('sort') as $label => $sort) {
+      if ($sort->options['exposed']) {
+        $exposed = TRUE;
+        break;
+      }
+    }
+    if ($exposed) {
+      $bef_options['sort']['bef_format'] = array(
+        '#type' => 'select',
+        '#title' => t('Display exposed sort options as'),
+        '#default_value' => $existing['sort']['bef_format'],
+        '#options' => array(
+          'default' => t('Default select list'),
+          'bef' => t('Radio Buttons'),
+          'bef_links' => t('Links'),
+        ),
+        '#description' => t('Select a format for the exposed sort options.'),
+      );
+      $bef_options['sort']['advanced'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Advanced sort options'),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+      $bef_options['sort']['advanced']['collapsible'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Make sort options collapsible'),
+        '#default_value' => $existing['sort']['advanced']['collapsible'],
+        '#description' => t(
+          'Puts the sort options in a collapsible fieldset'
+        ),
+      );
+      $bef_options['sort']['advanced']['collapsible_label'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Collapsible fieldset title'),
+        '#default_value' => empty($existing['sort']['advanced']['collapsible_label']) ? t('Sort options') : $existing['sort']['advanced']['collapsible_label'],
+        '#description' => t('This cannot be left blank or there will be no way to show/hide sort options.'),
+        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-collapsible' => array(1)),
+      );
+      $bef_options['sort']['advanced']['combine'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Combine sort order with sort by'),
+        '#default_value' => $existing['sort']['advanced']['combine'],
+        '#description' => t('Combines the sort by options and order (ascending or decending) into a single list.  Use this to display "Option1 (ascending)", "Option1 (descending)", "Option2 (ascending)", "Option2 (descending)" in a single form element.'),
+      );
+      $bef_options['sort']['advanced']['combine_rewrite'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Rewrite the text displayed'),
+        '#default_value' => $existing['sort']['advanced']['combine_rewrite'],
+        '#description' => t('Use this field to rewrite the text displayed for combined sort options and sort order. Use the format of current_value|replacement_value, one replacement per line. For example: <pre>
+Post date Asc|Oldest first
+Post date Desc|Newest first
+Title Asc|A -> Z
+Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option altogether.'),
+        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-combine' => array(1)),
+      );
+      $bef_options['sort']['advanced']['reset'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Include a "Reset sort" option'),
+        '#default_value' => $existing['sort']['advanced']['reset'],
+        '#description' => t('Adds a "Reset sort" link; Views will use the default sort order.'),
+      );
+      $bef_options['sort']['advanced']['reset_label'] = array(
+        '#type' => 'textfield',
+        '#title' => t('"Reset sort" label'),
+        '#default_value' => $existing['sort']['advanced']['reset_label'],
+        '#description' => t('This cannot be left blank if the above option is checked'),
+        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-reset' => array(1)),
+      );
+      $bef_options['sort']['advanced']['is_secondary'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('This is a secondary option'),
+        '#default_value' => $existing['sort']['advanced']['is_secondary'],
+        '#states' => array(
+          'visible' => array(
+            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+          ),
+        ),
+        '#description' => t('Places this element in the secondary options portion of the exposed form.'),
+      );
+    }
 
-//     /*
-//      * Add options for exposed pager.
-//      */
-//     if (isset($this->display->display_options['pager']) && $this->display->display_options['pager']['options']['expose']['items_per_page']) {
-//       $bef_options['pager']['bef_format'] = array(
-//         '#type' => 'select',
-//         '#title' => t('Display exposed pager options as'),
-//         '#default_value' => $existing['pager']['bef_format'],
-//         '#options' => array(
-//           'default' => t('Default select list'),
-//           'bef' => t('Radio Buttons'),
-//           'bef_links' => t('Links'),
-//         ),
-//         '#description' => t('Select a format for the exposed pager options.'),
-//       );
-//       $bef_options['pager']['is_secondary'] = array(
-//         '#type' => 'checkbox',
-//         '#title' => t('This is a secondary option'),
-//         '#default_value' => $existing['pager']['is_secondary'],
-//         '#states' => array(
-//           'visible' => array(
-//             ':input[name="allow_secondary"]' => array('checked' => TRUE),
-//           ),
-//         ),
-//         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
-//       );
-//     }
+    /*
+     * Add options for exposed pager.
+     */
+    if (isset($this->display->display_options['pager']) && $this->display->display_options['pager']['options']['expose']['items_per_page']) {
+      $bef_options['pager']['bef_format'] = array(
+        '#type' => 'select',
+        '#title' => t('Display exposed pager options as'),
+        '#default_value' => $existing['pager']['bef_format'],
+        '#options' => array(
+          'default' => t('Default select list'),
+          'bef' => t('Radio Buttons'),
+          'bef_links' => t('Links'),
+        ),
+        '#description' => t('Select a format for the exposed pager options.'),
+      );
+      $bef_options['pager']['is_secondary'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('This is a secondary option'),
+        '#default_value' => $existing['pager']['is_secondary'],
+        '#states' => array(
+          'visible' => array(
+            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+          ),
+        ),
+        '#description' => t('Places this element in the secondary options portion of the exposed form.'),
+      );
+    }
 
-//     // Only add the description text once -- it was getting a little long to be
-//     // added to each filter.
-//     $bef_filter_intro = FALSE;
+    // Only add the description text once -- it was getting a little long to be
+    // added to each filter.
+    $bef_filter_intro = FALSE;
 
-//     // Go through each filter and add BEF options.
-//     foreach ($this->display->handler->get_handlers('filter') as $label => $filter) {
-//       if (!$filter->options['exposed']) {
-//         continue;
-//       }
+    // Go through each filter and add BEF options.
+    foreach ($this->view->display_handler->getHandlers('filter') as $label => $filter) {
+      if (!$filter->options['exposed']) {
+        continue;
+      }
 
-//       // If we're adding BEF filter options, add an intro to explain what's
-//       // going on.
-//       if (!$bef_filter_intro) {
-//         $link = l(t('BEF settings documentation'), 'http://drupal.org/node/1701012');
-//         $bef_options['bef_intro'] = array(
-//           '#markup' => '<h3>'
-//           . t('Exposed Filter Settings')
-//           . '</h3><p>'
-//           . t('This section lets you select additional options for exposed filters. Some options are only available in certain situations. If you do not see the options you expect, please see the !link page for more details.',
-//               array('!link' => $link))
-//           . '</p>',
-//         );
-//         $bef_filter_intro = TRUE;
-//       }
+      // If we're adding BEF filter options, add an intro to explain what's
+      // going on.
+      if (!$bef_filter_intro) {
+        $link = l(t('BEF settings documentation'), 'http://drupal.org/node/1701012');
+        $bef_options['bef_intro'] = array(
+          '#markup' => '<h3>'
+          . t('Exposed Filter Settings')
+          . '</h3><p>'
+          . t('This section lets you select additional options for exposed filters. Some options are only available in certain situations. If you do not see the options you expect, please see the !link page for more details.',
+              array('!link' => $link))
+          . '</p>',
+        );
+        $bef_filter_intro = TRUE;
+      }
 
-//       // These filter operators get our standard options: select, radio or
-//       // checkboxes, links, etc.
-//       $bef_standard = FALSE;
+      // These filter operators get our standard options: select, radio or
+      // checkboxes, links, etc.
+      $bef_standard = FALSE;
 
-//       // These filters get a single on/off checkbox option for boolean
-//       // operators.
-//       $bef_single = FALSE;
+      // These filters get a single on/off checkbox option for boolean
+      // operators.
+      $bef_single = FALSE;
 
-//       // Used for taxonomy filters with heirarchy.
-//       $bef_nested = FALSE;
+      // Used for taxonomy filters with heirarchy.
+      $bef_nested = FALSE;
 
-//       // Used for date-based filters.
-//       $bef_datepicker = FALSE;
+      // Used for date-based filters.
+      $bef_datepicker = FALSE;
 
-//       // Used for numeric, non-date filters.
-//       $bef_slider = FALSE;
+      // Used for numeric, non-date filters.
+      $bef_slider = FALSE;
 
-//       // Check various filter types and determine what options are available.
-//       if ($filter instanceof views_handler_filter_string || $filter instanceof views_handler_filter_in_operator) {
-//         if (in_array($filter->operator, array('in', 'or', 'and'))) {
-//           $bef_standard = TRUE;
-//         }
-//         if (in_array($filter->operator, array('empty', 'not empty'))) {
-//           $bef_standard = TRUE;
-//           if (!$filter->options['expose']['multiple']) {
-//             $bef_single = TRUE;
-//           }
-//         }
-//       }
+      // Check various filter types and determine what options are available.
+      if ($filter instanceof views_handler_filter_string || $filter instanceof views_handler_filter_in_operator) {
+        if (in_array($filter->operator, array('in', 'or', 'and'))) {
+          $bef_standard = TRUE;
+        }
+        if (in_array($filter->operator, array('empty', 'not empty'))) {
+          $bef_standard = TRUE;
+          if (!$filter->options['expose']['multiple']) {
+            $bef_single = TRUE;
+          }
+        }
+      }
 
-//       if ($filter instanceof views_handler_filter_boolean_operator) {
-//         $bef_standard = TRUE;
-//         if (!$filter->options['expose']['multiple']) {
-//           $bef_single = TRUE;
-//         }
-//       }
+      if ($filter instanceof views_handler_filter_boolean_operator) {
+        $bef_standard = TRUE;
+        if (!$filter->options['expose']['multiple']) {
+          $bef_single = TRUE;
+        }
+      }
 
-//       if ($filter instanceof views_handler_filter_term_node_tid) {
-//         // Autocomplete and dropdown taxonomy filter are both instances of
-//         // view_handler_filter_term_node_tid, but we can't show BEF options for
-//         // the autocomplete widget.
-//         if ('textfield' == $this->display->display_options['filters'][$label]['type']) {
-//           $bef_standard = FALSE;
-//         }
-//         elseif (!empty($this->display->display_options['filters'][$label]['hierarchy'])) {
-//           $bef_nested = TRUE;
-//         }
-//       }
+      if ($filter instanceof views_handler_filter_term_node_tid) {
+        // Autocomplete and dropdown taxonomy filter are both instances of
+        // view_handler_filter_term_node_tid, but we can't show BEF options for
+        // the autocomplete widget.
+        if ('textfield' == $this->display->display_options['filters'][$label]['type']) {
+          $bef_standard = FALSE;
+        }
+        elseif (!empty($this->display->display_options['filters'][$label]['hierarchy'])) {
+          $bef_nested = TRUE;
+        }
+      }
 
-//       if ($filter instanceof views_handler_filter_date || !empty($filter->date_handler)) {
-//         $bef_datepicker = TRUE;
-//       }
+      if ($filter instanceof views_handler_filter_date || !empty($filter->date_handler)) {
+        $bef_datepicker = TRUE;
+      }
 
-//       // The date filter handler extends the numeric filter handler so we have
-//       // to exclude it specifically.
-//       if ($filter instanceof views_handler_filter_numeric && !($filter instanceof views_handler_filter_date)) {
-//         $bef_slider = TRUE;
-//       }
+      // The date filter handler extends the numeric filter handler so we have
+      // to exclude it specifically.
+      if ($filter instanceof views_handler_filter_numeric && !($filter instanceof views_handler_filter_date)) {
+        $bef_slider = TRUE;
+      }
 
-//       // All filters can use the default filter exposed by Views.
-//       $display_options = array('default' => t('Default select list'));
+      // All filters can use the default filter exposed by Views.
+      $display_options = array('default' => t('Default select list'));
 
-//       if ($bef_standard) {
-//         // Main BEF option: radios/checkboxes.
-//         $display_options['bef'] = t('Checkboxes/Radio Buttons');
-//       }
+      if ($bef_standard) {
+        // Main BEF option: radios/checkboxes.
+        $display_options['bef'] = t('Checkboxes/Radio Buttons');
+      }
 
-//       if ($bef_nested) {
-//         $display_options['bef_ul'] = t('Nested Checkboxes/Radio Buttons');
-//       }
+      if ($bef_nested) {
+        $display_options['bef_ul'] = t('Nested Checkboxes/Radio Buttons');
+      }
 
-//       if ($bef_single) {
-//         $display_options['bef_single'] = t('Single on/off checkbox');
-//       }
+      if ($bef_single) {
+        $display_options['bef_single'] = t('Single on/off checkbox');
+      }
 
-//       if ($bef_datepicker) {
-//         $display_options['bef_datepicker'] = t('jQuery UI Datepicker');
-//       }
+      if ($bef_datepicker) {
+        $display_options['bef_datepicker'] = t('jQuery UI Datepicker');
+      }
 
-//       if ($bef_slider) {
-//         $display_options['bef_slider'] = t('jQuery UI slider');
-//       }
+      if ($bef_slider) {
+        $display_options['bef_slider'] = t('jQuery UI slider');
+      }
 
-//       if ($bef_standard) {
-//         // Less used BEF options, so put them last.
-//         $display_options['bef_links'] = t('Links');
-//         $display_options['bef_hidden'] = t('Hidden');
-//       }
+      if ($bef_standard) {
+        // Less used BEF options, so put them last.
+        $display_options['bef_links'] = t('Links');
+        $display_options['bef_hidden'] = t('Hidden');
+      }
 
-//       $identifier = '"' . $filter->options['expose']['identifier'] . '"';
-//       if (!empty($filter->options['expose']['label'])) {
-//         $identifier .= t(' (Filter label: "@fl")', array('@fl' => $filter->options['expose']['label']));
-//       }
-//       $bef_options[$label]['bef_format'] = array(
-//         '#type' => 'select',
-//         '#title' => t('Display @identifier exposed filter as', array('@identifier' => $identifier)),
-//         '#default_value' => $existing[$label]['bef_format'],
-//         '#options' => $display_options,
-//       );
+      $identifier = '"' . $filter->options['expose']['identifier'] . '"';
+      if (!empty($filter->options['expose']['label'])) {
+        $identifier .= t(' (Filter label: "@fl")', array('@fl' => $filter->options['expose']['label']));
+      }
+      $bef_options[$label]['bef_format'] = array(
+        '#type' => 'select',
+        '#title' => t('Display @identifier exposed filter as', array('@identifier' => $identifier)),
+        '#default_value' => $existing[$label]['bef_format'],
+        '#options' => $display_options,
+      );
 
-//       if ($bef_slider) {
-//         // Fieldset for jQuery slider options.
-//         $bef_options[$label]['slider_options'] = array(
-//           '#type' => 'fieldset',
-//           '#title' => t('Slider options for @identifier', array('@identifier' => $identifier)),
-//           '#collapsible' => TRUE,
-//           '#collapsed' => FALSE,
-//           '#states' => array(
-//             'visible' => array(
-//               ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
-//             ),
-//           ),
-//         );
+      if ($bef_slider) {
+        // Fieldset for jQuery slider options.
+        $bef_options[$label]['slider_options'] = array(
+          '#type' => 'fieldset',
+          '#title' => t('Slider options for @identifier', array('@identifier' => $identifier)),
+          '#collapsible' => TRUE,
+          '#collapsed' => FALSE,
+          '#states' => array(
+            'visible' => array(
+              ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
+            ),
+          ),
+        );
 
-//         $bef_options[$label]['slider_options']['bef_slider_min'] = array(
-//           '#type' => 'textfield',
-//           '#title' => t('Range minimum'),
-//           '#default_value' => $this->options['bef'][$label]['slider_options']['bef_slider_min'],
-//           '#bef_filter_id' => $label,
-//           '#states' => array(
-//             'required' => array(
-//               ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
-//             ),
-//           ),
-//           '#description' => t('The minimum allowed value for the jQuery range slider. It can be positive, negative, or zero and have up to 11 decimal places.'),
-//           '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_min_max'),
-//         );
-//         $bef_options[$label]['slider_options']['bef_slider_max'] = array(
-//           '#type' => 'textfield',
-//           '#title' => t('Range maximum'),
-//           '#default_value' => $this->options['bef'][$label]['slider_options']['bef_slider_max'],
-//           '#bef_filter_id' => $label,
-//           '#states' => array(
-//             'required' => array(
-//               ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
-//             ),
-//           ),
-//           '#description' => t('The maximum allowed value for the jQuery range slider. It can be positive, negative, or zero and have up to 11 decimal places.'),
-//           '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_min_max'),
-//         );
-//         $bef_options[$label]['slider_options']['bef_slider_step'] = array(
-//           '#type' => 'textfield',
-//           '#title' => t('Step'),
-//           '#default_value' => empty($this->options['bef'][$label]['slider_options']['bef_slider_step']) ? 1 : $this->options['bef'][$label]['slider_options']['bef_slider_step'],
-//           '#bef_filter_id' => $label,
-//           '#states' => array(
-//             'required' => array(
-//               ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
-//             ),
-//           ),
-//           '#description' => t('Determines the size or amount of each interval or step the slider takes between the min and max.') . '<br />' .
-//                             t('The full specified value range of the slider (Range maximum - Range minimum) must be evenly divisible by the step.') . '<br />' .
-//                             t('The step must be a positive number of up to 5 decimal places.'),
-//           '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_step'),
-//         );
-//         $bef_options[$label]['slider_options']['bef_slider_animate'] = array(
-//           '#type' => 'textfield',
-//           '#title' => t('Animate'),
-//           '#default_value' => $this->options['bef'][$label]['slider_options']['bef_slider_animate'],
-//           '#bef_filter_id' => $label,
-//           '#description' => t('Whether to slide handle smoothly when user click outside handle on the bar. Allowed values are "slow", "normal", "fast" or the number of milliseconds to run the animation (e.g. 1000). If left blank, there will be no animation, the slider will just jump to the new value instantly.'),
-//           '#element_validate' => array('better_exposed_filters_element_validate_slider_animate'),
-//         );
-//         $bef_options[$label]['slider_options']['bef_slider_orientation'] = array(
-//           '#type' => 'select',
-//           '#title' => t('Orientation'),
-//           '#options' => array(
-//             'horizontal' => t('Horizontal'),
-//             'vertical' => t('Vertical'),
-//           ),
-//           '#default_value' => $this->options['bef'][$label]['slider_options']['bef_slider_orientation'],
-//           '#bef_filter_id' => $label,
-//           '#states' => array(
-//             'required' => array(
-//               ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
-//             ),
-//           ),
-//           '#description' => t('The orientation of the jQuery range slider.'),
-//         );
-//       }
+        $bef_options[$label]['slider_options']['bef_slider_min'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Range minimum'),
+          '#default_value' => $this->options['bef'][$label]['slider_options']['bef_slider_min'],
+          '#bef_filter_id' => $label,
+          '#states' => array(
+            'required' => array(
+              ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
+            ),
+          ),
+          '#description' => t('The minimum allowed value for the jQuery range slider. It can be positive, negative, or zero and have up to 11 decimal places.'),
+          '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_min_max'),
+        );
+        $bef_options[$label]['slider_options']['bef_slider_max'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Range maximum'),
+          '#default_value' => $this->options['bef'][$label]['slider_options']['bef_slider_max'],
+          '#bef_filter_id' => $label,
+          '#states' => array(
+            'required' => array(
+              ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
+            ),
+          ),
+          '#description' => t('The maximum allowed value for the jQuery range slider. It can be positive, negative, or zero and have up to 11 decimal places.'),
+          '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_min_max'),
+        );
+        $bef_options[$label]['slider_options']['bef_slider_step'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Step'),
+          '#default_value' => empty($this->options['bef'][$label]['slider_options']['bef_slider_step']) ? 1 : $this->options['bef'][$label]['slider_options']['bef_slider_step'],
+          '#bef_filter_id' => $label,
+          '#states' => array(
+            'required' => array(
+              ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
+            ),
+          ),
+          '#description' => t('Determines the size or amount of each interval or step the slider takes between the min and max.') . '<br />' .
+                            t('The full specified value range of the slider (Range maximum - Range minimum) must be evenly divisible by the step.') . '<br />' .
+                            t('The step must be a positive number of up to 5 decimal places.'),
+          '#element_validate' => array('element_validate_number', 'better_exposed_filters_element_validate_slider_required', 'better_exposed_filters_element_validate_slider_step'),
+        );
+        $bef_options[$label]['slider_options']['bef_slider_animate'] = array(
+          '#type' => 'textfield',
+          '#title' => t('Animate'),
+          '#default_value' => $this->options['bef'][$label]['slider_options']['bef_slider_animate'],
+          '#bef_filter_id' => $label,
+          '#description' => t('Whether to slide handle smoothly when user click outside handle on the bar. Allowed values are "slow", "normal", "fast" or the number of milliseconds to run the animation (e.g. 1000). If left blank, there will be no animation, the slider will just jump to the new value instantly.'),
+          '#element_validate' => array('better_exposed_filters_element_validate_slider_animate'),
+        );
+        $bef_options[$label]['slider_options']['bef_slider_orientation'] = array(
+          '#type' => 'select',
+          '#title' => t('Orientation'),
+          '#options' => array(
+            'horizontal' => t('Horizontal'),
+            'vertical' => t('Vertical'),
+          ),
+          '#default_value' => $this->options['bef'][$label]['slider_options']['bef_slider_orientation'],
+          '#bef_filter_id' => $label,
+          '#states' => array(
+            'required' => array(
+              ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
+            ),
+          ),
+          '#description' => t('The orientation of the jQuery range slider.'),
+        );
+      }
 
-//       // Fieldset to keep the UI from getting out of hand.
-//       $bef_options[$label]['more_options'] = array(
-//         '#type' => 'fieldset',
-//         '#title' => t('More options for @identifier', array('@identifier' => $identifier)),
-//         '#collapsible' => TRUE,
-//         '#collapsed' => TRUE,
-//       );
+      // Fieldset to keep the UI from getting out of hand.
+      $bef_options[$label]['more_options'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('More options for @identifier', array('@identifier' => $identifier)),
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
 
-//       // Select all checkbox.
-//       if ($bef_standard) {
-//         $bef_options[$label]['more_options']['bef_select_all_none'] = array(
-//           '#type' => 'checkbox',
-//           '#title' => t('Add select all/none links'),
-//           '#default_value' => $existing[$label]['more_options']['bef_select_all_none'],
-//           '#disabled' => !$filter->options['expose']['multiple'],
-//           '#description' => t(
-//             'Add a "Select All/None" link when rendering the exposed filter using
-//               checkboxes. If this option is disabled, edit the filter and check the
-//               "Allow multiple selections".'
-//           ),
-//         );
+      // Select all checkbox.
+      if ($bef_standard) {
+        $bef_options[$label]['more_options']['bef_select_all_none'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Add select all/none links'),
+          '#default_value' => $existing[$label]['more_options']['bef_select_all_none'],
+          '#disabled' => !$filter->options['expose']['multiple'],
+          '#description' => t(
+            'Add a "Select All/None" link when rendering the exposed filter using
+              checkboxes. If this option is disabled, edit the filter and check the
+              "Allow multiple selections".'
+          ),
+        );
 
-//         if ($bef_nested) {
-//           $bef_options[$label]['more_options']['bef_select_all_none_nested'] = array(
-//             '#type' => 'checkbox',
-//             '#title' => t('Add nested all/none selection'),
-//             '#default_value' => $this->options['bef'][$label]['more_options']['bef_select_all_none_nested'],
-//             '#disabled' => !$filter->options['expose']['multiple'] || !$filter->options['hierarchy'],
-//             '#description' => t(
-//               'When a parent checkbox is checked, check all its children. If this option
-//                 is disabled, edit the filter and check "Allow multiple selections" and
-//                 edit the filter settings and check "Show hierarchy in dropdown".'
-//             ),
-//           );
-//         }
+        if ($bef_nested) {
+          $bef_options[$label]['more_options']['bef_select_all_none_nested'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Add nested all/none selection'),
+            '#default_value' => $this->options['bef'][$label]['more_options']['bef_select_all_none_nested'],
+            '#disabled' => !$filter->options['expose']['multiple'] || !$filter->options['hierarchy'],
+            '#description' => t(
+              'When a parent checkbox is checked, check all its children. If this option
+                is disabled, edit the filter and check "Allow multiple selections" and
+                edit the filter settings and check "Show hierarchy in dropdown".'
+            ),
+          );
+        }
 
-//         // Put filter in collapsible fieldset option.
-//         // TODO: expand to all exposed filters.
-//         $bef_options[$label]['more_options']['bef_collapsible'] = array(
-//           '#type' => 'checkbox',
-//           '#title' => t('Make this filter collapsible'),
-//           '#default_value' => $existing[$label]['more_options']['bef_collapsible'],
-//           '#description' => t(
-//             'Puts this filter in a collapsible fieldset'
-//           ),
-//         );
-//       }
+        // Put filter in collapsible fieldset option.
+        // TODO: expand to all exposed filters.
+        $bef_options[$label]['more_options']['bef_collapsible'] = array(
+          '#type' => 'checkbox',
+          '#title' => t('Make this filter collapsible'),
+          '#default_value' => $existing[$label]['more_options']['bef_collapsible'],
+          '#description' => t(
+            'Puts this filter in a collapsible fieldset'
+          ),
+        );
+      }
 
-//       // Allow any filter to be moved into the secondary options fieldset.
-//       $bef_options[$label]['more_options']['is_secondary'] = array(
-//         '#type' => 'checkbox',
-//         '#title' => t('This is a secondary option'),
-//         '#default_value' => $existing[$label]['more_options']['is_secondary'],
-//         '#states' => array(
-//           'visible' => array(
-//             ':input[name="allow_secondary"]' => array('checked' => TRUE),
-//           ),
-//         ),
-//         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
-//       );
+      // Allow any filter to be moved into the secondary options fieldset.
+      $bef_options[$label]['more_options']['is_secondary'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('This is a secondary option'),
+        '#default_value' => $existing[$label]['more_options']['is_secondary'],
+        '#states' => array(
+          'visible' => array(
+            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+          ),
+        ),
+        '#description' => t('Places this element in the secondary options portion of the exposed form.'),
+      );
 
-//       // Build a description option form element -- available to all exposed
-//       // filters.
-//       $bef_options[$label]['more_options']['bef_filter_description'] = array(
-//         '#type' => 'textarea',
-//         '#title' => t('Description'),
-//         '#default_value' => $existing[$label]['more_options']['bef_filter_description'],
-//         '#description' => t('Adds descriptive text to the exposed filter.  This is usually rendered in smaller print under the label or the options.'),
-//       );
+      // Build a description option form element -- available to all exposed
+      // filters.
+      $bef_options[$label]['more_options']['bef_filter_description'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Description'),
+        '#default_value' => $existing[$label]['more_options']['bef_filter_description'],
+        '#description' => t('Adds descriptive text to the exposed filter.  This is usually rendered in smaller print under the label or the options.'),
+      );
 
-//       // Add token support to the description field.
-//       $bef_options[$label]['more_options']['tokens'] = array(
-//         '#title' => t('Replacement patterns'),
-//         '#type' => 'fieldset',
-//         '#collapsible' => TRUE,
-//         '#collapsed' => TRUE,
-//       );
+      // Add token support to the description field.
+      $bef_options[$label]['more_options']['tokens'] = array(
+        '#title' => t('Replacement patterns'),
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
 
-//       if (!module_exists('token')) {
-//         $bef_options[$label]['more_options']['tokens']['no_tokens'] = array(
-//           '#markup' => '<p>'
-//           . t('Enable the !token module to use replacement values.', array('!token' => l(t('Token'), 'http://drupal.org/project/token')))
-//           . '</p>',
-//         );
-//       }
+      if (!module_exists('token')) {
+        $bef_options[$label]['more_options']['tokens']['no_tokens'] = array(
+          '#markup' => '<p>'
+          . t('Enable the !token module to use replacement values.', array('!token' => l(t('Token'), 'http://drupal.org/project/token')))
+          . '</p>',
+        );
+      }
 
-//       // Collect a list of token types that make sense for this filter.
-//       $available = array('global_types');
-//       if (!empty($filter->options['vid'])) {
-//         $available[] = 'vocabulary';
-//       }
-//       /* @TODO: Other token types? */
+      // Collect a list of token types that make sense for this filter.
+      $available = array('global_types');
+      if (!empty($filter->options['vid'])) {
+        $available[] = 'vocabulary';
+      }
+      /* @TODO: Other token types? */
 
-//       $bef_options[$label]['more_options']['tokens']['list'] = array(
-//         '#theme' => 'token_tree',
-//         '#token_types' => $available,
-//       );
-//       $bef_options[$label]['more_options']['tokens']['available'] = array(
-//         // Save us from parsing available tokens again.
-//         '#type' => 'value',
-//         '#value' => $available,
-//       );
+      $bef_options[$label]['more_options']['tokens']['list'] = array(
+        '#theme' => 'token_tree',
+        '#token_types' => $available,
+      );
+      $bef_options[$label]['more_options']['tokens']['available'] = array(
+        // Save us from parsing available tokens again.
+        '#type' => 'value',
+        '#value' => $available,
+      );
 
-//       // Allow rewriting of filter options for any filter.
-//       $bef_options[$label]['more_options']['rewrite'] = array(
-//         '#title' => t('Rewrite filter options'),
-//         '#type' => 'fieldset',
-//         '#collapsible' => TRUE,
-//         '#collapsed' => TRUE,
-//       );
-//       $bef_options[$label]['more_options']['rewrite']['filter_rewrite_values'] = array(
-//         '#type' => 'textarea',
-//         '#title' => t('Rewrite the text displayed'),
-//         '#default_value' => $existing[$label]['more_options']['rewrite']['filter_rewrite_values'],
-//         '#description' => t('
-//           Use this field to rewrite the filter options displayed. Use the format
-//           of current_value|replacement_value, one replacement per line. For
-//           example: <pre>
-// 0|Zero
-// 1|One
-// 2|Two
-// </pre> Leave the replacement value blank to remove an option altogether. If using hierarchical taxonomy filters, do not including leading hyphens in the current value.
-//         '),
-//       );
-//     }
-//     /* Ends: foreach ($filters as $filter) { */
+      // Allow rewriting of filter options for any filter.
+      $bef_options[$label]['more_options']['rewrite'] = array(
+        '#title' => t('Rewrite filter options'),
+        '#type' => 'fieldset',
+        '#collapsible' => TRUE,
+        '#collapsed' => TRUE,
+      );
+      $bef_options[$label]['more_options']['rewrite']['filter_rewrite_values'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Rewrite the text displayed'),
+        '#default_value' => $existing[$label]['more_options']['rewrite']['filter_rewrite_values'],
+        '#description' => t('
+          Use this field to rewrite the filter options displayed. Use the format
+          of current_value|replacement_value, one replacement per line. For
+          example: <pre>
+0|Zero
+1|One
+2|Two
+</pre> Leave the replacement value blank to remove an option altogether. If using hierarchical taxonomy filters, do not including leading hyphens in the current value.
+        '),
+      );
+    }
+    /* Ends: foreach ($filters as $filter) { */
 
-//     // Add BEF form elements to the exposed form options form.
-//     $form['bef'] = $bef_options;
-//   }
+    // Add BEF form elements to the exposed form options form.
+    $form['bef'] = $bef_options;
+  }
+
+  public function submitOptionsForm(&$form, &$form_state) {
+    // $form_state['values']['exposed_form_options']['text_input_required_format'] = $form_state['values']['exposed_form_options']['text_input_required']['format'];
+    // $form_state['values']['exposed_form_options']['text_input_required'] = $form_state['values']['exposed_form_options']['text_input_required']['value'];
+    dsm($form, 'form');
+    dsm($form_state, 'form state');
+    parent::submitOptionsForm($form, $form_state);
+  }
+
 
 //   /**
 //    * Tweak the exposed filter form to show Better Exposed Filter options.
@@ -1317,173 +1327,173 @@ class BetterExposedFilters extends Basic {
 //     }
 //   }
 
-//   /**
-//    * Fills in missing settings with default values.
-//    *
-//    * Similar to array_merge_recursive, but later numeric keys overwrites earlier
-//    * values.  Use this to set defaults for missing values in a multi-dimensional
-//    * array.  Eg:
-//    *
-//    *  $existing = $this->_bef_set_defaults($defaults, $existing);
-//    *
-//    * @return array
-//    *   The resulting settings array
-//    */
-//   function _bef_set_defaults() {
-//     $count = func_num_args();
-//     if (!$count) {
-//       return;
-//     }
-//     elseif (1 == $count) {
-//       return (func_get_arg(0));
-//     }
+  /**
+   * Fills in missing settings with default values.
+   *
+   * Similar to array_merge_recursive, but later numeric keys overwrites earlier
+   * values.  Use this to set defaults for missing values in a multi-dimensional
+   * array.  Eg:
+   *
+   *  $existing = $this->_bef_set_defaults($defaults, $existing);
+   *
+   * @return array
+   *   The resulting settings array
+   */
+  protected function _bef_set_defaults() {
+    $count = func_num_args();
+    if (!$count) {
+      return;
+    }
+    elseif (1 == $count) {
+      return (func_get_arg(0));
+    }
 
-//     // First array is the default values.
-//     $params = func_get_args();
-//     $return = array_shift($params);
+    // First array is the default values.
+    $params = func_get_args();
+    $return = array_shift($params);
 
-//     // Merge the rest of the arrays onto the default array.
-//     foreach ($params as $array) {
-//       foreach ($array as $key => $value) {
-//         // Numeric keyed values are added (unless already there).
-//         if (is_numeric($key) && !in_array($value, $return)) {
-//           if (is_array($value)) {
-//             $return[] = $this->_bef_set_defaults($return[$key], $value);
-//           }
-//           else {
-//             $return[] = $value;
-//           }
-//         }
-//         // String keyed values are replaced.
-//         else {
-//           if (isset($return[$key]) && is_array($value) && is_array($return[$key])) {
-//             $return[$key] = $this->_bef_set_defaults($return[$key], $value);
-//           }
-//           else {
-//             $return[$key] = $value;
-//           }
-//         }
-//       }
-//     }
-//     return $return;
-//   }
+    // Merge the rest of the arrays onto the default array.
+    foreach ($params as $array) {
+      foreach ($array as $key => $value) {
+        // Numeric keyed values are added (unless already there).
+        if (is_numeric($key) && !in_array($value, $return)) {
+          if (is_array($value)) {
+            $return[] = $this->_bef_set_defaults($return[$key], $value);
+          }
+          else {
+            $return[] = $value;
+          }
+        }
+        // String keyed values are replaced.
+        else {
+          if (isset($return[$key]) && is_array($value) && is_array($return[$key])) {
+            $return[$key] = $this->_bef_set_defaults($return[$key], $value);
+          }
+          else {
+            $return[$key] = $value;
+          }
+        }
+      }
+    }
+    return $return;
+  }
 
-//   /**
-//    * Updates legacy settings to their current location.
-//    *
-//    * @param array $settings
-//    *   Array of BEF settings.
-//    */
-//   function _bef_update_legacy_settings($settings) {
-//     // There has got to be a better way... But for now, this works.
-//     if (isset($settings['sort']['collapsible'])) {
-//       $settings['sort']['advanced']['collapsible'] = $settings['sort']['collapsible'];
-//       unset($settings['sort']['collapsible']);
-//     }
-//     if (isset($settings['sort']['collapsible_label'])) {
-//       $settings['sort']['advanced']['collapsible_label'] = $settings['sort']['collapsible_label'];
-//       unset($settings['sort']['collapsible_label']);
-//     }
-//     if (isset($settings['sort']['combine'])) {
-//       $settings['sort']['advanced']['combine'] = $settings['sort']['combine'];
-//       unset($settings['sort']['combine']);
-//     }
-//     if (isset($settings['sort']['reset'])) {
-//       $settings['sort']['advanced']['reset'] = $settings['sort']['reset'];
-//       unset($settings['sort']['reset']);
-//     }
-//     if (isset($settings['sort']['reset_label'])) {
-//       $settings['sort']['advanced']['reset_label'] = $settings['sort']['reset_label'];
-//       unset($settings['sort']['reset_label']);
-//     }
+  /**
+   * Updates legacy settings to their current location.
+   *
+   * @param array $settings
+   *   Array of BEF settings.
+   */
+  protected function _bef_update_legacy_settings($settings) {
+    // There has got to be a better way... But for now, this works.
+    if (isset($settings['sort']['collapsible'])) {
+      $settings['sort']['advanced']['collapsible'] = $settings['sort']['collapsible'];
+      unset($settings['sort']['collapsible']);
+    }
+    if (isset($settings['sort']['collapsible_label'])) {
+      $settings['sort']['advanced']['collapsible_label'] = $settings['sort']['collapsible_label'];
+      unset($settings['sort']['collapsible_label']);
+    }
+    if (isset($settings['sort']['combine'])) {
+      $settings['sort']['advanced']['combine'] = $settings['sort']['combine'];
+      unset($settings['sort']['combine']);
+    }
+    if (isset($settings['sort']['reset'])) {
+      $settings['sort']['advanced']['reset'] = $settings['sort']['reset'];
+      unset($settings['sort']['reset']);
+    }
+    if (isset($settings['sort']['reset_label'])) {
+      $settings['sort']['advanced']['reset_label'] = $settings['sort']['reset_label'];
+      unset($settings['sort']['reset_label']);
+    }
 
-//     return $settings;
-//   }
+    return $settings;
+  }
 
-//   /**
-//    * Returns an array of default or current existing values for BEF settings.
-//    *
-//    * This helps us as we add new options and prevents a lot of
-//    * @code
-//    *    if (isset($settings['new_settings'])) { ... }
-//    * @endcode
-//    * as there will be a default value at all positions in the settings array.
-//    * Also updates legacy settings to their new locations via
-//    * _bef_update_legacy_settings().
-//    *
-//    * @return array
-//    *   Multi-dimensional settings array.
-//    */
-//   function _bef_get_settings() {
-//     // General, sort, pagers, etc.
-//     $defaults = array(
-//       'general' => array(
-//         'allow_secondary' => FALSE,
-//         'secondary_label' => t('Advanced options'),
-//       ),
-//       'sort' => array(
-//         'bef_format' => 'default',
-//         'advanced' => array(
-//           'collapsible' => FALSE,
-//           'collapsible_label' => '',
-//           'combine' => FALSE,
-//           'combine_rewrite' => '',
-//           'reset' => FALSE,
-//           'reset_label' => '',
-//           'is_secondary' => FALSE,
-//         ),
-//       ),
-//       'pager' => array(
-//         'bef_format' => 'default',
-//         'is_secondary' => FALSE,
-//       ),
-//     );
+  /**
+   * Returns an array of default or current existing values for BEF settings.
+   *
+   * This helps us as we add new options and prevents a lot of
+   * @code
+   *    if (isset($settings['new_settings'])) { ... }
+   * @endcode
+   * as there will be a default value at all positions in the settings array.
+   * Also updates legacy settings to their new locations via
+   * _bef_update_legacy_settings().
+   *
+   * @return array
+   *   Multi-dimensional settings array.
+   */
+  protected function _bef_get_settings() {
+    // General, sort, pagers, etc.
+    $defaults = array(
+      'general' => array(
+        'allow_secondary' => FALSE,
+        'secondary_label' => t('Advanced options'),
+      ),
+      'sort' => array(
+        'bef_format' => 'default',
+        'advanced' => array(
+          'collapsible' => FALSE,
+          'collapsible_label' => '',
+          'combine' => FALSE,
+          'combine_rewrite' => '',
+          'reset' => FALSE,
+          'reset_label' => '',
+          'is_secondary' => FALSE,
+        ),
+      ),
+      'pager' => array(
+        'bef_format' => 'default',
+        'is_secondary' => FALSE,
+      ),
+    );
 
-//     // Update legacy settings in the exposed form settings form. This
-//     // keep us from losing settings when an option is put into an
-//     // 'advanced options' fieldset.
-//     $current = $this->_bef_update_legacy_settings($this->options['bef']);
+    // Update legacy settings in the exposed form settings form. This
+    // keep us from losing settings when an option is put into an
+    // 'advanced options' fieldset.
+    $current = $this->_bef_update_legacy_settings($this->options['bef']);
 
-//     // Collect existing values or use defaults.
-//     $settings = $this->_bef_set_defaults($defaults, $current);
+    // Collect existing values or use defaults.
+    $settings = $this->_bef_set_defaults($defaults, $current);
 
-//     // Filter default values.
-//     $filter_defaults = array(
-//       'bef_format' => 'default',
-//       'more_options' => array(
-//         'bef_select_all_none' => FALSE,
-//         'bef_select_all_none_nested' => FALSE,
-//         'bef_collapsible' => FALSE,
-//         'is_secondary' => FALSE,
-//         'bef_filter_description' => '',
-//         'rewrite' => array(
-//           'filter_rewrite_values' => '',
-//         ),
-//       ),
-//       'slider_options' => array(
-//         'bef_slider_min' => 0,
-//         'bef_slider_max' => 99999,
-//         'bef_slider_step' => 1,
-//         'bef_slider_animate' => '',
-//         'bef_slider_orientation' => 'horizontal',
-//       ),
-//     );
+    // Filter default values.
+    $filter_defaults = array(
+      'bef_format' => 'default',
+      'more_options' => array(
+        'bef_select_all_none' => FALSE,
+        'bef_select_all_none_nested' => FALSE,
+        'bef_collapsible' => FALSE,
+        'is_secondary' => FALSE,
+        'bef_filter_description' => '',
+        'rewrite' => array(
+          'filter_rewrite_values' => '',
+        ),
+      ),
+      'slider_options' => array(
+        'bef_slider_min' => 0,
+        'bef_slider_max' => 99999,
+        'bef_slider_step' => 1,
+        'bef_slider_animate' => '',
+        'bef_slider_orientation' => 'horizontal',
+      ),
+    );
 
-//     // Go through each exposed filter and collect settings.
-//     foreach ($this->display->handler->get_handlers('filter') as $label => $filter) {
-//       if (!$filter->options['exposed']) {
-//         continue;
-//       }
+    // Go through each exposed filter and collect settings.
+    foreach ($this->view->display_handler->getHandlers('filter') as $label => $filter) {
+      if (!$filter->options['exposed']) {
+        continue;
+      }
 
-//       // Get existing values or use defaults.
-//       if (!isset($this->options['bef'][$label])) {
-//         // First time opening the settings form with a new filter.
-//         $settings[$label] = $filter_defaults;
-//       }
-//       else {
-//         $settings[$label] = $this->_bef_set_defaults($filter_defaults, $this->options['bef'][$label]);
-//       }
-//     }
-//     return $settings;
-//   }
+      // Get existing values or use defaults.
+      if (!isset($this->options['bef'][$label])) {
+        // First time opening the settings form with a new filter.
+        $settings[$label] = $filter_defaults;
+      }
+      else {
+        $settings[$label] = $this->_bef_set_defaults($filter_defaults, $this->options['bef'][$label]);
+      }
+    }
+    return $settings;
+  }
 }
