@@ -265,7 +265,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
 
       // The date filter handler extends the numeric filter handler so we have
       // to exclude it specifically.
-      if ('Drupal\views\Plugin\views\filter\Numeric' == $filter_class && 'Drupal\views\Plugin\views\filter\Date' != $filter_class)) {
+      if ('Drupal\views\Plugin\views\filter\Numeric' == $filter_class && 'Drupal\views\Plugin\views\filter\Date' != $filter_class) {
         $bef_slider = TRUE;
       }
 
