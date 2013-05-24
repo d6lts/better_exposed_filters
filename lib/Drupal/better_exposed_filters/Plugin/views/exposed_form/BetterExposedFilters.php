@@ -23,14 +23,16 @@ use Drupal\Core\Annotation\Translation;
  */
 class BetterExposedFilters extends Basic {
 
-//   function option_definition() {
-//     $options = parent::option_definition();
+  protected function defineOptions() {
+    $options = parent::defineOptions();
 
-//     // Add Better Exposed Filters options to those saved by Views.
-//     $options['bef'] = array('default' => array());
-
-//     return $options;
-//   }
+    // Unfortunately we can't list all BEF options here since they change at
+    // runtime. Set the entire BEF settings array as translatable in hopes that
+    // will allow I18N support in D8 (it didn't in D7), see:
+    // http://drupal.org/node/1852306
+    $options['bef'] = array('default' => array(), 'translatable' => TRUE);
+    return $options;
+  }
 
 //   function options_form(&$form, &$form_state) {
 //     parent::options_form($form, $form_state);
