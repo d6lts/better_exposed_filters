@@ -9,6 +9,7 @@ namespace Drupal\better_exposed_filters\Plugin\views\exposed_form;
 
 use Drupal\Component\Annotation\Plugin;
 use Drupal\Core\Annotation\Translation;
+use Drupal\views\Plugin\views\filter;
 use Drupal\views\Plugin\views\exposed_form\ExposedFormPluginBase;
 
 /**
@@ -226,8 +227,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       $bef_slider = FALSE;
 
       // Check various filter types and determine what options are available.
-      dsm($filter, get_class($filter));
-      if ($filter instanceof Drupal\views\Plugin\views\filter\String || $filter instanceof Drupal\views\Plugin\views\filter\InOperator) {
+      $filter_class = get_class($filter);
+      if ('Drupal\views\Plugin\views\filter\String' == $filter_class || 'Drupal\views\Plugin\views\filter\InOperator' == $filter_class) {
         if (in_array($filter->operator, array('in', 'or', 'and'))) {
           $bef_standard = TRUE;
         }
@@ -239,7 +240,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         }
       }
 
-      if ($filter instanceof Drupal\views\Plugin\views\filter\BooleanOperator) {
+      if ('Drupal\views\Plugin\views\filter\BooleanOperator' == $filter_class) {
         $bef_standard = TRUE;
         if (!$filter->options['expose']['multiple']) {
           $bef_single = TRUE;
@@ -258,13 +259,13 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         }
       }
 
-      if ($filter instanceof Drupal\views\Plugin\views\filter\Date || !empty($filter->date_handler)) {
+      if ('Drupal\views\Plugin\views\filter\Date' == $filter_class || !empty($filter->date_handler)) {
         $bef_datepicker = TRUE;
       }
 
       // The date filter handler extends the numeric filter handler so we have
       // to exclude it specifically.
-      if ($filter instanceof Drupal\views\Plugin\views\filter\Numeric && !($filter instanceof Drupal\views\Plugin\views\filter\Date)) {
+      if ('Drupal\views\Plugin\views\filter\Numeric' == $filter_class && 'Drupal\views\Plugin\views\filter\Date' != $filter_class)) {
         $bef_slider = TRUE;
       }
 
@@ -522,10 +523,6 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
   }
 
   public function submitOptionsForm(&$form, &$form_state) {
-    // $form_state['values']['exposed_form_options']['text_input_required_format'] = $form_state['values']['exposed_form_options']['text_input_required']['format'];
-    // $form_state['values']['exposed_form_options']['text_input_required'] = $form_state['values']['exposed_form_options']['text_input_required']['value'];
-    dsm($form, 'form');
-    dsm($form_state, 'form state');
     parent::submitOptionsForm($form, $form_state);
   }
 
