@@ -86,7 +86,7 @@ class BetterExposedFilters extends ExposedFormPluginBase {
         '#title' => t('Display exposed sort options as'),
         '#default_value' => $existing['sort']['bef_format'],
         '#options' => array(
-          'default' => t('Default select list'),
+          'default' => t('Default Views element'),
           'bef' => t('Radio Buttons'),
           'bef_links' => t('Links'),
         ),
