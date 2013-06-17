@@ -227,8 +227,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       $bef_slider = FALSE;
 
       // Check various filter types and determine what options are available.
-      $filter_class = get_class($filter);
-      if ('Drupal\views\Plugin\views\filter\String' == $filter_class || 'Drupal\views\Plugin\views\filter\InOperator' == $filter_class) {
+      if (is_a($filter, 'Drupal\views\Plugin\views\filter\String') || is_a($filter, 'Drupal\views\Plugin\views\filter\InOperator')) {
         if (in_array($filter->operator, array('in', 'or', 'and'))) {
           $bef_standard = TRUE;
         }
@@ -240,7 +239,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         }
       }
 
-      if ('Drupal\views\Plugin\views\filter\BooleanOperator' == $filter_class) {
+      if (is_a($filter, 'Drupal\views\Plugin\views\filter\BooleanOperator')) {
         $bef_standard = TRUE;
         if (!$filter->options['expose']['multiple']) {
           $bef_single = TRUE;
@@ -259,13 +258,13 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         }
       }
 
-      if ('Drupal\views\Plugin\views\filter\Date' == $filter_class || !empty($filter->date_handler)) {
+      if (is_a($filter, 'Drupal\views\Plugin\views\filter\Date') || !empty($filter->date_handler)) {
         $bef_datepicker = TRUE;
       }
 
       // The date filter handler extends the numeric filter handler so we have
       // to exclude it specifically.
-      if ('Drupal\views\Plugin\views\filter\Numeric' == $filter_class && 'Drupal\views\Plugin\views\filter\Date' != $filter_class) {
+      if (is_a($filter, 'Drupal\views\Plugin\views\filter\Numeric') && !is_a($filter, 'Drupal\views\Plugin\views\filter\Date')) {
         $bef_slider = TRUE;
       }
 
