@@ -1,5 +1,5 @@
 name: Better Exposed Filters
-description: Allow the use of checkboxes or radio buttons for exposed Views filters
+description: Provides advanced options (such as links, checkboxes, or jQueryUI widgets) for exposed Views elements.
 core: 8.x
 type: module
 package: Views
