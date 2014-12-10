@@ -414,7 +414,7 @@ function bef_checkbox($element, $value, $label, $selected) {
     $print_term_count = ' (' . taxonomy_term_count_nodes($value) . ')';
   }
   $item = "$checkbox <label class='option' for='$id'>$label$print_term_count</label>";
-  $output .= theme('form_element', $properties, $item);
+  $output = theme('form_element', $properties, $item);
   return $output;
 }
 
