@@ -1123,7 +1123,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             if (empty($form[$field_id]['#process'])) {
               $form[$field_id]['#process'] = array();
             }
-            array_unshift($form[$field_id]['#process'], 'form_process_radios');
+            array_unshift($form[$field_id]['#process'], ['\Drupal\Core\Render\Element\Radios', 'processRadios']);
 
             // Add description
             if (!empty($form[$field_id]['#bef_description'])) {
@@ -1203,7 +1203,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             else {
               // Render select element as radio buttons.
               $form[$field_id]['#attributes']['class'][] = 'bef-select-as-radios';
-              $form[$field_id]['#theme'] = 'select_as_radios';
+              $form[$field_id]['#theme'] = 'bef_radios';
             }
           }
           /* if (empty($form[$field_id]['#multiple'])) { */

@@ -185,34 +185,6 @@ function theme_select_as_radios_fieldset($vars) {
 }
 
 /**
- * Themes a select drop-down as a collection of radio buttons.
- *
- * @see http://api.drupal.org/api/function/theme_select/7
- *
- * @param array $vars
- *   An array of arrays, the 'element' item holds the properties of the element.
- *
- * @return string
- *   HTML representing the form element.
- */
-function theme_select_as_radios($vars) {
-  $element = &$vars['element'];
-
-  if (!empty($element['#bef_nested'])) {
-    return theme('select_as_tree', $vars);
-  }
-
-  $output = '';
-  foreach (element_children($element) as $key) {
-    $element[$key]['#default_value'] = NULL;
-    $element[$key]['#children'] = theme('radio', array('element' => $element[$key]));
-    $output .= theme('form_element', array('element' => $element[$key]));
-  }
-
-  return $output;
-}
-
-/**
  * Themes a taxonomy-based exposed filter as a nested unordered list.
  *
  * Note: this routine depends on the '-' char prefixed on the term names by
