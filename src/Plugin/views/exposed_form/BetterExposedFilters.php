@@ -550,8 +550,8 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
    * @param array $form_state
    *   Current state of form variables
    */
-  function exposed_form_alter(&$form, &$form_state) {
-    parent::exposed_form_alter($form, $form_state);
+  function exposedFormAlter(&$form, &$form_state) {
+    parent::exposedFormAlter($form, $form_state);
 
     // If we have no visible elements, we don't show the Apply button.
     $show_apply = FALSE;
@@ -818,7 +818,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
     }
 
     // Shorthand for all filters in this view.
-    $filters = $form_state['view']->display_handler->handlers['filter'];
+    $filters = $form_state->get('view')->display_handler->handlers['filter'];
 
     // Go through each saved option looking for Better Exposed Filter settings.
     foreach ($settings as $label => $options) {
