@@ -9,6 +9,7 @@ namespace Drupal\better_exposed_filters\Plugin\views\exposed_form;
 
 use Drupal\views\Plugin\views\exposed_form\ExposedFormPluginBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 //use Drupal\Component\Utility\String;
 //use Drupal\Core\Form\FormState;
@@ -212,13 +213,12 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       // If we're adding BEF filter options, add an intro to explain what's
       // going on.
       if (!$bef_filter_intro) {
-        $link = l(t('BEF settings documentation'), 'http://drupal.org/node/1701012');
         $bef_options['bef_intro'] = array(
           '#markup' => '<h3>'
           . t('Exposed Filter Settings')
           . '</h3><p>'
-          . t('This section lets you select additional options for exposed filters. Some options are only available in certain situations. If you do not see the options you expect, please see the !link page for more details.',
-              array('!link' => $link))
+          . t('This section lets you select additional options for exposed filters. Some options are only available in certain situations. If you do not see the options you expect, please see the <a href=":link">BEF settings documentation page</a> for more details.',
+              array(':link' => Url::fromUri('http://drupal.org/node/1701012')))
           . '</p>',
         );
         $bef_filter_intro = TRUE;
@@ -483,10 +483,10 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         '#collapsed' => TRUE,
       );
 
-      if (!module_exists('token')) {
+      if (!\Drupal::moduleHandler()->moduleExists('token')) {
         $bef_options[$label]['more_options']['tokens']['no_tokens'] = array(
           '#markup' => '<p>'
-          . t('Enable the !token module to use replacement values.', array('!token' => l(t('Token'), 'http://drupal.org/project/token')))
+          . t('Enable the <a href=":token">Token</a> module to use replacement values.', array(':token' => Url::fromUri('http://drupal.org/project/token')))
           . '</p>',
         );
       }
