@@ -905,7 +905,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
       }
 
       // These BEF options require a set of given options to work (namely,
-      // $form[$field_id]['#options'] needs to set). But it is possilbe to
+      // $form[$field_id]['#options'] needs to set). But it is possible to
       // adjust settings elsewhere in the view that removes these options from
       // the form (eg: changing a taxonomy term filter from dropdown to
       // autocomplete). Check for that here and revert to Views' default filter
