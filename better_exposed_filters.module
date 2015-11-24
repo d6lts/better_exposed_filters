@@ -10,45 +10,29 @@
  */
 function better_exposed_filters_theme($existing, $type, $theme, $path) {
   return array(
-    'select_as_checkboxes' => array(
-      'function' => 'theme_select_as_checkboxes',
-      'render element' => 'element',
-      'file' => 'better_exposed_filters.theme',
+    'bef_checkboxes' => array(
+      'variables' => [],
     ),
-    'select_as_checkboxes_fieldset' => array(
-      'function' => 'theme_select_as_checkboxes_fieldset',
-      'render element' => 'element',
-      'file' => 'better_exposed_filters.theme',
+    'bef_checkboxes_fieldset' => array(
+      'variables' => [],
     ),
-    'select_as_radios' => array(
-      'function' => 'theme_select_as_radios',
-      'render element' => 'element',
-      'file' => 'better_exposed_filters.theme',
+    'bef_radios' => array(
+      'variables' => [],
     ),
-    'select_as_radios_fieldset' => array(
-      'function' => 'theme_select_as_radios_fieldset',
-      'render element' => 'element',
-      'file' => 'better_exposed_filters.theme',
+    'bef_radios_fieldset' => array(
+      'variables' => [],
     ),
-    'select_as_hidden' => array(
-      'function' => 'theme_select_as_hidden',
-      'render element' => 'element',
-      'file' => 'better_exposed_filters.theme',
+    'bef_hidden' => array(
+      'variables' => [],
     ),
-    'select_as_tree' => array(
-      'function' => 'theme_select_as_tree',
-      'render element' => 'element',
-      'file' => 'better_exposed_filters.theme',
+    'bef_tree' => array(
+      'variables' => [],
     ),
-    'select_as_links' => array(
-      'function' => 'theme_select_as_links',
-      'render element' => 'element',
-      'file' => 'better_exposed_filters.theme',
+    'bef_links' => array(
+      'variables' => [],
     ),
-    'secondary_exposed_elements' => array(
-      'function' => 'theme_secondary_exposed_elements',
-      'render element' => 'element',
-      'file' => 'better_exposed_filters.theme',
+    'bef_secondary_exposed_elements' => array(
+      'variables' => [],
     ),
   );
 }
