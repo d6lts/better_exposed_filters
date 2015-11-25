@@ -1248,7 +1248,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
               $form[$field_id]['#theme'] = 'select_as_checkboxes_fieldset';
             }
             else {
-              $form[$field_id]['#theme'] = 'select_as_checkboxes';
+              $form[$field_id]['#type'] = 'checkboxes';
             }
 
             if ($options['more_options']['bef_select_all_none'] || $options['more_options']['bef_select_all_none_nested']) {
