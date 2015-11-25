@@ -11,13 +11,13 @@
 function better_exposed_filters_theme($existing, $type, $theme, $path) {
   return array(
     'bef_checkboxes' => array(
-      'variables' => [],
+      'render element' => 'element',
     ),
     'bef_checkboxes_fieldset' => array(
       'variables' => [],
     ),
     'bef_radios' => array(
-      'variables' => [],
+      'render element' => 'element',
     ),
     'bef_radios_fieldset' => array(
       'variables' => [],
@@ -35,6 +35,10 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
       'variables' => [],
     ),
   );
+}
+
+function better_exposed_filters_preprocess_bef_radios(&$varaibles) {
+  dsm($varaibles);
 }
 
 /**

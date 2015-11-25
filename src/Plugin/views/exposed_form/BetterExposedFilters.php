@@ -1202,7 +1202,6 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             /* if (!empty($options['more_options']['bef_collapsible'])) { */
             else {
               // Render select element as radio buttons.
-              $form[$field_id]['#attributes']['class'][] = 'bef-select-as-radios';
               $form[$field_id]['#theme'] = 'bef_radios';
             }
           }
