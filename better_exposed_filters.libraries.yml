@@ -1,0 +1,5 @@
+general:
+  version: 3.x
+  css:
+    theme:
+      css/better_exposed_filters.css: {}

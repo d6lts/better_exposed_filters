@@ -556,6 +556,9 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
     // If we have no visible elements, we don't show the Apply button.
     $show_apply = FALSE;
 
+    // These styles are used on all exposed forms.
+    $form['#attached']['library'][] = 'better_exposed_filters/general';
+
     // Collect BEF's Javascript settings, add to Drupal.settings at the end.
     $bef_add_js = FALSE;
     $bef_js = array(
