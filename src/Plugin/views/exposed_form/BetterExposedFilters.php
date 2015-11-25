@@ -1120,6 +1120,11 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         case 'bef':
           $show_apply = TRUE;
 
+          // Add description from the BEF settings page.
+          if (!empty($form[$field_id]['#bef_description'])) {
+            $form[$field_id]['#description'] = $form[$field_id]['#bef_description'];
+          }
+
           if (empty($form[$field_id]['#multiple'])) {
             // Single-select -- display as radio buttons.
             $form[$field_id]['#type'] = 'radios';
@@ -1128,39 +1133,35 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             }
             array_unshift($form[$field_id]['#process'], ['\Drupal\Core\Render\Element\Radios', 'processRadios']);
 
-            // Add description
-            if (!empty($form[$field_id]['#bef_description'])) {
-              $form[$field_id]['#description'] = $form[$field_id]['#bef_description'];
-            }
-
             // Clean up objects from the options array (happens for taxonomy-
             // based filters).
-            $opts = $form[$field_id]['#options'];
-            $form[$field_id]['#options'] = array();
-            foreach ($opts as $index => $opt) {
-              if (is_object($opt)) {
-                reset($opt->option);
-                list($key, $val) = each($opt->option);
-                $form[$field_id]['#options'][$key] = $val;
-              }
-              else {
-                $form[$field_id]['#options'][$index] = $opt;
-              }
-            }
+            //$opts = $form[$field_id]['#options'];
+            //$form[$field_id]['#options'] = array();
+            //foreach ($opts as $index => $opt) {
+            //  if (is_object($opt)) {
+            //    reset($opt->option);
+            //    list($key, $val) = each($opt->option);
+            //    $form[$field_id]['#options'][$key] = $val;
+            //  }
+            //  else {
+            //    $form[$field_id]['#options'][$index] = $opt;
+            //  }
+            //}
 
-            if (isset($form[$field_id]['#options']['All'])) {
-              // @TODO: The terms 'All' and 'Any' are customizable in Views.
-              if ($filters[$label]->options['expose']['multiple']) {
-                // Some third-party filter handlers still add the "Any" option
-                // even if this is not an optional filter.  Zap it here if they
-                // do.
-                unset($form[$field_id]['#options']['All']);
-              }
-              else {
-                // Otherwise, make sure the "Any" text is clean.
-                $form[$field_id]['#options']['All'] = check_plain($form[$field_id]['#options']['All']);
-              }
-            }
+            // @TODO: the 'multiple' conditional is bogus. All text should be cleaned by Views.
+            //if (isset($form[$field_id]['#options']['All'])) {
+            //  // @TODO: The terms 'All' and 'Any' are customizable in Views.
+            //  if ($filters[$label]->options['expose']['multiple']) {
+            //    // Some third-party filter handlers still add the "Any" option
+            //    // even if this is not an optional filter.  Zap it here if they
+            //    // do.
+            //    unset($form[$field_id]['#options']['All']);
+            //  }
+            //  else {
+            //    // Otherwise, make sure the "Any" text is clean.
+            //    $form[$field_id]['#options']['All'] = check_plain($form[$field_id]['#options']['All']);
+            //  }
+            //}
 
             // Render as radio buttons or radio buttons in a collapsible
             // fieldset.
@@ -1252,6 +1253,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
             }
             else {
               $form[$field_id]['#type'] = 'checkboxes';
+              $form[$field_id]['#theme'] = 'bef_checkboxes';
             }
 
             if ($options['more_options']['bef_select_all_none'] || $options['more_options']['bef_select_all_none_nested']) {
