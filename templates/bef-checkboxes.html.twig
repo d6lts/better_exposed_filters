@@ -3,12 +3,12 @@
 
   Available variables:
     - element: the select element render array provided by Views.
-
-  @see: core/modules/system/templates/container.html.twig
 #}
-<div{{ attributes.addClass('form-checkboxes') }}>{{ children }}</div>
+{{ element }}
+
 
 {#
+@TODO:
 
 function theme_select_as_checkboxes($vars) {
 $element = $vars['element'];
