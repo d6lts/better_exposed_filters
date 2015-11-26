@@ -559,6 +559,10 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
     // These styles are used on all exposed forms.
     $form['#attached']['library'][] = 'better_exposed_filters/general';
 
+    // Add the bef-exposed-form class at the form level so we can limit some
+    // styling changes to just BEF forms.
+    $form['#attributes']['class'][] = 'bef-exposed-form';
+
     // Collect BEF's Javascript settings, add to Drupal.settings at the end.
     $bef_add_js = FALSE;
     $bef_js = array(
@@ -1128,6 +1132,7 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
           if (empty($form[$field_id]['#multiple'])) {
             // Single-select -- display as radio buttons.
             $form[$field_id]['#type'] = 'radios';
+            $form[$field_id]['#theme'] = 'bef_radios';
             if (empty($form[$field_id]['#process'])) {
               $form[$field_id]['#process'] = array();
             }

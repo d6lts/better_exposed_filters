@@ -38,7 +38,7 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
 }
 
 function template_preprocess_bef_checkboxes(&$variables) {
-  dsm($variables);
+  $variables['bef_nested'] = isset($variables['element']['#bef_nested']) ? $variables['element']['#bef_nested'] : FALSE;
 }
 
 function template_preprocess_bef_radios(&$variables) {

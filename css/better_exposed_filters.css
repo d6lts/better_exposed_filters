@@ -4,6 +4,13 @@
  *
  * Basic styling for features added by Better Exposed Filters
  */
+.bef-exposed-form .form--inline .form-item {
+  float: none;
+}
+.bef-exposed-form .form--inline > .form-item {
+  float: left; /* LRT */
+}
+
 
 /* Commenting out CSS additions until they are proven to be needed in D8. */
 
