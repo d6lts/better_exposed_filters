@@ -1,0 +1,57 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.bef_test.field_bef
+    - field.field.node.bef_test.field_bef_boolean
+    - field.field.node.bef_test.field_bef_email
+    - field.field.node.bef_test.field_bef_integer
+    - field.field.node.bef_test.field_bef_letters
+    - node.type.bef_test
+  module:
+    - datetime
+    - options
+    - user
+id: node.bef_test.default
+targetEntityType: node
+bundle: bef_test
+mode: default
+content:
+  field_bef:
+    weight: 102
+    label: above
+    settings:
+      format_type: medium
+      timezone_override: ''
+    third_party_settings: {  }
+    type: datetime_default
+  field_bef_boolean:
+    weight: 101
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+  field_bef_email:
+    weight: 103
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: basic_string
+  field_bef_integer:
+    weight: 104
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+  field_bef_letters:
+    weight: 105
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+  links:
+    weight: 100
+hidden: {  }

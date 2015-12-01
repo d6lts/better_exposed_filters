@@ -2,21 +2,19 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_bef_link
+    - field.storage.node.field_bef
     - node.type.bef_test
   module:
-    - link
-id: node.bef_test.field_bef_link
-field_name: field_bef_link
+    - datetime
+id: node.bef_test.field_bef
+field_name: field_bef
 entity_type: node
 bundle: bef_test
-label: bef_link
+label: bef_date
 description: ''
 required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''
-settings:
-  link_type: 17
-  title: 1
-field_type: link
+settings: {  }
+field_type: datetime
