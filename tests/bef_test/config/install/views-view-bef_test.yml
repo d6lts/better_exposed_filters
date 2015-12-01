@@ -363,46 +363,6 @@ display:
             group_items: {  }
           reduce_duplicates: false
           plugin_id: list_field
-        field_bef_integ_value:
-          id: field_bef_integ_value
-          table: node__field_bef_integ
-          field: field_bef_integ_value
-          relationship: none
-          group_type: group
-          admin_label: ''
-          operator: or
-          value: {  }
-          group: 1
-          exposed: true
-          expose:
-            operator_id: field_bef_integ_value_op
-            label: 'bef_integer (field_bef_integ)'
-            description: ''
-            use_operator: false
-            operator: field_bef_integ_value_op
-            identifier: field_bef_integ_value
-            required: false
-            remember: false
-            multiple: false
-            remember_roles:
-              authenticated: authenticated
-              anonymous: '0'
-              administrator: '0'
-            reduce: false
-          is_grouped: false
-          group_info:
-            label: ''
-            description: ''
-            identifier: ''
-            optional: true
-            widget: select
-            multiple: false
-            remember: false
-            default_group: All
-            default_group_multiple: {  }
-            group_items: {  }
-          reduce_duplicates: false
-          plugin_id: list_field
         field_bef_letters_value:
           id: field_bef_letters_value
           table: node__field_bef_letters
@@ -424,6 +384,46 @@ display:
             required: false
             remember: false
             multiple: true
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              administrator: '0'
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          reduce_duplicates: false
+          plugin_id: list_field
+        field_bef_integer_value:
+          id: field_bef_integer_value
+          table: node__field_bef_integer
+          field: field_bef_integer_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          operator: or
+          value: {  }
+          group: 1
+          exposed: true
+          expose:
+            operator_id: field_bef_integer_value_op
+            label: 'bef_integer (field_bef_integer)'
+            description: ''
+            use_operator: false
+            operator: field_bef_integer_value_op
+            identifier: field_bef_integer_value
+            required: false
+            remember: false
+            multiple: false
             remember_roles:
               authenticated: authenticated
               anonymous: '0'
