@@ -1,0 +1,22 @@
+uuid: 8fec4a2e-73fe-4129-9a09-09dda29c2928
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.bef_test
+  module:
+    - text
+id: node.bef_test.body
+field_name: body
+entity_type: node
+bundle: bef_test
+label: Body
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+field_type: text_with_summary

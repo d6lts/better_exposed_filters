@@ -1,0 +1,23 @@
+uuid: e15c5d9f-7788-4d4b-b54b-754e1f5cdfd3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_bef_link
+    - node.type.bef_test
+  module:
+    - link
+id: node.bef_test.field_bef_link
+field_name: field_bef_link
+entity_type: node
+bundle: bef_test
+label: bef_link
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  link_type: 17
+  title: 1
+field_type: link
