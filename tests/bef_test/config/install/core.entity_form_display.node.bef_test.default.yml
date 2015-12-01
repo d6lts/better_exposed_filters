@@ -2,7 +2,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.bef_test.field_bef
     - field.field.node.bef_test.field_bef_boolean
     - field.field.node.bef_test.field_bef_email
     - field.field.node.bef_test.field_bef_integer
@@ -21,11 +20,6 @@ content:
     weight: 10
     settings: {  }
     third_party_settings: {  }
-  field_bef:
-    weight: 32
-    settings: {  }
-    third_party_settings: {  }
-    type: datetime_default
   field_bef_boolean:
     weight: 31
     settings:

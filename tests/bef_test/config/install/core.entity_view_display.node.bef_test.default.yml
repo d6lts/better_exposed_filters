@@ -2,7 +2,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.field.node.bef_test.field_bef
     - field.field.node.bef_test.field_bef_boolean
     - field.field.node.bef_test.field_bef_email
     - field.field.node.bef_test.field_bef_integer
@@ -17,14 +16,6 @@ targetEntityType: node
 bundle: bef_test
 mode: default
 content:
-  field_bef:
-    weight: 102
-    label: above
-    settings:
-      format_type: medium
-      timezone_override: ''
-    third_party_settings: {  }
-    type: datetime_default
   field_bef_boolean:
     weight: 101
     label: above
