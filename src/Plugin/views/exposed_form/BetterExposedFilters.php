@@ -29,7 +29,7 @@ use Drupal\Core\Url;
  * @ViewsExposedForm(
  *   id = "bef",
  *   title = @Translation("Better Exposed Filters"),
- *   help = @Translation("Help text goes here...")
+ *   help = @Translation("Provides additional options for exposed form elements.")
  * )
  */
 class BetterExposedFilters extends ExposedFormPluginBase {
