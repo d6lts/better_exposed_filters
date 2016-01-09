@@ -139,11 +139,11 @@ class BetterExposedFilters extends ExposedFormPluginBase {
         '#type' => 'textarea',
         '#title' => t('Rewrite the text displayed'),
         '#default_value' => $existing['sort']['advanced']['combine_rewrite'],
-        '#description' => t('Use this field to rewrite the text displayed for combined sort options and sort order. Use the format of current_value|replacement_value, one replacement per line. For example: <pre>
+        '#description' => t('Use this field to rewrite the text displayed for combined sort options and sort order. Use the format of current_text|replacement_text, one replacement per line. For example: <pre>
 Post date Asc|Oldest first
 Post date Desc|Newest first
 Title Asc|A -> Z
-Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option altogether.'),
+Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option altogether.'),
         '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-combine' => array(1)),
       );
       $bef_options['sort']['advanced']['reset'] = array(
@@ -519,14 +519,11 @@ Title Desc|Z -> A</pre> Leave the replacement value blank to remove an option al
         '#type' => 'textarea',
         '#title' => t('Rewrite the text displayed'),
         '#default_value' => $existing[$label]['more_options']['rewrite']['filter_rewrite_values'],
-        '#description' => t('
-          Use this field to rewrite the filter options displayed. Use the format
-          of current_value|replacement_value, one replacement per line. For
-          example: <pre>
-0|Zero
-1|One
-2|Two
-</pre> Leave the replacement value blank to remove an option altogether. If using hierarchical taxonomy filters, do not including leading hyphens in the current value.
+        '#description' => t('Use this field to rewrite the filter options displayed. Use the format of current_text|replacement_text, one replacement per line. For example: <pre>
+Current|Replacement
+On|Yes
+Off|No
+</pre> Leave the replacement text blank to remove an option altogether. If using hierarchical taxonomy filters, do not including leading hyphens in the current text.
         '),
       );
     }
