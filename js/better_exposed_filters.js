@@ -4,33 +4,6 @@
  * Provides some client-side functionality for the Better Exposed Filters module
  */
 (function ($) {
-  Drupal.behaviors.betterExposedFiltersAllNoneNested = {
-    attach:function (context, settings) {
-      $('.form-checkboxes.bef-select-all-none-nested li').has('ul').once('bef-all-none-nested', function () {
-        $(this)
-          // To respect term depth, check/uncheck child term checkboxes.
-          .find('input.form-checkboxes:first')
-          .click(function() {
-            $(this).parents('li:first').find('ul input.form-checkboxes').attr('checked', $(this).attr('checked'));
-          })
-          .end()
-          // When a child term is checked or unchecked, set the parent term's
-          // status.
-          .find('ul input.form-checkboxes')
-          .click(function() {
-            var checked = $(this).attr('checked');
-            // Determine the number of unchecked sibling checkboxes.
-            var ct = $(this).parents('ul:first').find('input.form-checkboxes:not(:checked)').size();
-            // If the child term is unchecked, uncheck the parent.
-            // If all sibling terms are checked, check the parent.
-            if (!checked || !ct) {
-              $(this).parents('li:first').parents('li:first').find('input.form-checkboxes:first').attr('checked', checked);
-            }
-          });
-      });
-    }
-  }
-
   /*
    * Helper functions
    */
