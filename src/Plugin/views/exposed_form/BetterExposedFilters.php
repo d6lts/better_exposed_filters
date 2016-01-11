@@ -67,23 +67,23 @@ class BetterExposedFilters extends ExposedFormPluginBase {
       '#type' => 'checkbox',
       '#title' => t('Enable secondary exposed form options'),
       '#default_value' => $existing['general']['allow_secondary'],
-      '#description' => t('Allows you to specify some exposed form elements as being secondary options and places those elements in a collapsible fieldset. Use this option to place some exposed filters in an "Advanced Search" area of the form, for example.'),
+      '#description' => t('Allows you to specify some exposed form elements as being secondary options and places those elements in a collapsible "details" element. Use this option to place some exposed filters in an "Advanced Search" area of the form, for example.'),
     );
     $bef_options['general']['secondary_label'] = array(
       '#type' => 'textfield',
       '#default_value' => $existing['general']['secondary_label'],
       '#title' => t('Secondary options label'),
       '#description' => t(
-        'The name of the fieldset to hold secondary options. This cannot be left blank or there will be no way to show/hide these options.'
+        'The name of the details element to hold secondary options. This cannot be left blank or there will be no way to show/hide these options.'
       ),
       '#states' => array(
         'required' => array(
-          ':input[name="allow_secondary"]' => array('checked' => TRUE),
+          ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
+        ),
+        'visible' => array(
+          ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
         ),
       ),
-      // Use CTool's #dependency as it adds some margin-left which looks nice.
-      // Also, you can't change the required state via #dependency...
-      '#dependency' => array('edit-exposed-form-options-bef-general-allow-secondary' => array(1)),
     );
 
     /*
