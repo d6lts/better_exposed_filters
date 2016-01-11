@@ -7,3 +7,7 @@ select_all_none:
   version: 3.x
   js:
     js/bef_select_all_none.js: {}
+sliders:
+  version: 3.x
+  js:
+    js/bef_sliders.js: {}
