@@ -109,10 +109,8 @@ class BetterExposedFilters extends ExposedFormPluginBase {
         '#description' => t('Select a format for the exposed sort options.'),
       );
       $bef_options['sort']['advanced'] = array(
-        '#type' => 'fieldset',
+        '#type' => 'details',
         '#title' => t('Advanced sort options'),
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
       );
       $bef_options['sort']['advanced']['collapsible'] = array(
         '#type' => 'checkbox',
@@ -325,12 +323,11 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
       );
 
       if ($bef_slider) {
-        // Fieldset for jQuery slider options.
+        // Details element for jQuery slider options.
         $bef_options[$label]['slider_options'] = array(
-          '#type' => 'fieldset',
+          '#type' => 'details',
           '#title' => t('Slider options for @identifier', array('@identifier' => $identifier)),
-          '#collapsible' => TRUE,
-          '#collapsed' => FALSE,
+          '#open' => TRUE,
           '#states' => array(
             'visible' => array(
               ':input[name="exposed_form_options[bef][' . $label . '][bef_format]"]' => array('value' => 'bef_slider'),
@@ -405,12 +402,10 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         );
       }
 
-      // Fieldset to keep the UI from getting out of hand.
+      // Details element to keep the UI from getting out of hand.
       $bef_options[$label]['more_options'] = array(
-        '#type' => 'fieldset',
+        '#type' => 'details',
         '#title' => t('More options for @identifier', array('@identifier' => $identifier)),
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
       );
 
       // Select all checkbox.
@@ -441,19 +436,19 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
           );
         }
 
-        // Put filter in collapsible fieldset option.
+        // Put filter in details element option.
         // TODO: expand to all exposed filters.
         $bef_options[$label]['more_options']['bef_collapsible'] = array(
           '#type' => 'checkbox',
           '#title' => t('Make this filter collapsible'),
           '#default_value' => $existing[$label]['more_options']['bef_collapsible'],
           '#description' => t(
-            'Puts this filter in a collapsible fieldset'
+            'Puts this filter in a collapsible details element'
           ),
         );
       }
 
-      // Allow any filter to be moved into the secondary options fieldset.
+      // Allow any filter to be moved into the secondary options element.
       $bef_options[$label]['more_options']['is_secondary'] = array(
         '#type' => 'checkbox',
         '#title' => t('This is a secondary option'),
@@ -478,9 +473,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
       // Add token support to the description field.
       $bef_options[$label]['more_options']['tokens'] = array(
         '#title' => t('Replacement patterns'),
-        '#type' => 'fieldset',
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
+        '#type' => 'details',
       );
 
       if (!\Drupal::moduleHandler()->moduleExists('token')) {
@@ -511,9 +504,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
       // Allow rewriting of filter options for any filter.
       $bef_options[$label]['more_options']['rewrite'] = array(
         '#title' => t('Rewrite filter options'),
-        '#type' => 'fieldset',
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
+        '#type' => 'details',
       );
       $bef_options[$label]['more_options']['rewrite']['filter_rewrite_values'] = array(
         '#type' => 'textarea',
@@ -574,15 +565,13 @@ Off|No
     // Grab BEF settings.
     $settings = $this->_bef_get_settings();
 
-    // Some elements may be placed in a secondary fieldset (eg: "Advanced
+    // Some elements may be placed in a secondary details element (eg: "Advanced
     // search options"). Place this after the exposed filters and before the
     // rest of the items in the exposed form.
     if ($allow_secondary = $settings['general']['allow_secondary']) {
       $secondary = array(
-        '#type' => 'fieldset',
+        '#type' => 'details',
         '#title' => $settings['general']['secondary_label'],
-        '#collapsible' => TRUE,
-        '#collapsed' => TRUE,
         '#theme' => 'secondary_exposed_elements',
       );
     }
@@ -594,7 +583,7 @@ Off|No
       $show_apply = TRUE;
 
       // If selected, collect all sort-related form elements and put them
-      // in a collapsible fieldset.
+      // in a details element.
       $collapse = $settings['sort']['advanced']['collapsible']
         && !empty($settings['sort']['advanced']['collapsible_label']);
       $sort_elems = array();
@@ -754,9 +743,7 @@ Off|No
 
       if ($collapse) {
         $form['bef_sort_options'] = array(
-          '#type' => 'fieldset',
-          '#collapsible' => TRUE,
-          '#collapsed' => TRUE,
+          '#type' => 'details',
           '#title' => $settings['sort']['advanced']['collapsible_label'],
         );
         foreach ($sort_elems as $elem) {
@@ -1165,12 +1152,11 @@ Off|No
             //  }
             //}
 
-            // Render as radio buttons or radio buttons in a collapsible
-            // fieldset.
+            // Render as radio buttons or radio buttons in a details element.
             if (!empty($options['more_options']['bef_collapsible'])) {
               // Pass the description and title along in a way such that it
               // doesn't get rendered as part of the exposed form widget.  We'll
-              // render them as part of the fieldset.
+              // render them as part of the details element.
               if (isset($form['#info']["filter-$label"]['label'])) {
                 $form[$field_id]['#bef_title'] = $form['#info']["filter-$label"]['label'];
                 unset($form['#info']["filter-$label"]['label']);
@@ -1182,27 +1168,15 @@ Off|No
                 }
               }
 
-              // If the operator is exposed as well, put it inside the fieldset.
+              // If the operator is exposed as well, put it inside the details
+              // element.
               if ($filters[$label]->options['expose']['use_operator']) {
                 $operator_id = $filters[$label]->options['expose']['operator_id'];
                 $form[$field_id]['#bef_operator'] = $form[$operator_id];
                 unset ($form[$operator_id]);
               }
 
-              // Add collapse/expand Javascript and BEF CSS to prevent collapsed
-              // fieldset from disappearing.
-              if (empty($form[$field_id]['#attached']['js'])) {
-                $form[$field_id]['#attached']['js'] = array();
-              }
-              $form[$field_id]['#attached']['js'][] = 'misc/form.js';
-              $form[$field_id]['#attached']['js'][] = 'misc/collapse.js';
-
-              if (empty($form[$field_id]['#attached']['css'])) {
-                $form[$field_id]['#attached']['css'] = array();
-              }
-              $form[$field_id]['#attached']['css'][] = drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css';
-
-              // Take care of adding the fieldset in the theme layer.
+              // Take care of adding the details element in the theme layer.
               $form[$field_id]['#theme'] = 'select_as_radios_fieldset';
             }
             /* if (!empty($options['more_options']['bef_collapsible'])) { */
@@ -1214,11 +1188,11 @@ Off|No
           /* if (empty($form[$field_id]['#multiple'])) { */
           else {
             // Render as checkboxes or checkboxes enclosed in a collapsible
-            // fieldset.
+            // details element.
             if (!empty($options['more_options']['bef_collapsible'])) {
               // Pass the description and title along in a way such that it
               // doesn't get rendered as part of the exposed form widget.  We'll
-              // render them as part of the fieldset.
+              // render them as part of the details element.
               if (isset($form['#info']["filter-$label"]['label'])) {
                 $form[$field_id]['#bef_title'] = $form['#info']["filter-$label"]['label'];
                 unset($form['#info']["filter-$label"]['label']);
@@ -1230,27 +1204,15 @@ Off|No
                 }
               }
 
-              // If the operator is exposed as well, put it inside the fieldset.
+              // If the operator is exposed as well, put it inside the details
+              // element.
               if ($filters[$label]->options['expose']['use_operator']) {
                 $operator_id = $filters[$label]->options['expose']['operator_id'];
                 $form[$field_id]['#bef_operator'] = $form[$operator_id];
                 unset ($form[$operator_id]);
               }
 
-              // Add collapse/expand Javascript and BEF CSS to prevent collapsed
-              // fieldset from disappearing.
-              if (empty($form[$field_id]['#attached']['js'])) {
-                $form[$field_id]['#attached']['js'] = array();
-              }
-              $form[$field_id]['#attached']['js'][] = 'misc/form.js';
-              $form[$field_id]['#attached']['js'][] = 'misc/collapse.js';
-
-              if (empty($form[$field_id]['#attached']['css'])) {
-                $form[$field_id]['#attached']['css'] = array();
-              }
-              $form[$field_id]['#attached']['css'][] = drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css';
-
-              // Take care of adding the fieldset in the theme layer.
+              // Take care of adding the details element in the theme layer.
               $form[$field_id]['#theme'] = 'select_as_checkboxes_fieldset';
             }
             else {
@@ -1470,7 +1432,7 @@ Off|No
 
     // Update legacy settings in the exposed form settings form. This
     // keep us from losing settings when an option is put into an
-    // 'advanced options' fieldset.
+    // 'advanced options' details element.
     $current = $this->_bef_update_legacy_settings($this->options['bef']);
 
     // Collect existing values or use defaults.
