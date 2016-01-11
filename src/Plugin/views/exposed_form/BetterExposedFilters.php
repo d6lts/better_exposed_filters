@@ -179,7 +179,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         '#title' => t('Display exposed pager options as'),
         '#default_value' => $existing['pager']['bef_format'],
         '#options' => array(
-          'default' => t('Default select list'),
+          'default' => t('Default (Views render element)'),
           'bef' => t('Radio Buttons'),
           'bef_links' => t('Links'),
         ),
@@ -282,7 +282,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
       }
 
       // All filters can use the default filter exposed by Views.
-      $display_options = array('default' => t('Default select list'));
+      $display_options = array('default' => t('Default (Views render element)'));
 
       if ($bef_standard) {
         // Main BEF option: radios/checkboxes.
