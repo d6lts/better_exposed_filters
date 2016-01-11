@@ -7,7 +7,7 @@
 
 
 /**
- * Themes a select element as checkboxes enclosed in a collapsible fieldset.
+ * Themes a select element as checkboxes enclosed in a details element.
  *
  * @param array $vars
  *   An array of arrays, the 'element' item holds the properties of the element
@@ -15,7 +15,7 @@
  * @return string
  *   HTML representing the form element.
  */
-function theme_select_as_checkboxes_fieldset($vars) {
+function theme_select_as_checkboxes_details($vars) {
   // Merge incoming element with some default values. Prevents a lot of this.
   // $foo = isset($bar) ? $bar : $bar_default;
   $element = array_merge(
@@ -27,37 +27,39 @@ function theme_select_as_checkboxes_fieldset($vars) {
     $vars['element']
   );
 
-  $fieldset = array(
+  $details = array(
     '#title' => $element['#bef_title'],
     '#description' => $element['#bef_description'],
     '#attributes' => array(
       'class' => array(
-        'bef-select-as-checkboxes-fieldset',
-        'collapsible',
+        'bef-select-as-checkboxes-details',
       ),
     ),
   );
   if (empty($element['#value'])) {
     // Using the FAPI #collapsible and #collapsed attribute doesn't work here
     // TODO: not sure why...
-    $fieldset['#attributes']['class'][] = 'collapsed';
+    $details['#attributes']['class'][] = 'collapsed';
   }
 
-  // We rendered the description as part of the fieldset element, don't render
+  // We rendered the description as part of the details element, don't render
   // it again along with the checkboxes.
   unset($element['#bef_description']);
 
   $children = '';
   if (!empty($element['#bef_operator'])) {
-    // Put an exposed operator inside the fieldset.
+    // Put an exposed operator inside the details element.
     $children = drupal_render($element['#bef_operator']);
   }
 
   // Render the checkboxes.
+  // @TODO: Render in a template
   $children .= theme('select_as_checkboxes', array('element' => $element));
 
-  $fieldset['#children'] = $children;
-  return theme('fieldset', array('element' => $fieldset));
+  $details['#children'] = $children;
+
+  // @TODO: Render in a template
+  return theme('fieldset', array('element' => $details));
 }
 
 /**
@@ -107,12 +109,14 @@ function theme_select_as_hidden($vars) {
 
         // Very similar to theme_hidden()
         // (http://api.drupal.org/api/function/theme_hidden/7).
+        // @TODO: Render in a template
         $hidden = '<input type="hidden" '
           // Brackets are key -- just like select.
           . 'name="' . filter_xss($element['#name']) . '[]" '
           . 'id="' . $id . '" '
           . 'value="' . check_plain($key) . '" '
           . drupal_attributes($element['#attributes']) . ' />';
+        // @TODO: Render in a template
         $output .= theme('form_element', array(
           'element' => array_merge($properties, array(
             '#id' => $id,
@@ -126,7 +130,7 @@ function theme_select_as_hidden($vars) {
 }
 
 /**
- * Themes a select element as radio buttons enclosed in a collapsible fieldset.
+ * Themes a select element as radio buttons enclosed in a details element.
  *
  * @param array $vars
  *   An array of arrays, the 'element' item holds the properties of the element.
@@ -134,7 +138,7 @@ function theme_select_as_hidden($vars) {
  * @return string
  *   HTML representing the form element.
  */
-function theme_select_as_radios_fieldset($vars) {
+function theme_select_as_radios_details($vars) {
   // Merge incoming element with some default values. Prevents a lot of this.
   // $foo = isset($bar) ? $bar : $bar_default;
   $element = array_merge(
@@ -147,28 +151,22 @@ function theme_select_as_radios_fieldset($vars) {
   );
 
   // The "all" option is the first in the list. If the selected radio button is
-  // the all option, then leave the fieldset collapsed.  Otherwise, render it
-  // opened.
+  // the all option, then leave the details element collapsed.  Otherwise,
+  // render it opened.
   $keys = array_keys($element['#options']);
   $all = array_shift($keys);
 
-  $fieldset = array(
+  $details = array(
     '#title' => $element['#bef_title'],
     '#description' => $element['#bef_description'],
     '#attributes' => array(
       'class' => array(
-        'bef-select-as-checkboxes-fieldset',
-        'collapsible',
+        'bef-select-as-checkboxes-details',
       ),
     ),
   );
-  if (empty($element['#value'])) {
-    // Using the FAPI #collapsible and #collapsed attribute doesn't work here.
-    // TODO: not sure why...
-    $fieldset['#attributes']['class'][] = 'collapsed';
-  }
 
-  // We rendered the description as part of the fieldset element, don't render
+  // We rendered the description as part of the details element, don't render
   // it again along with the checkboxes.
   unset($element['#bef_description']);
 
@@ -179,10 +177,12 @@ function theme_select_as_radios_fieldset($vars) {
   }
 
   // Render the radio buttons.
+  // @TODO: render in a template
   $children .= theme('select_as_radios', $element);
 
-  $fieldset['#children'] = $children;
-  return theme('fieldset', array('element' => $fieldset));
+  $details['#children'] = $children;
+  // @TODO: render in a template
+  return theme('fieldset', array('element' => $details));
 }
 
 /**
@@ -242,7 +242,9 @@ function theme_select_as_tree($vars) {
       }
       else {
         $element[$option_value]['#title'] = $option_label;
+        // @TODO: Render in a template
         $element[$option_value]['#children'] = theme('radio', array('element' => $element[$option_value]));
+        // @TODO: Render in a template
         $html .= theme('form_element', array('element' => $element[$option_value]));
       }
 
@@ -423,11 +425,13 @@ function theme_select_as_links($vars) {
       );
       if (array_search($key, $selected_options) === FALSE) {
         $elem['#children'] = l($value, bef_replace_query_string_arg($name, $key, $multiple, FALSE, $path));
+        // @TODO: Render in a template
         $output .= theme('form_element', array('element' => $elem));
       }
       else {
         $elem['#children'] = l($value, bef_replace_query_string_arg($name, $key, $multiple, TRUE, $path));
         _form_set_class($elem, array('bef-select-as-links-selected'));
+        // @TODO: Render in a template
         $output .= str_replace('form-item', 'form-item selected', theme('form_element', array('element' => $elem)));
       }
     }
@@ -438,6 +442,7 @@ function theme_select_as_links($vars) {
     '#children' => $output,
   );
 
+  // @TODO: Render in a template
   $output = '<div class="bef-select-as-links">';
   $output .= theme('form_element', array('element' => $properties));
   if (!empty($element['#value'])) {
@@ -456,7 +461,7 @@ function theme_select_as_links($vars) {
 }
 
 /**
- * Themes some exposed form elements in a collapsible fieldset.
+ * Themes some exposed form elements in a details element.
  *
  * @param array $vars
  *   An array of arrays, the 'element' item holds the properties of the element.
@@ -467,6 +472,7 @@ function theme_select_as_links($vars) {
 function theme_secondary_exposed_elements($vars) {
   $element = $vars['element'];
 
+  // TODO: put HTML in a template
   $output = '<div class="bef-secondary-options">';
   foreach (element_children($element) as $id) {
     $output .= drupal_render($element[$id]);
@@ -523,6 +529,7 @@ function bef_checkbox($element, $value, $label, $selected) {
   // Unset the multiple attribute as it doesn't apply for checkboxes.
   unset ($element['#attributes']['multiple']);
 
+  // @TODO: Render in a template
   $checkbox = '<input type="checkbox" '
     // Brackets are key -- just like select.
     . 'name="' . $element['#name'] . '[]" '

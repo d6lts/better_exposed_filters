@@ -13,13 +13,13 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
     'bef_checkboxes' => [
       'render element' => 'element',
     ],
-    'bef_checkboxes_fieldset' => [
+    'bef_checkboxes_details' => [
       'variables' => [],
     ],
     'bef_radios' => [
       'render element' => 'element',
     ],
-    'bef_radios_fieldset' => [
+    'bef_radios_details' => [
       'variables' => [],
     ],
     'bef_hidden' => [
