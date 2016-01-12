@@ -117,15 +117,22 @@ class BetterExposedFilters extends ExposedFormPluginBase {
         '#title' => t('Make sort options collapsible'),
         '#default_value' => $existing['sort']['advanced']['collapsible'],
         '#description' => t(
-          'Puts the sort options in a collapsible fieldset'
+          'Puts the sort options in a collapsible details element.'
         ),
       );
       $bef_options['sort']['advanced']['collapsible_label'] = array(
         '#type' => 'textfield',
-        '#title' => t('Collapsible fieldset title'),
+        '#title' => t('Collapsible details element title'),
         '#default_value' => empty($existing['sort']['advanced']['collapsible_label']) ? t('Sort options') : $existing['sort']['advanced']['collapsible_label'],
         '#description' => t('This cannot be left blank or there will be no way to show/hide sort options.'),
-        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-collapsible' => array(1)),
+        '#states' => array(
+          'visible' => array(
+            ':input[name="exposed_form_options[bef][sort][advanced][collapsible]"]' => array('checked' => TRUE),
+          ),
+          'required' => array(
+            ':input[name="exposed_form_options[bef][sort][advanced][collapsible]"]' => array('checked' => TRUE),
+          ),
+        ),
       );
       $bef_options['sort']['advanced']['combine'] = array(
         '#type' => 'checkbox',
@@ -142,7 +149,11 @@ Post date Asc|Oldest first
 Post date Desc|Newest first
 Title Asc|A -> Z
 Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option altogether.'),
-        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-combine' => array(1)),
+        '#states' => array(
+          'visible' => array(
+            ':input[name="exposed_form_options[bef][sort][advanced][combine]"]' => array('checked' => TRUE),
+          ),
+        ),
       );
       $bef_options['sort']['advanced']['reset'] = array(
         '#type' => 'checkbox',
@@ -155,7 +166,14 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         '#title' => t('"Reset sort" label'),
         '#default_value' => $existing['sort']['advanced']['reset_label'],
         '#description' => t('This cannot be left blank if the above option is checked'),
-        '#dependency' => array('edit-exposed-form-options-bef-sort-advanced-reset' => array(1)),
+        '#states' => array(
+          'visible' => array(
+            ':input[name="exposed_form_options[bef][sort][advanced][reset]"]' => array('checked' => TRUE),
+          ),
+          'required' => array(
+            ':input[name="exposed_form_options[bef][sort][advanced][reset]"]' => array('checked' => TRUE),
+          ),
+        ),
       );
       $bef_options['sort']['advanced']['is_secondary'] = array(
         '#type' => 'checkbox',
