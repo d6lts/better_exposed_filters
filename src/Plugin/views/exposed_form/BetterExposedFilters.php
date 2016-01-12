@@ -163,7 +163,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         '#default_value' => $existing['sort']['advanced']['is_secondary'],
         '#states' => array(
           'visible' => array(
-            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+            ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
           ),
         ),
         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
@@ -191,7 +191,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         '#default_value' => $existing['pager']['is_secondary'],
         '#states' => array(
           'visible' => array(
-            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+            ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
           ),
         ),
         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
@@ -455,7 +455,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         '#default_value' => $existing[$label]['more_options']['is_secondary'],
         '#states' => array(
           'visible' => array(
-            ':input[name="allow_secondary"]' => array('checked' => TRUE),
+            ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
           ),
         ),
         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
