@@ -1,0 +1,13 @@
+{#
+  Provides a wrapper around any element to place it in a details element.
+#}
+<details{{ attributes }}>
+  {% block summary %}
+    <summary{{ summary_attributes }}>{{ title }}</summary>
+  {% endblock %}
+  {% block detail_contents %}
+    {{ description }}
+    {{ children }}
+    {{ value }}
+  {% endblock %}
+</details>

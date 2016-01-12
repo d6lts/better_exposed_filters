@@ -4,8 +4,9 @@
   Available variables:
     - element: the select element render array provided by Views.
 #}
-{{ element }}
-
+<div{{ attributes.addClass('form-checkboxes') }}>
+  {{ element }}
+</div>
 
 {#
 @TODO:
