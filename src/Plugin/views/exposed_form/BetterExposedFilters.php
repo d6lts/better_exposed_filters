@@ -835,7 +835,7 @@ Off|No
         /* Others? */
 
         // Replace tokens.
-        $options['more_options']['bef_filter_description'] = token_replace(
+        $options['more_options']['bef_filter_description'] = \Drupal::service('token')->replace(
           $options['more_options']['bef_filter_description'], $data
         );
         $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
