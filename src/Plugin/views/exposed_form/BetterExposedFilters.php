@@ -531,14 +531,9 @@ Off|No
 
 
   /**
-   * Tweak the exposed filter form to show Better Exposed Filter options.
-   *
-   * @param array $form
-   *   Exposed form array
-   * @param array $form_state
-   *   Current state of form variables
+   * @inheritdoc
    */
-  function exposedFormAlter(&$form, &$form_state) {
+  function exposedFormAlter(&$form, FormStateInterface $form_state) {
     parent::exposedFormAlter($form, $form_state);
 
     // If we have no visible elements, we don't show the Apply button.
