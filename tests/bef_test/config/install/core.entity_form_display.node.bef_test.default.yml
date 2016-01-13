@@ -1,15 +1,18 @@
 langcode: en
-status: true
+  status: true
 dependencies:
   config:
+    - field.field.node.bef_test.body
     - field.field.node.bef_test.field_bef_boolean
     - field.field.node.bef_test.field_bef_email
     - field.field.node.bef_test.field_bef_integer
     - field.field.node.bef_test.field_bef_letters
+    - field.field.node.bef_test.field_bef_location
     - node.type.bef_test
   module:
-    - datetime
     - path
+_core:
+  default_config_hash: Ps-p8WoCdKFP3TRl-jjRCENhWrv-4_PjFYEU3tM_-S0
 id: node.bef_test.default
 targetEntityType: node
 bundle: bef_test
@@ -42,6 +45,14 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: options_select
+  field_bef_location:
+    weight: 36
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
   path:
     type: path
     weight: 30
@@ -74,4 +85,5 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
-hidden: {  }
+hidden:
+  body: true
