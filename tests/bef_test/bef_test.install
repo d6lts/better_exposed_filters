@@ -1,6 +1,6 @@
 <?php
 /**
- * Provides install hooks for the BEF Test Content module.
+ * Provides install hooks for the BEF Test module.
  */
 
 use Drupal\taxonomy\Entity;
