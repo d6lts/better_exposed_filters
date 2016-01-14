@@ -1,5 +1,5 @@
 langcode: en
-  status: true
+status: true
 dependencies:
   config:
     - field.field.node.bef_test.body
