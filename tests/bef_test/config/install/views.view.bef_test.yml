@@ -6,10 +6,15 @@ dependencies:
     - field.storage.node.field_bef_email
     - field.storage.node.field_bef_integer
     - field.storage.node.field_bef_letters
+    - taxonomy.vocabulary.bef_test_location
   module:
+    - better_exposed_filters
     - node
     - options
+    - taxonomy
     - user
+_core:
+  default_config_hash: Zv5cFBgri_6QnlZXIfOMwirX6vtdm3eqmIFeJMTt7Dc
 id: bef_test
 label: 'BEF Test'
 module: views
@@ -41,15 +46,75 @@ display:
           query_comment: ''
           query_tags: {  }
       exposed_form:
-        type: basic
+        type: bef
         options:
           submit_button: Apply
-          reset_button: false
+          reset_button: 0
           reset_button_label: Reset
           exposed_sorts_label: 'Sort by'
-          expose_sort_order: true
+          expose_sort_order: 1
           sort_asc_label: Asc
           sort_desc_label: Desc
+          bef:
+            general:
+              allow_secondary: 0
+              secondary_label: 'Advanced options'
+            status:
+              bef_format: default
+              more_options:
+                bef_select_all_none: false
+                bef_collapsible: 0
+                is_secondary: 0
+                bef_filter_description: ''
+                tokens:
+                  available:
+                    - global_types
+                rewrite:
+                  filter_rewrite_values: ''
+            field_bef_boolean_value:
+              bef_format: default
+              more_options:
+                is_secondary: 0
+                bef_filter_description: ''
+                tokens:
+                  available:
+                    - global_types
+                rewrite:
+                  filter_rewrite_values: ''
+            field_bef_email_value:
+              bef_format: default
+              more_options:
+                is_secondary: 0
+                bef_filter_description: ''
+                tokens:
+                  available:
+                    - global_types
+                rewrite:
+                  filter_rewrite_values: ''
+            field_bef_integer_value:
+              bef_format: default
+              more_options:
+                bef_select_all_none: false
+                bef_collapsible: 0
+                is_secondary: 0
+                bef_filter_description: ''
+                tokens:
+                  available:
+                    - global_types
+                rewrite:
+                  filter_rewrite_values: ''
+            field_bef_letters_value:
+              bef_format: default
+              more_options:
+                bef_select_all_none: false
+                bef_collapsible: 0
+                is_secondary: 0
+                bef_filter_description: ''
+                tokens:
+                  available:
+                    - global_types
+                rewrite:
+                  filter_rewrite_values: ''
       pager:
         type: full
         options:
@@ -641,6 +706,51 @@ display:
             group_items: {  }
           reduce_duplicates: false
           plugin_id: list_field
+        field_bef_location_target_id:
+          id: field_bef_location_target_id
+          table: node__field_bef_location
+          field: field_bef_location_target_id
+          relationship: none
+          group_type: group
+          admin_label: ''
+          operator: or
+          value: {  }
+          group: 1
+          exposed: true
+          expose:
+            operator_id: field_bef_location_target_id_op
+            label: 'bef_location (field_bef_location)'
+            description: ''
+            use_operator: false
+            operator: field_bef_location_target_id_op
+            identifier: field_bef_location_target_id
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              administrator: '0'
+            reduce: false
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+          reduce_duplicates: false
+          type: select
+          limit: true
+          vid: bef_test_location
+          hierarchy: true
+          error_message: true
+          plugin_id: taxonomy_index_tid
       sorts:
         created:
           id: created
@@ -671,6 +781,7 @@ display:
         - 'languages:language_interface'
         - url
         - url.query_args
+        - user
         - 'user.node_grants:view'
         - user.permissions
       tags:
@@ -693,6 +804,7 @@ display:
         - 'languages:language_interface'
         - url
         - url.query_args
+        - user
         - 'user.node_grants:view'
         - user.permissions
       tags:
