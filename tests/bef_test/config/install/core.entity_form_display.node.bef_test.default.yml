@@ -12,7 +12,7 @@ dependencies:
   module:
     - path
 _core:
-  default_config_hash: Ps-p8WoCdKFP3TRl-jjRCENhWrv-4_PjFYEU3tM_-S0
+  default_config_hash: R0o7gr9BG9vh0chu8DVw6qiEdviHNnz3BBYqkG8No6Q
 id: node.bef_test.default
 targetEntityType: node
 bundle: bef_test
