@@ -277,14 +277,15 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         }
       }
 
-      if ($filter instanceof views_handler_filter_term_node_tid) {
+      if (is_a($filter, 'Drupal\taxonomy\Plugin\views\filter\TaxonomyIndexTidDepth')) {
         // Autocomplete and dropdown taxonomy filter are both instances of
-        // view_handler_filter_term_node_tid, but we can't show BEF options for
-        // the autocomplete widget.
-        if ('textfield' == $this->display->display_options['filters'][$label]['type']) {
+        // TaxonomyIndexTidDepth, but we can't show BEF options for the
+        // autocomplete widget.
+        kint($this->displayHandler->handlers['filter'][$label]->options);
+        if ($this->displayHandler->handlers['filter'][$label]->options['type'] != 'select') {
           $bef_standard = FALSE;
         }
-        elseif (!empty($this->display->display_options['filters'][$label]['hierarchy'])) {
+        elseif (!empty($this->displayHandler->handlers['filter'][$label]->options['hierarchy'])) {
           $bef_nested = TRUE;
         }
       }
