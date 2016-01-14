@@ -8,8 +8,7 @@ use Drupal\taxonomy\Entity;
 /**
  * Adds terms to the hierarchical "location" vocabulary.
  */
-//function bef_test_install() {
-function bef_test_temp() {
+function bef_test_install() {
   // Set up an example hierarchical terms in the "Location" vocab.
   $locations = array(
     'United States' => array(
