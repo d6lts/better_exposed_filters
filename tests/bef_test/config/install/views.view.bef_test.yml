@@ -6,6 +6,7 @@ dependencies:
     - field.storage.node.field_bef_email
     - field.storage.node.field_bef_integer
     - field.storage.node.field_bef_letters
+    - field.storage.node.field_bef_location
     - taxonomy.vocabulary.bef_test_location
   module:
     - better_exposed_filters
@@ -113,6 +114,19 @@ display:
                 tokens:
                   available:
                     - global_types
+                rewrite:
+                  filter_rewrite_values: ''
+            field_bef_location_target_id:
+              bef_format: bef
+              more_options:
+                bef_select_all_none: false
+                bef_collapsible: 0
+                is_secondary: 0
+                bef_filter_description: ''
+                tokens:
+                  available:
+                    - global_types
+                    - vocabulary
                 rewrite:
                   filter_rewrite_values: ''
       pager:
@@ -506,6 +520,69 @@ display:
           separator: ', '
           field_api_classes: false
           plugin_id: field
+        field_bef_location:
+          id: field_bef_location
+          table: node__field_bef_location
+          field: field_bef_location
+          relationship: none
+          group_type: group
+          admin_label: ''
+          label: bef_location
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          click_sort_column: target_id
+          type: entity_reference_label
+          settings:
+            link: true
+          group_column: target_id
+          group_columns: {  }
+          group_rows: true
+          delta_limit: 0
+          delta_offset: 0
+          delta_reversed: false
+          delta_first_last: false
+          multi_type: separator
+          separator: ', '
+          field_api_classes: false
+          plugin_id: field
       filters:
         status:
           id: status
@@ -706,10 +783,10 @@ display:
             group_items: {  }
           reduce_duplicates: false
           plugin_id: list_field
-        field_bef_location_target_id:
-          id: field_bef_location_target_id
-          table: node__field_bef_location
-          field: field_bef_location_target_id
+        term_node_tid_depth:
+          id: term_node_tid_depth
+          table: node_field_data
+          field: term_node_tid_depth
           relationship: none
           group_type: group
           admin_label: ''
@@ -718,12 +795,12 @@ display:
           group: 1
           exposed: true
           expose:
-            operator_id: field_bef_location_target_id_op
-            label: 'bef_location (field_bef_location)'
+            operator_id: term_node_tid_depth_op
+            label: 'Has taxonomy terms (with depth)'
             description: ''
             use_operator: false
-            operator: field_bef_location_target_id_op
-            identifier: field_bef_location_target_id
+            operator: term_node_tid_depth_op
+            identifier: term_node_tid_depth
             required: false
             remember: false
             multiple: false
@@ -750,7 +827,9 @@ display:
           vid: bef_test_location
           hierarchy: true
           error_message: true
-          plugin_id: taxonomy_index_tid
+          depth: 10
+          entity_type: node
+          plugin_id: taxonomy_index_tid_depth
       sorts:
         created:
           id: created
@@ -789,6 +868,7 @@ display:
         - 'config:field.storage.node.field_bef_email'
         - 'config:field.storage.node.field_bef_integer'
         - 'config:field.storage.node.field_bef_letters'
+        - 'config:field.storage.node.field_bef_location'
   page_1:
     display_plugin: page
     id: page_1
@@ -812,3 +892,4 @@ display:
         - 'config:field.storage.node.field_bef_email'
         - 'config:field.storage.node.field_bef_integer'
         - 'config:field.storage.node.field_bef_letters'
+        - 'config:field.storage.node.field_bef_location'
