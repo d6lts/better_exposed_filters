@@ -1127,6 +1127,11 @@ Off|No
             $form[$field_id]['#description'] = $form[$field_id]['#bef_description'];
           }
 
+          // Clean up objects from the options array (happens for taxonomy-
+          // based filters).
+          $form[$field_id]['#options'] = $this->cleanOptions($form[$field_id]['#options']);
+
+          // Render as either radio buttons or checkboxes.
           if (empty($form[$field_id]['#multiple'])) {
             // Single-select -- display as radio buttons.
             $form[$field_id]['#type'] = 'radios';
@@ -1135,21 +1140,6 @@ Off|No
               $form[$field_id]['#process'] = array();
             }
             array_unshift($form[$field_id]['#process'], ['\Drupal\Core\Render\Element\Radios', 'processRadios']);
-
-            // Clean up objects from the options array (happens for taxonomy-
-            // based filters).
-            //$opts = $form[$field_id]['#options'];
-            //$form[$field_id]['#options'] = array();
-            //foreach ($opts as $index => $opt) {
-            //  if (is_object($opt)) {
-            //    reset($opt->option);
-            //    list($key, $val) = each($opt->option);
-            //    $form[$field_id]['#options'][$key] = $val;
-            //  }
-            //  else {
-            //    $form[$field_id]['#options'][$index] = $opt;
-            //  }
-            //}
 
             // @TODO: the 'multiple' conditional is bogus. All text should be cleaned by Views.
             //if (isset($form[$field_id]['#options']['All'])) {
@@ -1320,6 +1310,39 @@ Off|No
       $form = array_merge($form, $remaining);
       $form['#info']['filter-secondary']['value'] = 'secondary';
     }
+  }
+
+  /**
+   * Cleans up options being sent to radio button or checkbox renderers.
+   *
+   * @param array $options
+   *   The options array to clean.
+   *
+   * @return array
+   *   Cleaned options array.
+   */
+  protected function cleanOptions(array $options) {
+    // Check the first element to see if we need to clean this array. If it is
+    // a scalar, then just return the array as-is.
+    if (is_scalar(reset($options))) {
+      return $options;
+    }
+
+    $clean = [];
+    foreach ($options as $index => $value) {
+      // Some options, such as the "any" text, are really just plain
+      // text so we keep those as they are. Others, like taxonomy terms
+      // need to be converted to text.
+      if (is_object($value) && !is_a($value, 'Drupal\Core\StringTranslation\TranslatableMarkup')) {
+        reset($value->option);
+        list($key, $val) = each($value->option);
+        $clean[$key] = $val;
+      }
+      else {
+        $clean[$index] = $value;
+      }
+    }
+    return $clean;
   }
 
   /**
