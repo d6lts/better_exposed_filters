@@ -1,8 +1,0 @@
-
-bef_test.test_controller_test:
-  path: '/bef_test/test'
-  defaults:
-    _controller: '\Drupal\bef_test\Controller\TestController::test'
-    _title: 'BEF Test routine'
-  requirements:
-    _permission: 'access content'
