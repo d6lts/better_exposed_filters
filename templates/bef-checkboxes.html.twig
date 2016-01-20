@@ -1,92 +1,60 @@
 {#
-  Themes Views' default select element as a set of checkboxes.
+  Themes Views' default multi-select element as a set of checkboxes.
 
   Available variables:
-    - element: the select element render array provided by Views.
+    - element: The collection of checkboxes.
+    - children: An array of keys for the children of element.
+    - is_nested: TRUE if this is to be rendered as a nested list.
+    - depth: If is_nested is TRUE, this holds an array in the form of
+      child_id => nesting_level which defines the depth a given element should
+      appear in the nested list.
 #}
-<div{{ attributes.addClass('form-checkboxes') }}>
-  {{ element }}
+{%
+  set classes = [
+    'form-checkboxes',
+    is_nested ? 'bef_nested'
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  {% if is_nested %}
+    {% spaceless %}
+      {% set current_nesting_level = 0 %}
+      <ul>
+      {% for child in children %}
+        {% if depth[child] == current_nesting_level %}
+          {% if not loop.first %}
+            {# There is no open <li> tag to close the first time through. #}
+            </li>
+          {% endif %}
+        {% else %}
+          {# Do once for each nesting level we are changing between this element
+          and the next one. #}
+          {% set delta = (current_nesting_level - depth[child]) | abs %}
+          {% for i in 1..delta %}
+            {% if depth[child] > current_nesting_level %}
+              {# Next nesting level is deeper, so open a new <ul> tag within the
+              existing <li> tag. #}
+              <ul>
+            {% else %}
+              {# Next nesting level is more shallow, so close the current <li>
+              tag and the current <ul> tag. #}
+              </li></ul>
+            {% endif %}
+          {% endfor %}
+          {% set current_nesting_level = depth[child] %}
+        {% endif %}
+        {# Print the current checkbox element, leaving the <li> tag open in case
+        we need to go deeper on the subsequent iteration. #}
+        <li>{{ element[child] }}
+      {% endfor %}
+
+      {# Close any remaining <li> tags #}
+      {% for i in nesting_level..0 %}
+        </li>
+      {% endfor %}
+      </ul>
+    {% endspaceless %}
+  {% else %}
+    {{ element }}
+  {% endif %}
 </div>
-
-{#
-@TODO:
-
-function theme_select_as_checkboxes($vars) {
-$element = $vars['element'];
-if (!empty($element['#bef_nested'])) {
-if (empty($element['#attributes']['class'])) {
-$element['#attributes']['class'] = array();
-}
-$element['#attributes']['class'][] = 'form-checkboxes';
-return theme('select_as_tree', array('element' => $element));
-}
-
-// The selected keys from #options.
-$selected_options = empty($element['#value']) ? $element['#default_value'] : $element['#value'];
-
-// Grab exposed filter description.  We'll put it under the label where it
-// makes more sense.
-$description = '';
-if (!empty($element['#bef_description'])) {
-$description = '<div class="description">' . $element['#bef_description'] . '</div>';
-}
-
-$output = '<div class="bef-checkboxes">';
-  foreach ($element['#options'] as $option => $elem) {
-  if ('All' === $option) {
-  // TODO: 'All' text is customizable in Views.
-  // No need for an 'All' option -- either unchecking or checking all the
-  // checkboxes is equivalent.
-  continue;
-  }
-
-  // Check for Taxonomy-based filters.
-  if (is_object($elem)) {
-  $slice = array_slice($elem->option, 0, 1, TRUE);
-  list($option, $elem) = each($slice);
-  }
-
-  // Check for optgroups.  Put subelements in the $element_set array and add
-  // a group heading. Otherwise, just add the element to the set.
-  $element_set = array();
-  $is_optgroup = FALSE;
-  if (is_array($elem)) {
-  $output .= '<div class="bef-group">';
-    $output .= '<div class="bef-group-heading">' . $option . '</div>';
-    $output .= '<div class="bef-group-items">';
-      $element_set = $elem;
-      $is_optgroup = TRUE;
-      }
-      else {
-      $element_set[$option] = $elem;
-      }
-
-      foreach ($element_set as $key => $value) {
-      $output .= bef_checkbox($element, $key, $value, array_search($key, $selected_options) !== FALSE);
-      }
-
-      if ($is_optgroup) {
-      // Close group and item <div>s.
-        $output .= '</div></div>';
-    }
-
-    }
-    $output .= '</div>';
-
-  // Fake theme_checkboxes() which we can't call because it calls
-  // theme_form_element() for each option.
-  $attributes['class'] = array('form-checkboxes', 'bef-select-as-checkboxes');
-  if (!empty($element['#bef_select_all_none'])) {
-  $attributes['class'][] = 'bef-select-all-none';
-  }
-  if (!empty($element['#bef_select_all_none_nested'])) {
-  $attributes['class'][] = 'bef-select-all-none-nested';
-  }
-  if (!empty($element['#attributes']['class'])) {
-  $attributes['class'] = array_merge($element['#attributes']['class'], $attributes['class']);
-  }
-
-  return '<div' . drupal_attributes($attributes) . ">$description$output</div>";
-}
-
-#}

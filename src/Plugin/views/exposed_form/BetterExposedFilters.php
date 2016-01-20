@@ -281,7 +281,6 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         // Autocomplete and dropdown taxonomy filter are both instances of
         // TaxonomyIndexTidDepth, but we can't show BEF options for the
         // autocomplete widget.
-        kint($this->displayHandler->handlers['filter'][$label]->options);
         if ($this->displayHandler->handlers['filter'][$label]->options['type'] != 'select') {
           $bef_standard = FALSE;
         }
@@ -1113,13 +1112,11 @@ Off|No
           $form[$field_id]['#theme'] = 'checkbox';
           break;
 
-        case 'bef_ul':
-          $show_apply = TRUE;
-
-          $form[$field_id]['#bef_nested'] = TRUE;
-          /* Intentionally falling through to case 'bef'. */
-
         case 'bef':
+        case 'bef_ul':
+          if ($options['bef_format'] == 'bef_ul') {
+            $form[$field_id]['#bef_nested'] = TRUE;
+          }
           $show_apply = TRUE;
 
           // Add description from the BEF settings page.

@@ -40,25 +40,25 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
 }
 
 function template_preprocess_bef_checkboxes(&$variables) {
-  //dsm('in template_preprocess_bef_checkboxes');
-  //dsm($variables);
-  //$element = $variables['element'];
-  //$variables['#children'] = [];
-  //foreach (Element::children($element) as $child) {
-  //  $variables['#children'][$child] = $element[$child];
-  //}
-  //kint($variables);
-  //template_preprocess_checkboxes($variables);
-  //kint($variables);
-  //if (!empty($variables['element']['#bef_description'])) {
-  //  // Use BEF provided description overrides other descriptions for this
-  //  // element.
-  //  $variables['element']['description'] = $variables['element']['#bef_description'];
-  //}
-  //$variables['bef_nested'] = isset($variables['element']['#bef_nested']) ? $variables['element']['#bef_nested'] : FALSE;
+  $variables['is_nested'] = $variables['element']['#bef_nested'] ?: FALSE;
+  $variables['children'] = Element::children($variables['element']);
+
+  // Provide a hierarchical info on the element children for the template to
+  // render as a nested <ul>. Views prepends '-' characters for each level of
+  // depth in the vocabulary. Store that information, but remove the hyphens as
+  // we don't want to display them.
+  $variables['depth'] = [];
+  if ($variables['is_nested']) {
+    foreach ($variables['children'] as $child) {
+      $original = $variables['element'][$child]['#title'];
+      $variables['element'][$child]['#title'] = ltrim($original, '-');
+      $variables['depth'][$child] = strlen($original) - strlen($variables['element'][$child]['#title']);
+    }
+  }
 }
 
 function template_preprocess_bef_radios(&$variables) {
+  //dsm($variables, 'vars in propro radios');
   //$variables['bef_nested'] = isset($variables['element']['#bef_nested']) ? $variables['element']['#bef_nested'] : FALSE;
 }
 
