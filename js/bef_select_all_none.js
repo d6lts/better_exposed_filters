@@ -25,10 +25,11 @@
             // Select all the checkboxes
             $(this)
               .html(selNone)
-              .siblings('.bef-checkboxes, .bef-tree')
-              .find('.form-item input:checkbox').each(function () {
-                $(this).attr('checked', true);
-                _bef_highlight(this, context);
+              .siblings('.bef-select-all-none, .bef-tree')
+              .find('input:checkbox').each(function () {
+                $(this).prop('checked', true);
+                // @TODO:
+                //_bef_highlight(this, context);
               })
               .end()
 
@@ -41,10 +42,11 @@
             // Unselect all the checkboxes
             $(this)
               .html(selAll)
-              .siblings('.bef-checkboxes, .bef-tree')
-              .find('.form-item input:checkbox').each(function () {
-                $(this).attr('checked', false);
-                _bef_highlight(this, context);
+              .siblings('.bef-select-all-none, .bef-tree')
+              .find('input:checkbox').each(function () {
+                $(this).prop('checked', false);
+                // @TODO:
+                //_bef_highlight(this, context);
               })
               .end()
 
@@ -62,7 +64,7 @@
             // Clone the link prototype and insert into the DOM
             var newLink = link.clone(true);
 
-            newLink.insertBefore($('.bef-checkboxes, .bef-tree', this));
+            newLink.insertBefore($(this));
 
             // If all checkboxes are already checked by default then switch to Select None
             if ($('input:checkbox:checked', this).length == $('input:checkbox', this).length) {
@@ -81,18 +83,19 @@
         .filter(':checked').closest('.form-item', context).addClass('highlight')
       ;
 
+      // @TODO: Put this somewhere else...
       // Check for and initialize datepickers
-      if (Drupal.settings.better_exposed_filters.datepicker) {
-        // Note: JavaScript does not treat "" as null
-        if (Drupal.settings.better_exposed_filters.datepicker_options.dateformat) {
-          $('.bef-datepicker').datepicker({
-            dateFormat: Drupal.settings.better_exposed_filters.datepicker_options.dateformat
-          });
-        }
-        else {
-          $('.bef-datepicker').datepicker();
-        }
-      }
+      //if (Drupal.settings.better_exposed_filters.datepicker) {
+      //  // Note: JavaScript does not treat "" as null
+      //  if (Drupal.settings.better_exposed_filters.datepicker_options.dateformat) {
+      //    $('.bef-datepicker').datepicker({
+      //      dateFormat: Drupal.settings.better_exposed_filters.datepicker_options.dateformat
+      //    });
+      //  }
+      //  else {
+      //    $('.bef-datepicker').datepicker();
+      //  }
+      //}
 
     }                   // attach: function() {
   };                    // Drupal.behaviors.better_exposed_filters = {

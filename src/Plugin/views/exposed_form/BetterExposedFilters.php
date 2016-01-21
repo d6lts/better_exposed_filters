@@ -1167,12 +1167,8 @@ Off|No
             if ($options['more_options']['bef_select_all_none'] || $options['more_options']['bef_select_all_none_nested']) {
               $form[$field_id]['#attached']['library'] = ['better_exposed_filters/select_all_none'];
 
-              if ($options['more_options']['bef_select_all_none']) {
-                $form[$field_id]['#bef_select_all_none'] = TRUE;
-              }
-              if ($options['more_options']['bef_select_all_none_nested']) {
-                $form[$field_id]['#bef_select_all_none_nested'] = TRUE;
-              }
+              $form[$field_id]['#bef_select_all_none'] = $options['more_options']['bef_select_all_none'];
+              $form[$field_id]['#bef_select_all_none_nested'] = $options['more_options']['bef_select_all_none_nested'];
             }
           }
           break;

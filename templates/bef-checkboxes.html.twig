@@ -12,7 +12,8 @@
 {%
   set classes = [
     'form-checkboxes',
-    is_nested ? 'bef_nested'
+    is_nested ? 'bef-nested',
+    hasSelectAllNone ? 'bef-select-all-none',
   ]
 %}
 <div{{ attributes.addClass(classes) }}>
