@@ -1128,6 +1128,25 @@ Off|No
           // based filters).
           $form[$field_id]['#options'] = $this->cleanOptions($form[$field_id]['#options']);
 
+          if (!empty($options['more_options']['bef_collapsible'])) {
+            // Pass the description and title along in a way such that it does
+            // not get rendered as part of the exposed form widget.  We render
+            // them as part of the details element instead.
+            $form[$field_id]['#theme_wrappers'] = [
+              'details' => [
+                '#title' => $form['#info']["filter-$label"]['label'] ?: '',
+                '#description' => $form['#info']["filter-$label"]['description'] ?: '',
+                // Needed to keep styling consistent with other exposed options.
+                '#attributes' => array('class' => 'form-item'),
+              ],
+            ];
+            $form['#info']["filter-$label"]['label'] = '';
+            $form['#info']["filter-$label"]['description'] = '';
+
+            // @TODO: Handle filters with exposed operators -- they need to end
+            // up in the same details element.
+          }
+
           // Render as either radio buttons or checkboxes.
           if (empty($form[$field_id]['#multiple'])) {
             // Single-select -- display as radio buttons.
@@ -1138,73 +1157,12 @@ Off|No
             }
             $form[$field_id]['#process'][] = ['\Drupal\Core\Render\Element\Radios', 'processRadios'];
 
-            // Render as radio buttons or radio buttons in a details element.
-            if (!empty($options['more_options']['bef_collapsible'])) {
-              // Pass the description and title along in a way such that it
-              // doesn't get rendered as part of the exposed form widget.  We'll
-              // render them as part of the details element.
-              if (isset($form['#info']["filter-$label"]['label'])) {
-                $form[$field_id]['#bef_title'] = $form['#info']["filter-$label"]['label'];
-                unset($form['#info']["filter-$label"]['label']);
-              }
-              if (!empty($options['more_options']['bef_filter_description'])) {
-                $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
-                if (isset($form[$field_id]['#description'])) {
-                  unset($form[$field_id]['#description']);
-                }
-              }
-
-              // If the operator is exposed as well, put it inside the details
-              // element.
-              if ($filters[$label]->options['expose']['use_operator']) {
-                $operator_id = $filters[$label]->options['expose']['operator_id'];
-                $form[$field_id]['#bef_operator'] = $form[$operator_id];
-                unset ($form[$operator_id]);
-              }
-
-              // Take care of adding the details element in the theme layer.
-              $form[$field_id]['#theme'] = 'select_as_radios_fieldset';
-            }
-            /* if (!empty($options['more_options']['bef_collapsible'])) { */
-            else {
-              // Render select element as radio buttons.
-              $form[$field_id]['#theme'] = 'bef_radios';
-            }
+            // Render select element as radio buttons.
+            $form[$field_id]['#theme'] = 'bef_radios';
           }
-          /* if (empty($form[$field_id]['#multiple'])) { */
           else {
-            // Render as checkboxes or checkboxes enclosed in a collapsible
-            // details element.
-            if (!empty($options['more_options']['bef_collapsible'])) {
-              // Pass the description and title along in a way such that it
-              // doesn't get rendered as part of the exposed form widget.  We'll
-              // render them as part of the details element.
-              if (isset($form['#info']["filter-$label"]['label'])) {
-                $form[$field_id]['#bef_title'] = $form['#info']["filter-$label"]['label'];
-                unset($form['#info']["filter-$label"]['label']);
-              }
-              if (!empty($options['more_options']['bef_filter_description'])) {
-                $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
-                if (isset($form[$field_id]['#description'])) {
-                  unset($form[$field_id]['#description']);
-                }
-              }
-
-              // If the operator is exposed as well, put it inside the details
-              // element.
-              if ($filters[$label]->options['expose']['use_operator']) {
-                $operator_id = $filters[$label]->options['expose']['operator_id'];
-                $form[$field_id]['#bef_operator'] = $form[$operator_id];
-                unset ($form[$operator_id]);
-              }
-
-              // Take care of adding the details element in the theme layer.
-              $form[$field_id]['#theme'] = 'select_as_checkboxes_fieldset';
-            }
-            else {
-              $form[$field_id]['#type'] = 'checkboxes';
-              $form[$field_id]['#theme'] = 'bef_checkboxes';
-            }
+            $form[$field_id]['#type'] = 'checkboxes';
+            $form[$field_id]['#theme'] = 'bef_checkboxes';
 
             if ($options['more_options']['bef_select_all_none'] || $options['more_options']['bef_select_all_none_nested']) {
               $form[$field_id]['#attached']['library'] = ['better_exposed_filters/select_all_none'];
@@ -1216,9 +1174,7 @@ Off|No
                 $form[$field_id]['#bef_select_all_none_nested'] = TRUE;
               }
             }
-
           }
-          /* Ends: if (empty($form[$field_id]['#multiple'])) { ... } else { */
           break;
 
         case 'bef_hidden':
