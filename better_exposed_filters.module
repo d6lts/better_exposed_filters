@@ -40,26 +40,43 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
 }
 
 function template_preprocess_bef_checkboxes(&$variables) {
-  $variables['is_nested'] = $variables['element']['#bef_nested'] ?: FALSE;
-  $variables['children'] = Element::children($variables['element']);
+  _bef_preprocess_nested_elements($variables);
+}
+
+function template_preprocess_bef_radios(&$variables) {
+  _bef_preprocess_nested_elements($variables);
+}
+
+/**
+ * Internal function to provide information the templates for rendering nested
+ * elements. Adds 'is_nested' and 'depth' to $variables.
+ *
+ * @param array $variables
+ */
+function _bef_preprocess_nested_elements(array &$variables) {
+  if (empty($variables['element']['#bef_nested'])) {
+    return;
+  }
 
   // Provide a hierarchical info on the element children for the template to
   // render as a nested <ul>. Views prepends '-' characters for each level of
   // depth in the vocabulary. Store that information, but remove the hyphens as
   // we don't want to display them.
+  $variables['children'] = Element::children($variables['element']);
+  $variables['is_nested'] = TRUE;
   $variables['depth'] = [];
-  if ($variables['is_nested']) {
-    foreach ($variables['children'] as $child) {
-      $original = $variables['element'][$child]['#title'];
-      $variables['element'][$child]['#title'] = ltrim($original, '-');
-      $variables['depth'][$child] = strlen($original) - strlen($variables['element'][$child]['#title']);
+  foreach ($variables['children'] as $child) {
+    if ($child == 'All') {
+      // For non-required filters, put the any/all option at the root.
+      $variables['depth'][$child] = 0;
+      // And don't change the text as it defaults to "- Any -" and we do not
+      // want to remove the leading hyphens.
+      continue;
     }
+    $original = $variables['element'][$child]['#title'];
+    $variables['element'][$child]['#title'] = ltrim($original, '-');
+    $variables['depth'][$child] = strlen($original) - strlen($variables['element'][$child]['#title']);
   }
-}
-
-function template_preprocess_bef_radios(&$variables) {
-  //dsm($variables, 'vars in propro radios');
-  //$variables['bef_nested'] = isset($variables['element']['#bef_nested']) ? $variables['element']['#bef_nested'] : FALSE;
 }
 
 /**

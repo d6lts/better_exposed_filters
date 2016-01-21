@@ -1136,22 +1136,7 @@ Off|No
             if (empty($form[$field_id]['#process'])) {
               $form[$field_id]['#process'] = array();
             }
-            array_unshift($form[$field_id]['#process'], ['\Drupal\Core\Render\Element\Radios', 'processRadios']);
-
-            // @TODO: the 'multiple' conditional is bogus. All text should be cleaned by Views.
-            //if (isset($form[$field_id]['#options']['All'])) {
-            //  // @TODO: The terms 'All' and 'Any' are customizable in Views.
-            //  if ($filters[$label]->options['expose']['multiple']) {
-            //    // Some third-party filter handlers still add the "Any" option
-            //    // even if this is not an optional filter.  Zap it here if they
-            //    // do.
-            //    unset($form[$field_id]['#options']['All']);
-            //  }
-            //  else {
-            //    // Otherwise, make sure the "Any" text is clean.
-            //    $form[$field_id]['#options']['All'] = check_plain($form[$field_id]['#options']['All']);
-            //  }
-            //}
+            $form[$field_id]['#process'][] = ['\Drupal\Core\Render\Element\Radios', 'processRadios'];
 
             // Render as radio buttons or radio buttons in a details element.
             if (!empty($options['more_options']['bef_collapsible'])) {
