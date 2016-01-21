@@ -12,12 +12,12 @@
 {%
   set classes = [
     'form-checkboxes',
-    is_nested ? 'bef-nested',
+    isNested ? 'bef-nested',
     hasSelectAllNone ? 'bef-select-all-none',
   ]
 %}
 <div{{ attributes.addClass(classes) }}>
-  {% if is_nested %}
+  {% if isNested %}
     {% include '@better_exposed_filters/bef-nested-elements.html.twig' %}
   {% else %}
     {{ element }}

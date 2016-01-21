@@ -41,7 +41,6 @@ function template_preprocess_bef_checkboxes(&$variables) {
   _bef_preprocess_nested_elements($variables);
   $variables['hasSelectAllNone'] = (bool) $variables['element']['#bef_select_all_none'] ?: FALSE;
   $variables['hasNestedSelectAllNone'] = (bool) $variables['element']['#bef_select_all_none_nested'] ?: FALSE;
-  dsm($variables, 'in prepro checkboxes');
 }
 
 function template_preprocess_bef_radios(&$variables) {
@@ -68,7 +67,7 @@ function _bef_preprocess_nested_elements(array &$variables) {
   // depth in the vocabulary. Store that information, but remove the hyphens as
   // we don't want to display them.
   $variables['children'] = Element::children($variables['element']);
-  $variables['is_nested'] = TRUE;
+  $variables['isNested'] = TRUE;
   $variables['depth'] = [];
   foreach ($variables['children'] as $child) {
     if ($child == 'All') {

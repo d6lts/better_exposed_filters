@@ -12,14 +12,13 @@
 {%
   set classes = [
     'form-radios',
-    is_nested ? 'bef_nested'
+    isNested ? 'bef_nested'
   ]
 %}
 <div{{ attributes.addClass(classes) }}>
-  {% if is_nested %}
+  {% if isNested %}
     {% include '@better_exposed_filters/bef-nested-elements.html.twig' %}
   {% else %}
-    <h1>Not nested</h1>
     {{ element }}
   {% endif %}
 </div>
