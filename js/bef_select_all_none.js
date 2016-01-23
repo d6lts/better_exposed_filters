@@ -74,14 +74,15 @@
         ;
       }
 
+      // @TODO:
       // Add highlight class to checked checkboxes for better theming
-      $('.bef-tree input[type="checkbox"], .bef-checkboxes input[type="checkbox"]')
-      // Highlight newly selected checkboxes
-        .change(function () {
-          _bef_highlight(this, context);
-        })
-        .filter(':checked').closest('.form-item', context).addClass('highlight')
-      ;
+      //$('.bef-tree input[type="checkbox"], .bef-checkboxes input[type="checkbox"]')
+      //// Highlight newly selected checkboxes
+      //  .change(function () {
+      //    _bef_highlight(this, context);
+      //  })
+      //  .filter(':checked').closest('.form-item', context).addClass('highlight')
+      //;
 
       // @TODO: Put this somewhere else...
       // Check for and initialize datepickers
@@ -102,27 +103,33 @@
 
   Drupal.behaviors.betterExposedFiltersAllNoneNested = {
     attach:function (context, settings) {
-      $('.form-checkboxes.bef-select-all-none-nested li').has('ul').once('bef-all-none-nested', function () {
-        $(this)
-        // To respect term depth, check/uncheck child term checkboxes.
-          .find('input.form-checkboxes:first')
-          .click(function() {
-            $(this).parents('li:first').find('ul input.form-checkboxes').attr('checked', $(this).attr('checked'));
-          })
-          .end()
-          // When a child term is checked or unchecked, set the parent term's
-          // status.
-          .find('ul input.form-checkboxes')
-          .click(function() {
-            var checked = $(this).attr('checked');
-            // Determine the number of unchecked sibling checkboxes.
-            var ct = $(this).parents('ul:first').find('input.form-checkboxes:not(:checked)').size();
-            // If the child term is unchecked, uncheck the parent.
-            // If all sibling terms are checked, check the parent.
-            if (!checked || !ct) {
-              $(this).parents('li:first').parents('li:first').find('input.form-checkboxes:first').attr('checked', checked);
-            }
-          });
+      $('.bef-select-all-none-nested li').has('ul').once('bef-all-none-nested').each(function () {
+        var $this = $(this);
+        // Check/uncheck child terms along with their parent.
+        $this.find('input:checkbox:first').change(function() {
+          $(this).closest('li').find('ul li input:checkbox').prop('checked', this.checked);
+        });
+
+        // When a child term is checked or unchecked, set the parent term's
+        // status as needed.
+        $this.find('ul input:checkbox').change(function() {
+          // Determine the number of unchecked sibling checkboxes.
+          var $this = $(this);
+          var uncheckedSiblings = $this.closest('li').siblings('li').find('> div > input:checkbox:not(:checked)').size();
+
+          // If this term or any siblings are unchecked, uncheck the parent and
+          // all ancestors.
+          if (uncheckedSiblings || !this.checked) {
+            $this.parents('ul').siblings('div').find('input:checkbox').prop('checked', false);
+          }
+
+          // If this and all sibling terms are checked, check the parent. Then
+          // trigger the parent's change event to see if that change affects the
+          // grandparent's checked state.
+          if (this.checked && !uncheckedSiblings) {
+            $(this).closest('ul').closest('li').find('input:checkbox:first').prop('checked', true).change();
+          }
+        });
       });
     }
   }

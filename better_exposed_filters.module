@@ -40,7 +40,7 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
 function template_preprocess_bef_checkboxes(&$variables) {
   _bef_preprocess_nested_elements($variables);
   $variables['hasSelectAllNone'] = (bool) $variables['element']['#bef_select_all_none'] ?: FALSE;
-  $variables['hasNestedSelectAllNone'] = (bool) $variables['element']['#bef_select_all_none_nested'] ?: FALSE;
+  $variables['hasSelectAllNoneNested'] = (bool) $variables['element']['#bef_select_all_none_nested'] ?: FALSE;
 }
 
 function template_preprocess_bef_radios(&$variables) {
