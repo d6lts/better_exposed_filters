@@ -479,46 +479,6 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         '#description' => t('Places this element in the secondary options portion of the exposed form.'),
       );
 
-      // Build a description option form element -- available to all exposed
-      // filters.
-      $bef_options[$label]['more_options']['bef_filter_description'] = array(
-        '#type' => 'textarea',
-        '#title' => t('Description'),
-        '#default_value' => $existing[$label]['more_options']['bef_filter_description'],
-        '#description' => t('Adds descriptive text to the exposed filter.  This is usually rendered in smaller print under the label or the options.'),
-      );
-
-      // Add token support to the description field.
-      $bef_options[$label]['more_options']['tokens'] = array(
-        '#title' => t('Replacement patterns'),
-        '#type' => 'details',
-      );
-
-      if (!\Drupal::moduleHandler()->moduleExists('token')) {
-        $bef_options[$label]['more_options']['tokens']['no_tokens'] = array(
-          '#markup' => '<p>'
-          . t('Enable the <a href=":token">Token</a> module to use replacement values.', array(':token' => Url::fromUri('http://drupal.org/project/token')))
-          . '</p>',
-        );
-      }
-
-      // Collect a list of token types that make sense for this filter.
-      $available = array('global_types');
-      if (!empty($filter->options['vid'])) {
-        $available[] = 'vocabulary';
-      }
-      /* @TODO: Other token types? */
-
-      $bef_options[$label]['more_options']['tokens']['list'] = array(
-        '#theme' => 'token_tree',
-        '#token_types' => $available,
-      );
-      $bef_options[$label]['more_options']['tokens']['available'] = array(
-        // Save us from parsing available tokens again.
-        '#type' => 'value',
-        '#value' => $available,
-      );
-
       // Allow rewriting of filter options for any filter.
       $bef_options[$label]['more_options']['rewrite'] = array(
         '#title' => t('Rewrite filter options'),
@@ -836,24 +796,6 @@ Off|No
       // configurable.
       $field_id = $form['#info']["filter-$label"]['value'];
 
-      // Token replacement on BEF Description fields.
-      if (!empty($options['more_options']['bef_filter_description'])) {
-        // Collect replacement data.
-        $data = array();
-        $available = $options['more_options']['tokens']['available'];
-        if (in_array('vocabulary', $available)) {
-          $vocabs = taxonomy_get_vocabularies();
-          $data['vocabulary'] = $vocabs[$filters[$label]->options['vid']];
-        }
-        /* Others? */
-
-        // Replace tokens.
-        $options['more_options']['bef_filter_description'] = \Drupal::service('token')->replace(
-          $options['more_options']['bef_filter_description'], $data
-        );
-        $form[$field_id]['#bef_description'] = $options['more_options']['bef_filter_description'];
-      }
-
       // Handle filter value rewrites.
       if (!empty($options['more_options']['rewrite']['filter_rewrite_values'])) {
         $lines = explode("\n", trim($options['more_options']['rewrite']['filter_rewrite_values']));
@@ -1104,7 +1046,6 @@ Off|No
 
           // Use filter label as checkbox label.
           $form[$field_id]['#title'] = $filters[$label]->options['expose']['label'];
-          $form[$field_id]['#description'] = $options['more_options']['bef_filter_description'];
           $form[$field_id]['#return_value'] = 1;
           $form[$field_id]['#type'] = 'checkbox';
 
@@ -1118,11 +1059,6 @@ Off|No
             $form[$field_id]['#bef_nested'] = TRUE;
           }
           $show_apply = TRUE;
-
-          // Add description from the BEF settings page.
-          if (!empty($form[$field_id]['#bef_description'])) {
-            $form[$field_id]['#description'] = $form[$field_id]['#bef_description'];
-          }
 
           // Clean up objects from the options array (happens for taxonomy-
           // based filters).
@@ -1188,11 +1124,6 @@ Off|No
           // Handle functionality for exposed filters that are not limited to
           // BEF only filters.
           $show_apply = TRUE;
-
-          // Add a description to the exposed filter.
-          if (!empty($options['more_options']['bef_filter_description'])) {
-            $form[$field_id]['#description'] = t($options['more_options']['bef_filter_description']);
-          }
           break;
       }
       /* Ends switch ($options['bef_format']) */
@@ -1417,7 +1348,6 @@ Off|No
         'bef_select_all_none_nested' => FALSE,
         'bef_collapsible' => FALSE,
         'is_secondary' => FALSE,
-        'bef_filter_description' => '',
         'rewrite' => array(
           'filter_rewrite_values' => '',
         ),
