@@ -1030,15 +1030,13 @@ Off|No
 
         case 'bef_links':
           $show_apply = TRUE;
-          $form[$field_id]['#theme'] = 'select_as_links';
+          $form[$field_id]['#theme'] = 'bef_links';
 
           // Exposed form displayed as blocks can appear on pages other than
           // the view results appear on. This can cause problems with
           // select_as_links options as they will use the wrong path. We provide
           // a hint for theme functions to correct this.
-          if (!empty($this->display->display_options['exposed_block'])) {
-            $form[$field_id]['#bef_path'] = $this->display->display_options['path'];
-          }
+          $form[$field_id]['#bef_path'] = $this->displayHandler->getUrlInfo();
           break;
 
         case 'bef_single':

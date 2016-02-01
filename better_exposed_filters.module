@@ -18,13 +18,13 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
     'bef_radios' => [
       'render element' => 'element',
     ],
+    'bef_links' => [
+      'render element' => 'element',
+    ],
     'bef_hidden' => [
       'variables' => [],
     ],
     'bef_tree' => [
-      'variables' => [],
-    ],
-    'bef_links' => [
       'variables' => [],
     ],
     'bef_secondary_exposed_elements' => [
@@ -45,6 +45,42 @@ function template_preprocess_bef_checkboxes(&$variables) {
 
 function template_preprocess_bef_radios(&$variables) {
   _bef_preprocess_nested_elements($variables);
+}
+
+function template_preprocess_bef_links(&$variables) {
+  // Collect some variables before we start tweaking the element.
+  $element = &$variables['element'];
+  $options = $element['#options'];
+  $name = $element['#name'];
+  /** @var Drupal\Core\Url $url */
+  $url = $element['#bef_path'];
+
+  // Change the select element into a fieldset and add the links as children.
+  $variables['links'] = [];
+
+  // Get the query string arguments from the current request.
+  $existingQuery = \Drupal::service('request_stack')->getCurrentRequest()->query->all();
+
+  // Pass currently selected values for this filter to the template.
+  $variables['selected'] = $element['#value'];
+  if (!is_array($variables['selected'])) {
+    $variables['selected'] = [$variables['selected']];
+  }
+
+  foreach ($options as $value => $option) {
+    $newQuery = $existingQuery;
+    if ($element['#multiple']) {
+      $newQuery[$name][$value] = $value;
+    }
+    else {
+      $newQuery[$name] = $value;
+    }
+    $variables['links'][$value] = [
+      '#type' => 'link',
+      '#title' => $option,
+      '#theme_wrappers' => ['container'],
+    ] + $url->setOption('query', $newQuery)->toRenderArray();
+  }
 }
 
 /******************************************************************************

@@ -1,0 +1,15 @@
+{%
+  set classes = [
+    'bef-links',
+  ]
+%}
+<div{{ attributes.addClass(classes) }}>
+  {% for value, link in links %}
+    {%- spaceless %}
+      {% if value in selected %}
+        {% set link = link|merge({'#attributes': {'class': 'bef-link-active'}}) %}
+      {% endif %}
+      {{ link }}
+    {% endspaceless -%}
+  {% endfor %}
+</div>
