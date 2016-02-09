@@ -52,34 +52,79 @@ function template_preprocess_bef_links(&$variables) {
   $element = &$variables['element'];
   $options = $element['#options'];
   $name = $element['#name'];
-  /** @var Drupal\Core\Url $url */
-  $url = $element['#bef_path'];
-
-  // Change the select element into a fieldset and add the links as children.
-  $variables['links'] = [];
 
   // Get the query string arguments from the current request.
   $existingQuery = \Drupal::service('request_stack')->getCurrentRequest()->query->all();
 
-  // Pass currently selected values for this filter to the template.
+  // Pass currently selected values for this filter to the template as an array.
   $variables['selected'] = $element['#value'];
   if (!is_array($variables['selected'])) {
     $variables['selected'] = [$variables['selected']];
   }
 
-  foreach ($options as $value => $option) {
-    $newQuery = $existingQuery;
+  $variables['links'] = [];
+  foreach ($options as $optionValue => $optionLabel) {
+    // Build a new Url object for each link since the query string changes with
+    // each option.
+    /** @var Drupal\Core\Url $url */
+    $url = clone($element['#bef_path']);
+
+    // Allow visitors to toggle a filter setting on and off. This is not as
+    // simple as setOptions('foo', '') as that still leaves an entry which is
+    // rendered rather than removing the entry from the query string altogether.
+    // Calling $url->setOption() still leaves a value behind. Instead we work
+    // with the entire options array and remove items from it as needed.
+    $urlOptions = $url->getOptions();
+
     if ($element['#multiple']) {
-      $newQuery[$name][$value] = $value;
+      $selectedValues = $element['#value'];
+
+      $newQuery = isset($existingQuery[$name]) ? $existingQuery[$name] : [];
+      if (in_array($optionValue, $selectedValues)) {
+        // Allow users to toggle an option using the same link.
+        $newQuery = array_filter($newQuery, function ($value) use ($selectedValues) {
+          return !in_array($value, $selectedValues);
+        });
+      }
+      else {
+        $newQuery[] = $optionValue;
+      }
+      if (empty($newQuery)) {
+        unset($urlOptions['query'][$name]);
+      }
+      else {
+        $urlOptions['query'][$name] = $newQuery;
+      }
     }
     else {
-      $newQuery[$name] = $value;
+      if ($optionValue == $element['#value']) {
+        // Allow toggle link functionality -- click the same link to turn an
+        // option on or off.
+        $newQuery = $existingQuery;
+        unset($newQuery[$name]);
+        if (empty($newQuery)) {
+          // Remove the query string completely.
+          unset($urlOptions['query']);
+        }
+        else {
+          $urlOptions['query'] = $newQuery;
+        }
+      }
+      else {
+        $urlOptions['query'][$name] = $optionValue;
+      }
     }
-    $variables['links'][$value] = [
+
+    // Add our updated options to the Url object.
+    $url->setOptions($urlOptions);
+
+    // Provide the Twig template with an array of links.
+    $variables['links'][$optionValue] = [
       '#type' => 'link',
-      '#title' => $option,
+      '#title' => $optionLabel,
       '#theme_wrappers' => ['container'],
-    ] + $url->setOption('query', $newQuery)->toRenderArray();
+      '#url' => $url,
+    ];
   }
 }
 
