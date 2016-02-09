@@ -111,6 +111,7 @@ function template_preprocess_bef_links(&$variables) {
         }
       }
       else {
+        $urlOptions['query'] = $existingQuery;
         $urlOptions['query'][$name] = $optionValue;
       }
     }
