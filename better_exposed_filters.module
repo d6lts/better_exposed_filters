@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Render\Element;
+use Drupal\Core\Form\FormStateInterface;
 
 /**
  * Implements hook_theme().
@@ -167,17 +168,20 @@ function _bef_preprocess_nested_elements(array &$variables) {
 
 /**
  * Unpacks sort_by and sort_order from the sort_bef_combine element.
+ *
+ * @param $form
+ * @param \FormStateInterface $form_state
  */
-function bef_sort_combine_submit($form, &$form_state) {
-  if (empty($form_state['values']['sort_bef_combine'])) {
-    $form_state['values']['sort_by'] = $form_state['values']['sort_order'] = '';
+function bef_sort_combine_submit($form, FormStateInterface $form_state) {
+  $sortBy = $sortOrder = '';
+  if ($form_state->hasValue('sort_bef_combine')) {
+    list($sortBy, $sortOrder) = explode(' ', $form_state->getValue('sort_bef_combine'));
   }
-  else {
-    list($form_state['values']['sort_by'], $form_state['values']['sort_order']) = explode(' ', $form_state['values']['sort_bef_combine']);
-  }
+  $form_state->setValue('sort_by', $sortBy);
+  $form_state->setValue('sort_order', $sortOrder);
 
   // And pass this along to Views.
-  views_exposed_form_submit($form, $form_state);
+  //views_exposed_form_submit($form, $form_state);
 }
 
 /**
