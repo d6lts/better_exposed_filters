@@ -11,16 +11,6 @@ use Drupal\views\Plugin\views\exposed_form\ExposedFormPluginBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
-//use Drupal\Component\Utility\String;
-//use Drupal\Core\Form\FormState;
-//use Drupal\Core\Form\FormStateInterface;
-//use Drupal\views\Form\ViewsExposedForm;
-//use Drupal\views\ViewExecutable;
-//use Drupal\views\Plugin\views\display\DisplayPluginBase;
-//use Drupal\views\Plugin\views\PluginBase;
-//use Drupal\views\Plugin\views\filter;
-
-
 /**
  * Exposed form plugin that provides a basic exposed form.
  *
