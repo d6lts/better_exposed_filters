@@ -33,6 +33,10 @@ use Drupal\Core\Url;
  * )
  */
 class BetterExposedFilters extends ExposedFormPluginBase {
+
+  /**
+   * @inheritdoc
+   */
   protected function defineOptions() {
     $options = parent::defineOptions();
 
@@ -41,24 +45,16 @@ class BetterExposedFilters extends ExposedFormPluginBase {
     return $options;
   }
 
-  //protected function defineOptions() {
-  //  $options = parent::defineOptions();
-  //
-  //  // Unfortunately we can't list all BEF options here since they change at
-  //  // runtime. Set the entire BEF settings array as translatable in hopes that
-  //  // will allow I18N support in D8 (it didn't in D7), see:
-  //  // http://drupal.org/node/1852306
-  //  $options['bef'] = array('default' => array(), 'translatable' => TRUE);
-  //  return $options;
-  //}
-
+  /**
+   * @inheritdoc
+   */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
     $bef_options = array();
 
     // Get current settings and default values for new filters/
-    $existing = $this->_bef_get_settings();
+    $existing = $this->bef_get_settings();
 
     /*
      * Add general options for exposed form items.
@@ -502,16 +498,10 @@ Off|No
     $form['bef'] = $bef_options;
   }
 
-  // @TODO: remove?
-  public function submitOptionsForm(&$form, FormStateInterface $form_state) {
-    parent::submitOptionsForm($form, $form_state);
-  }
-
-
   /**
    * @inheritdoc
    */
-  function exposedFormAlter(&$form, FormStateInterface $form_state) {
+  public function exposedFormAlter(&$form, FormStateInterface $form_state) {
     parent::exposedFormAlter($form, $form_state);
 
     // If we have no visible elements, we don't show the Apply button.
@@ -536,7 +526,7 @@ Off|No
     $bef_add_css = FALSE;
 
     // Grab BEF settings.
-    $settings = $this->_bef_get_settings();
+    $settings = $this->bef_get_settings();
 
     // Some elements may be placed in a secondary details element (eg: "Advanced
     // search options"). Place this after the exposed filters and before the
@@ -1215,12 +1205,12 @@ Off|No
    * values.  Use this to set defaults for missing values in a multi-dimensional
    * array.  Eg:
    *
-   *  $existing = $this->_bef_set_defaults($defaults, $existing);
+   *  $existing = $this->bef_set_defaults($defaults, $existing);
    *
    * @return array
    *   The resulting settings array
    */
-  protected function _bef_set_defaults() {
+  protected function bef_set_defaults() {
     $count = func_num_args();
     if (!$count) {
       return;
@@ -1239,7 +1229,7 @@ Off|No
         // Numeric keyed values are added (unless already there).
         if (is_numeric($key) && !in_array($value, $return)) {
           if (is_array($value)) {
-            $return[] = $this->_bef_set_defaults($return[$key], $value);
+            $return[] = $this->bef_set_defaults($return[$key], $value);
           }
           else {
             $return[] = $value;
@@ -1248,7 +1238,7 @@ Off|No
         // String keyed values are replaced.
         else {
           if (isset($return[$key]) && is_array($value) && is_array($return[$key])) {
-            $return[$key] = $this->_bef_set_defaults($return[$key], $value);
+            $return[$key] = $this->bef_set_defaults($return[$key], $value);
           }
           else {
             $return[$key] = $value;
@@ -1265,7 +1255,7 @@ Off|No
    * @param array $settings
    *   Array of BEF settings.
    */
-  protected function _bef_update_legacy_settings($settings) {
+  protected function bef_update_legacy_settings($settings) {
     // There has got to be a better way... But for now, this works.
     if (isset($settings['sort']['collapsible'])) {
       $settings['sort']['advanced']['collapsible'] = $settings['sort']['collapsible'];
@@ -1300,12 +1290,12 @@ Off|No
    * @endcode
    * as there will be a default value at all positions in the settings array.
    * Also updates legacy settings to their new locations via
-   * _bef_update_legacy_settings().
+   * bef_update_legacy_settings().
    *
    * @return array
    *   Multi-dimensional settings array.
    */
-  protected function _bef_get_settings() {
+  protected function bef_get_settings() {
     // General, sort, pagers, etc.
     $defaults = array(
       'general' => array(
@@ -1333,10 +1323,10 @@ Off|No
     // Update legacy settings in the exposed form settings form. This
     // keep us from losing settings when an option is put into an
     // 'advanced options' details element.
-    $current = $this->_bef_update_legacy_settings($this->options['bef']);
+    $current = $this->bef_update_legacy_settings($this->options['bef']);
 
     // Collect existing values or use defaults.
-    $settings = $this->_bef_set_defaults($defaults, $current);
+    $settings = $this->bef_set_defaults($defaults, $current);
 
     // Filter default values.
     $filter_defaults = array(
@@ -1371,7 +1361,7 @@ Off|No
         $settings[$label] = $filter_defaults;
       }
       else {
-        $settings[$label] = $this->_bef_set_defaults($filter_defaults, $this->options['bef'][$label]);
+        $settings[$label] = $this->bef_set_defaults($filter_defaults, $this->options['bef'][$label]);
       }
     }
     return $settings;
