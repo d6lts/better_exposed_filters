@@ -234,7 +234,7 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
           . t('Exposed Filter Settings')
           . '</h3><p>'
           . t('This section lets you select additional options for exposed filters. Some options are only available in certain situations. If you do not see the options you expect, please see the <a href=":link">BEF settings documentation page</a> for more details.',
-              array(':link' => Url::fromUri('http://drupal.org/node/1701012')))
+              array(':link' => Url::fromUri('http://drupal.org/node/1701012')->toString()))
           . '</p>',
         );
         $bef_filter_intro = TRUE;
