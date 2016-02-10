@@ -586,27 +586,11 @@ Off|No
 
         // Rewrite the option values if any were specified.
         if (!empty($settings['sort']['advanced']['combine_rewrite'])) {
-          $lines = explode("\n", trim($settings['sort']['advanced']['combine_rewrite']));
-          $rewrite = array();
-          foreach ($lines as $line) {
-            list($search, $replace) = explode('|', $line);
-            if (!empty($search)) {
-              $rewrite[$search] = $replace;
-            }
-          }
-          foreach ($options as $index => $option) {
-            if (isset($rewrite[$option])) {
-              if ('' == $rewrite[$option]) {
-                unset($options[$index]);
-                if ($selected == $index) {
-                  // Avoid "Illegal choice" errors.
-                  $selected = NULL;
-                }
-              }
-              else {
-                $options[$index] = $rewrite[$option];
-              }
-            }
+          $options = $this->rewriteOptions($options, $settings['sort']['advanced']['combine_rewrite']);
+          if (!isset($options[$selected])) {
+            // Avoid "illegal choice" errors if the selected option is
+            // eliminated by the rewrite.
+            $selected = NULL;
           }
         }
 
@@ -788,49 +772,10 @@ Off|No
 
       // Handle filter value rewrites.
       if (!empty($options['more_options']['rewrite']['filter_rewrite_values'])) {
-        $lines = explode("\n", trim($options['more_options']['rewrite']['filter_rewrite_values']));
-        $rewrite = array();
-        foreach ($lines as $line) {
-          list($search, $replace) = explode('|', $line);
-          if (!empty($search)) {
-            $rewrite[$search] = $replace;
-          }
-        }
-
-        foreach ($form[$field_id]['#options'] as $index => $option) {
-          $is_object = FALSE;
-          if (is_object($option)) {
-            // Taxonomy filters use objects instead of text.
-            $is_object = TRUE;
-            $option = reset($option->option);
-
-            // Hierarchical filters prepend hyphens to indicate depth. We need
-            // to remove them for comparison, but keep them after replacement to
-            // ensure nested options display correctly.
-            $option = ltrim($option, '-');
-          }
-
-          if (isset($rewrite[$option])) {
-            if ('' == $rewrite[$option]) {
-              unset($form[$field_id]['#options'][$index]);
-              if ($selected == $index) {
-                // Avoid "Illegal choice" errors.
-                $form[$field_id]['#default_value'] = NULL;
-              }
-            }
-            else {
-              if ($is_object) {
-                // dsm($form[$field_id]['#options'][$index]->option, "$field_id at $index");
-                // Taxonomy term filters are stored as objects. Use str_replace
-                // to ensure that keep hyphens for hierarchical filters.
-                list($tid, $original) = each($form[$field_id]['#options'][$index]->option);
-                $form[$field_id]['#options'][$index]->option[$tid] = str_replace($option, $rewrite[$option], $original);
-              }
-              else {
-                $form[$field_id]['#options'][$index] = $rewrite[$option];
-              }
-            }
-          }
+        $form[$field_id]['#options'] = $this->rewriteOptions($form[$field_id]['#options'] , $options['more_options']['rewrite']['filter_rewrite_values']);
+        if (!isset($form[$field_id]['#options'][$selected])) {
+          // Avoid "Illegal choice" errors.
+          $form[$field_id]['#default_value'] = NULL;
         }
       }
 
@@ -1163,6 +1108,49 @@ Off|No
       $form = array_merge($form, $remaining);
       $form['#info']['filter-secondary']['value'] = 'secondary';
     }
+  }
+
+  /**
+   * Rewrites a set of options given a string from the config form.
+   *
+   * Rewrites should be specified, one per line, using the format
+   * old_string|new_string. If new_string is empty, the option will be removed.
+   *
+   * @param array $options
+   *   An array of key => value pairs that may be rewritten.
+   * @param string $rewriteSettings
+   *   String representing the entry in the settings form.
+   *
+   * @return array
+   *   Rewritten $options.
+   */
+  protected function rewriteOptions(array $options, $rewriteSettings) {
+    if (empty($rewriteSettings) || !is_string($rewriteSettings)) {
+      return $options;
+    }
+    $rewrites = [];
+    $lines = explode("\n", trim($rewriteSettings));
+    foreach ($lines as $line) {
+      list($search, $replace) = explode('|', $line);
+      if (!empty($search)) {
+        $rewrites[$search] = $replace;
+      }
+    }
+
+    $return = $options;
+    // @TODO: Need to handle rewriting of taxonomy filters.
+    // https://www.drupal.org/node/2666540
+    foreach ($options as $index => $option) {
+      if (isset($rewrites[$option])) {
+        if ('' == $rewrites[$option]) {
+          unset($return[$index]);
+        }
+        else {
+          $return[$index] = $rewrites[$option];
+        }
+      }
+    }
+    return $return;
   }
 
   /**
