@@ -954,7 +954,6 @@ Off|No
           break;
 
         case 'bef_links':
-          $show_apply = TRUE;
           $form[$field_id]['#theme'] = 'bef_links';
 
           // Exposed form displayed as blocks can appear on pages other than
