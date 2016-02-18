@@ -782,8 +782,14 @@ Off|No
       // autocomplete). Check for that here and revert to Views' default filter
       // in those cases.
       $requires_options = array('bef', 'bef_ul', 'bef_links', 'bef_hidden');
-      if (in_array($options['bef_format'], $requires_options) && empty($form[$field_id]['#options'])) {
-        $options['bef_format'] = 'default';
+      if (in_array($options['bef_format'], $requires_options)) {
+        if (empty($form[$field_id]['#options'])) {
+          $options['bef_format'] = 'default';
+        }
+        else {
+          // Clean up filters that pass objects as options instead of strings.
+          $form[$field_id]['#options'] = $this->cleanOptions($form[$field_id]['#options']);
+        }
       }
 
       switch ($options['bef_format']) {
