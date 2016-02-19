@@ -128,6 +128,9 @@ function template_preprocess_bef_links(&$variables) {
       '#url' => $url,
     ];
   }
+
+  _bef_preprocess_nested_elements($variables);
+
 }
 
 /******************************************************************************
@@ -145,11 +148,16 @@ function _bef_preprocess_nested_elements(array &$variables) {
     return;
   }
 
+  dsm($variables, 'vars');
+
   // Provide a hierarchical info on the element children for the template to
   // render as a nested <ul>. Views prepends '-' characters for each level of
   // depth in the vocabulary. Store that information, but remove the hyphens as
   // we don't want to display them.
   $variables['children'] = Element::children($variables['element']);
+  if (empty($variables['children'])) {
+    //
+  }
   $variables['isNested'] = TRUE;
   $variables['depth'] = [];
   foreach ($variables['children'] as $child) {

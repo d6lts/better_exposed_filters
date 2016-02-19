@@ -234,8 +234,11 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
       // operators.
       $bef_single = FALSE;
 
-      // Used for taxonomy filters with heirarchy.
+      // Used for taxonomy filters with hierarchy.
       $bef_nested = FALSE;
+
+      // Used for taxonomy filters with hierarchy rendered as links.
+      $bef_nested_links = FALSE;
 
       // Used for date-based filters.
       $bef_datepicker = FALSE;
@@ -263,15 +266,16 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
         }
       }
 
-      if (is_a($filter, 'Drupal\taxonomy\Plugin\views\filter\TaxonomyIndexTidDepth')) {
+      if (is_a($filter, 'Drupal\taxonomy\Plugin\views\filter\TaxonomyIndexTid')) {
         // Autocomplete and dropdown taxonomy filter are both instances of
-        // TaxonomyIndexTidDepth, but we can't show BEF options for the
-        // autocomplete widget.
+        // TaxonomyIndexTid, but we can't show BEF options for the autocomplete
+        // widget.
         if ($this->displayHandler->handlers['filter'][$label]->options['type'] != 'select') {
           $bef_standard = FALSE;
         }
         elseif (!empty($this->displayHandler->handlers['filter'][$label]->options['hierarchy'])) {
           $bef_nested = TRUE;
+          $bef_nested_links = TRUE;
         }
       }
 
@@ -312,6 +316,9 @@ Title Desc|Z -> A</pre> Leave the replacement text blank to remove an option alt
       if ($bef_standard) {
         // Less used BEF options, so put them last.
         $display_options['bef_links'] = t('Links');
+        if ($bef_nested_links) {
+          $display_options['bef_ul_links'] = t('Nested Links');
+        }
         $display_options['bef_hidden'] = t('Hidden');
       }
 
@@ -781,7 +788,7 @@ Off|No
       // the form (eg: changing a taxonomy term filter from dropdown to
       // autocomplete). Check for that here and revert to Views' default filter
       // in those cases.
-      $requires_options = array('bef', 'bef_ul', 'bef_links', 'bef_hidden');
+      $requires_options = array('bef', 'bef_ul', 'bef_links', 'bef_ul_links', 'bef_hidden');
       if (in_array($options['bef_format'], $requires_options)) {
         if (empty($form[$field_id]['#options'])) {
           $options['bef_format'] = 'default';
@@ -960,6 +967,12 @@ Off|No
           break;
 
         case 'bef_links':
+        case 'bef_ul_links':
+          if ($options['bef_format'] == 'bef_ul_links') {
+            // Let the templates know this is a nested option.
+            $form[$field_id]['#bef_nested'] = TRUE;
+          }
+
           $form[$field_id]['#theme'] = 'bef_links';
 
           // Exposed form displayed as blocks can appear on pages other than
