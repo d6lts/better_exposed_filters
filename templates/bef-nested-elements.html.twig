@@ -1,47 +1,40 @@
 {#
   Themes hierarchical taxonomy terms as nested <ul> elements.
 
+  This template is intended to be called from within another template to provide
+  the "scaffolding" of nested lists while the calling template provides the
+  actual filter element via the 'item' variable.
+
   Available variables:
-    - element: The collection of checkboxes or radio buttons to render.
-    - children: An array of keys for the children of element.
-    - depth: If is_nested is TRUE, this holds an array in the form of
-      child_id => nesting_level which defines the depth a given element should
-      appear in the nested list.
+    - current_nesting_level: the nesting level of the most recently printe item.
+    - new_nesting_level: the nesting level of the item to print.
+    - item: The item to print.
+    - loop: The loop variable from the iterator that calls this template.
+      Requires the loop.first and loop.last elements.
 #}
 {% spaceless %}
-  {% set current_nesting_level = 0 %}
-  <ul>
-    {% for child in children %}
-    {% if depth[child] == current_nesting_level %}
-      {% if not loop.first %}
-        {# There is no open <li> tag to close the first time through. #}
-        </li>
-      {% endif %}
-    {% else %}
-      {# Do once for each nesting level we are changing between this element
-      and the next one. #}
-      {% set delta = (current_nesting_level - depth[child]) | abs %}
+  {% set delta = (current_nesting_level - new_nesting_level) | abs %}
+  {% if loop.first %}
+    <ul>
+  {% else %}
+    {% if delta %}
       {% for i in 1..delta %}
-        {% if depth[child] > current_nesting_level %}
-          {# Next nesting level is deeper, so open a new <ul> tag within the
-          existing <li> tag. #}
+        {% if new_nesting_level > current_nesting_level  %}
           <ul>
         {% else %}
-          {# Next nesting level is more shallow, so close the current <li>
-          tag and the current <ul> tag. #}
           </li></ul>
         {% endif %}
       {% endfor %}
-      {% set current_nesting_level = depth[child] %}
     {% endif %}
-    {# Print the current checkbox element, leaving the <li> tag open in case
-    we need to go deeper on the subsequent iteration. #}
-    <li>{{ element[child] }}
-      {% endfor %}
+  {% endif %}
 
-      {# Close any remaining <li> tags #}
-      {% for i in nesting_level..0 %}
-    </li>
+  <li>{{ item }}
+
+  {% if loop.last %}
+    {# Close any remaining <li> tags #}
+    {% for i in new_nesting_level..0 %}
+      </li>
     {% endfor %}
-  </ul>
+    </ul>
+  {% endif %}
 {% endspaceless %}
