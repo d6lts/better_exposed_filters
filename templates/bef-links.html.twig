@@ -4,16 +4,18 @@
   ]
 %}
 <div{{ attributes.addClass(classes) }}>
-  {% if isNested %}
-    {% include '@better_exposed_filters/bef-nested-elements.html.twig' %}
-  {% else %}
-    {% for value, link in links %}
-      {%- spaceless %}
-        {% if value in selected %}
-          {% set link = link|merge({'#attributes': {'class': 'bef-link-active'}}) %}
-        {% endif %}
-        {{ link }}
-      {% endspaceless -%}
-    {% endfor %}
-  {% endif %}
+  {% set current_nesting_level = 0 %}
+  {% for child in children %}
+    {% set item = attribute(element, child) %}
+    {% if child in selected %}
+      {% set item = item|merge({'#attributes': {'class': 'bef-link-active'}}) %}
+    {% endif %}
+    {% if isNested %}
+      {% set new_nesting_level = attribute(depth, child) %}
+      {% include '@better_exposed_filters/bef-nested-elements.html.twig' %}
+      {% set current_nesting_level = new_nesting_level %}
+    {% else %}
+      {{ item }}
+    {% endif %}
+  {% endfor %}
 </div>

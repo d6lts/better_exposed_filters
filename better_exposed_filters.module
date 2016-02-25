@@ -133,7 +133,8 @@ function template_preprocess_bef_links(&$variables) {
 
   // Handle nested links. But first add the links as children to the element
   // for consistent processing between checkboxes/radio buttons and links.
-  $variables['element'] = array_merge($variables['element'], $variables['links']);
+  $variables['element'] = array_replace($variables['element'], $variables['links']);
+  $variables['children'] = Element::children($variables['element']);
   _bef_preprocess_nested_elements($variables);
 }
 
@@ -157,12 +158,6 @@ function _bef_preprocess_nested_elements(array &$variables) {
   // render as a nested <ul>. Views prepends '-' characters for each level of
   // depth in the vocabulary. Store that information, but remove the hyphens as
   // we don't want to display them.
-  //$using_options = FALSE;
-  //if (empty($variables['children'])) {
-  //  // If there are no children elements, use #options instead.
-  //  $variables['children'] = array_keys($variables['element']['#options']);
-  //  $using_options = TRUE;
-  //}
   $variables['isNested'] = TRUE;
   $variables['depth'] = [];
   foreach ($variables['children'] as $child) {
@@ -174,16 +169,9 @@ function _bef_preprocess_nested_elements(array &$variables) {
       continue;
     }
 
-    //if ($using_options) {
-    //  $original = $variables['element']['#options'][$child];
-    //  $variables['element']['#options'][$child] = ltrim($original, '-');
-    //  $variables['depth'][$child] = strlen($original) - strlen($variables['element']['#options'][$child]);
-    //}
-    //else {
     $original = $variables['element'][$child]['#title'];
     $variables['element'][$child]['#title'] = ltrim($original, '-');
     $variables['depth'][$child] = strlen($original) - strlen($variables['element'][$child]['#title']);
-    //}
   }
 }
 
