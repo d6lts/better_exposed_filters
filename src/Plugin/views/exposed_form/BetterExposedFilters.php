@@ -613,9 +613,7 @@ Off|No
             // the view results appear on. This can cause problems with
             // select_as_links options as they will use the wrong path. We
             // provide a hint for theme functions to correct this.
-            if (!empty($this->display->display_options['exposed_block'])) {
-              $form['sort_bef_combine']['#bef_path'] = $this->display->display_options['path'];
-            }
+            $form['sort_bef_combine']['#bef_path'] = $this->displayHandler->getUrlInfo();
             break;
 
           case 'default':
@@ -643,34 +641,25 @@ Off|No
       else {
         // Leave sort_by and sort_order as separate elements.
         if ('bef' == $settings['sort']['bef_format']) {
-          $form['sort_by']['#type'] = 'radios';
-          if (empty($form['sort_by']['#process'])) {
-            $form['sort_by']['#process'] = array();
+          foreach (['sort_by', 'sort_order'] as $field) {
+            $form[$field]['#theme'] = 'bef_radios';
+            $form[$field]['#type'] = 'radios';
+            if (empty($form[$field]['#process'])) {
+              $form[$field]['#process'] = array();
+            }
+            $form[$field]['#process'][] = ['\Drupal\Core\Render\Element\Radios', 'processRadios'];
           }
-          array_unshift($form['sort_by']['#process'], 'form_process_radios');
-          $form['sort_by']['#prefix'] = '<div class="bef-sortby bef-select-as-radios">';
-          $form['sort_by']['#suffix'] = '</div>';
-
-          $form['sort_order']['#type'] = 'radios';
-          if (empty($form['sort_order']['#process'])) {
-            $form['sort_order']['#process'] = array();
-          }
-          array_unshift($form['sort_order']['#process'], 'form_process_radios');
-          $form['sort_order']['#prefix'] = '<div class="bef-sortorder bef-select-as-radios">';
-          $form['sort_order']['#suffix'] = '</div>';
         }
         elseif ('bef_links' == $settings['sort']['bef_format']) {
-          $form['sort_by']['#theme'] = 'select_as_links';
-          $form['sort_order']['#theme'] = 'select_as_links';
+          $form['sort_by']['#theme'] = 'bef_links';
+          $form['sort_order']['#theme'] = 'bef_links';
 
           // Exposed form displayed as blocks can appear on pages other than the
           // view results appear on. This can cause problems with
           // select_as_links options as they will use the wrong path. We provide
           // a hint for theme functions to correct this.
-          if (!empty($this->display->display_options['exposed_block'])) {
-            $form['sort_by']['#bef_path'] = $this->display->display_options['path'];
-            $form['sort_order']['#bef_path'] = $this->display->display_options['path'];
-          }
+          $form['sort_by']['#bef_path'] = $this->displayHandler->getUrlInfo();
+          $form['sort_order']['#bef_path'] = $this->displayHandler->getUrlInfo();
         }
 
         if ($collapse) {
@@ -734,9 +723,7 @@ Off|No
             // the view results appear on. This can cause problems with
             // select_as_links options as they will use the wrong path. We
             // provide a hint for theme functions to correct this.
-            if (!empty($this->display->display_options['exposed_block'])) {
-              $form['items_per_page']['#bef_path'] = $this->display->display_options['path'];
-            }
+            $form['items_per_page']['#bef_path'] = $this->displayHandler->getUrlInfo();
           }
           break;
       }
@@ -1033,9 +1020,6 @@ Off|No
               $form[$field_id]['#process'] = array();
             }
             $form[$field_id]['#process'][] = ['\Drupal\Core\Render\Element\Radios', 'processRadios'];
-
-            // Render select element as radio buttons.
-            $form[$field_id]['#theme'] = 'bef_radios';
           }
           else {
             $form[$field_id]['#type'] = 'checkboxes';
