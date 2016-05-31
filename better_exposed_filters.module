@@ -62,8 +62,8 @@ function better_exposed_filters_theme($existing, $type, $theme, $path) {
 
 function template_preprocess_bef_checkboxes(&$variables) {
   $variables['children'] = Element::children($variables['element']);
-  $variables['hasSelectAllNone'] = (bool) $variables['element']['#bef_select_all_none'] ?: FALSE;
-  $variables['hasSelectAllNoneNested'] = (bool) $variables['element']['#bef_select_all_none_nested'] ?: FALSE;
+  $variables['hasSelectAllNone'] = !empty($variables['element']['#bef_select_all_none']) ? TRUE : FALSE;
+  $variables['hasSelectAllNoneNested'] = !empty($variables['element']['#bef_select_all_none_nested']) ? TRUE : FALSE;
   _bef_preprocess_nested_elements($variables);
 }
 
