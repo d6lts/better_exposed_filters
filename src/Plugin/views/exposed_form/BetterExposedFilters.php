@@ -491,6 +491,9 @@ Off|No
     }
     /* Ends: foreach ($filters as $filter) { */
 
+    // Alter the list of available display options for this filter.
+    \Drupal::moduleHandler()->alter('better_exposed_filters_display_options', $display_options, $filter);
+
     // Add BEF form elements to the exposed form options form.
     $form['bef'] = $bef_options;
   }
