@@ -553,13 +553,7 @@ Off|No
 
       // Check for combined sort_by and sort_order.
       if ($settings['sort']['advanced']['combine']) {
-        // Combine sort_by and sort_order into a single element.
-        $form['sort_bef_combine'] = array(
-          '#type' => 'radios',
-          // Already sanitized by Views.
-          '#title' => $form['sort_by']['#title'],
-        );
-        $options = array();
+        $options = [];
 
         // Add reset sort option at the top of the list.
         if ($settings['sort']['advanced']['reset']) {
@@ -595,7 +589,6 @@ Off|No
         }
 
         $form['sort_bef_combine'] = array(
-          '#type' => 'radios',
           '#options' => $options,
           '#default_value' => $selected,
           // Already sanitized by Views.
@@ -605,12 +598,12 @@ Off|No
         // Handle display-specific details.
         switch ($settings['sort']['bef_format']) {
           case 'bef':
-            $form['sort_bef_combine']['#prefix'] = '<div class="bef-sort-combined bef-select-as-radios">';
-            $form['sort_bef_combine']['#suffix'] = '</div>';
+            $form['sort_bef_combine']['#type'] = 'radios';
+            $form['sort_bef_combine']['#theme'] = 'bef_radios';
             break;
 
           case 'bef_links':
-            $form['sort_bef_combine']['#theme'] = 'select_as_links';
+            $form['sort_bef_combine']['#theme'] = 'bef_links';
 
             // Exposed form displayed as blocks can appear on pages other than
             // the view results appear on. This can cause problems with
@@ -640,7 +633,6 @@ Off|No
           $sort_elems[] = 'sort_bef_combine';
         }
       }
-      /* if ($settings['sort']['advanced']['combine']) { } */
       else {
         // Leave sort_by and sort_order as separate elements.
         if ('bef' == $settings['sort']['bef_format']) {
