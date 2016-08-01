@@ -36,6 +36,18 @@ class BetterExposedFilters extends ExposedFormPluginBase {
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function preExecute() {
+    // Grab BEF settings.
+    $settings = $this->bef_get_settings();
+
+    if (!empty($settings['general']['autosubmit'])) {
+      $this->view->setAjaxEnabled(TRUE);
+    }
+  }
+
+  /**
    * @inheritdoc
    */
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
@@ -68,6 +80,26 @@ class BetterExposedFilters extends ExposedFormPluginBase {
         ),
         'visible' => array(
           ':input[name="exposed_form_options[bef][general][allow_secondary]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+
+    // Add the 'autosbumit' functionality from Views 7.x.
+    $bef_options['general']['autosubmit'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Autosubmit'),
+      '#description' => $this->t('Automatically submit the form once an element is changed.'),
+      '#default_value' => $existing['general']['autosubmit'],
+    );
+
+    $bef_options['general']['autosubmit_hide'] = array(
+      '#type' => 'checkbox',
+      '#title' => $this->t('Hide submit button'),
+      '#description' => $this->t('Hide submit button if javascript is enabled.'),
+      '#default_value' => $existing['general']['autosubmit_hide'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="exposed_form_options[bef][general][autosubmit]"]' => array('checked' => TRUE),
         ),
       ),
     );
@@ -537,6 +569,17 @@ Off|No
         '#title' => $settings['general']['secondary_label'],
         '#theme' => 'secondary_exposed_elements',
       );
+    }
+
+    // Apply autosubmit values.
+    if (!empty($settings['general']['autosubmit'])) {
+      $form = array_merge_recursive($form, array('#attributes' => array('data-bef-auto-submit-full-form' => '')));
+      $form['actions']['submit']['#attributes']['data-bef-auto-submit-click'] = '';
+      $form['#attached']['library'] = ['better_exposed_filters/auto_submit'];
+
+      if (!empty($settings['general']['autosubmit_hide'])) {
+        $form['actions']['submit']['#attributes']['class'][] = 'js-hide';
+      }
     }
 
     /*
@@ -1276,6 +1319,8 @@ Off|No
       'general' => array(
         'allow_secondary' => FALSE,
         'secondary_label' => t('Advanced options'),
+        'autosubmit' => FALSE,
+        'autosubmit_hide' => FALSE,
       ),
       'sort' => array(
         'bef_format' => 'default',

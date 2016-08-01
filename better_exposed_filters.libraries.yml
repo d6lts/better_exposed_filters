@@ -3,6 +3,10 @@ general:
   css:
     theme:
       css/better_exposed_filters.css: {}
+auto_submit:
+  version: 3.x
+  js:
+    js/auto_submit.js: {}
 select_all_none:
   version: 3.x
   js:
