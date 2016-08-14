@@ -1117,17 +1117,14 @@ Off|No
     if ($bef_add_js) {
       // Add jQuery UI library code as needed.
       if ($bef_js['datepicker']) {
-        drupal_add_library('system', 'ui.datepicker');
+        $form['#attached']['library'][] = 'core/jquery.ui.datepicker';
+        $form['#attached']['library'][] = 'better_exposed_filters/datepickers';
       }
       if ($bef_js['slider']) {
-        drupal_add_library('system', 'ui.slider');
+        $form['#attached']['library'][] = 'core/jquery.ui.slider';
       }
 
-      drupal_add_js(array('better_exposed_filters' => $bef_js), 'setting');
-      drupal_add_js(drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.js');
-    }
-    if ($bef_add_css) {
-      drupal_add_css(drupal_get_path('module', 'better_exposed_filters') . '/better_exposed_filters.css');
+      $form['#attached']['drupalSettings']['better_exposed_filters'] = $bef_js;
     }
 
     // Check for secondary elements.
