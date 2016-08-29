@@ -5,11 +5,14 @@
  */
 
 use \Drupal\views\Tests\ViewTestBase;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Functional test for Better Exposed Filters
  */
-class BEF_TestCase extends ViewTestBase {
+class BEF_TestCase extends DrupalWebTestCase {
+
+  use StringTranslationTrait;
   protected $view_name;
   protected $privileged_user;
   protected $views_version;
@@ -62,7 +65,7 @@ class BEF_TestCase extends ViewTestBase {
     // Check node->status (binary type)
     $this->drupalGet("admin/build/views/nojs/config-item/$this->view_name/default/filter/status");
     $this->assertText(
-      t('Display exposed filter as'),
+        $this->t('Display exposed filter as'),
       'Verify BEF settings dropdown label displays',
       'Better Exposed Filters'
     );
@@ -71,7 +74,7 @@ class BEF_TestCase extends ViewTestBase {
     // Check node->status (binary type)
     $this->drupalGet("admin/build/views/nojs/config-item/$this->view_name/default/filter/type");
     $this->assertText(
-      t('Display exposed filter as'),
+      $this->t('Display exposed filter as'),
       'Verify BEF settings dropdown label displays',
       'Better Exposed Filters'
     );
@@ -155,7 +158,7 @@ class BEF_TestCase extends ViewTestBase {
     );
     $this->assertFieldByXpath(
       '//fieldset/legend',
-      t('Published'),
+        $this->t('Published'),
       'Filter label is used as the fieldset legend',
       'Better Exposed Filters'
     );
@@ -235,7 +238,7 @@ class BEF_TestCase extends ViewTestBase {
     );
     $this->assertFieldByXpath(
       '//fieldset/legend',
-      t('Node: Type'),
+        $this->t('Node: Type'),
       'Filter label is used as the fieldset legend',
       'Better Exposed Filters'
     );
