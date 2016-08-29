@@ -788,7 +788,7 @@ Off|No
 
       // Form element is designated by the element ID which is user-
       // configurable.
-      $field_id = $form['#info']["filter-$label"]['value'];
+      $field_id = $filters[$label]->options['expose']['identifier'];
 
       // Handle filter value rewrites.
       if (!empty($options['more_options']['rewrite']['filter_rewrite_values'])) {
