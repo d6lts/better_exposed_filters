@@ -1166,6 +1166,11 @@ Off|No
     // @TODO: Need to handle rewriting of taxonomy filters.
     // https://www.drupal.org/node/2666540
     foreach ($options as $index => $option) {
+      // Some options, such as "- Any -", are passed as TranslatableMarkup
+      // objects. Convert them to strings for the comparison.
+      if (!is_string($option)) {
+        $option = (string) $option;
+      }
       if (isset($rewrites[$option])) {
         if ('' == $rewrites[$option]) {
           unset($return[$index]);
