@@ -20,8 +20,6 @@ use Drupal\Core\StringTranslation\StringTranslationTrait;
  */
 class BetterExposedFilters extends ExposedFormPluginBase {
 
-  use StringTranslationTrait;
-
   /**
    * @inheritdoc
    */
