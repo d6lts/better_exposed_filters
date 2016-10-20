@@ -220,4 +220,15 @@ class BefBlock extends Block {
     return FALSE;
   }
 
+  /**
+   * Provide the default form for setting options.
+   */
+  public function buildOptionsForm(&$form, FormStateInterface $form_state) {
+    parent::buildOptionsForm($form, $form_state);
+
+    if ($form_state->get('section') == 'allow') {
+      $form['allow']['#options']['exposed_filters'] = $this->t('Exposed filters');
+    }
+  }
+
 }
