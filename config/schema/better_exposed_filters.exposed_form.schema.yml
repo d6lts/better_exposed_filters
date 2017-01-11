@@ -1,0 +1,3 @@
+views.exposed_form.bef:
+  type: views_exposed_form
+  label: 'Better Exposed Filters'
