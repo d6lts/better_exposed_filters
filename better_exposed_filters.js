@@ -104,22 +104,19 @@
   Drupal.behaviors.betterExposedFiltersAllNoneNested = {
     attach:function (context, settings) {
       $('.form-checkboxes.bef-select-all-none-nested li').has('ul').once('bef-all-none-nested', function () {
-        var $this = $(this);
-
-        // Prevent CTools autosubmit from firing until we've finished checking
-        // all the checkboxes.
-        var submitFunc = $this.parents('form').submit;
-        $this.parents('form').submit = null;
-
-        $this
+        $(this)
           // To respect term depth, check/uncheck child term checkboxes.
           .find('input.form-checkboxes:first')
           .click(function() {
-            $(this).parents('li:first').find('ul input.form-checkboxes').attr('checked', $(this).attr('checked'));
-
-            // Now we can trigger the autosubmit
-            $this.parents('form').submit = submitFunc;
-            $this.parents('form').trigger('submit');
+            var checkedParent = $(this).attr('checked');
+            if (!checkedParent) {
+              // Uncheck all children if parent is unchecked.
+              $(this).parents('li:first').find('ul input.form-checkboxes').removeAttr('checked');
+            }
+            else {
+              // Check all children if parent is checked.
+              $(this).parents('li:first').find('ul input.form-checkboxes').attr('checked', $(this).attr('checked'));
+            }
           })
           .end()
           // When a child term is checked or unchecked, set the parent term's
@@ -127,17 +124,25 @@
           .find('ul input.form-checkboxes')
           .click(function() {
             var checked = $(this).attr('checked');
+
             // Determine the number of unchecked sibling checkboxes.
             var ct = $(this).parents('ul:first').find('input.form-checkboxes:not(:checked)').size();
+
             // If the child term is unchecked, uncheck the parent.
+            if (!checked) {
+              // Uncheck parent if any of the childres is unchecked.
+              $(this).parents('li:first').parents('li:first').find('input.form-checkboxes:first').removeAttr('checked');
+            }
+
             // If all sibling terms are checked, check the parent.
-            if (!checked || !ct) {
+            if (!ct) {
+              // Check the parent if all the children are checked.
               $(this).parents('li:first').parents('li:first').find('input.form-checkboxes:first').attr('checked', checked);
             }
           });
       });
     }
-  }
+  };
 
   Drupal.behaviors.better_exposed_filters_slider = {
     attach: function(context, settings) {
