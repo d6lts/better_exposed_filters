@@ -648,7 +648,7 @@ Off|No
             // the view results appear on. This can cause problems with
             // select_as_links options as they will use the wrong path. We
             // provide a hint for theme functions to correct this.
-            $form['sort_bef_combine']['#bef_path'] = $this->displayHandler->getUrlInfo();
+            $form['sort_bef_combine']['#bef_path'] = $this->displayHandler->getUrl();
             break;
 
           case 'default':
@@ -692,8 +692,8 @@ Off|No
           // view results appear on. This can cause problems with
           // select_as_links options as they will use the wrong path. We provide
           // a hint for theme functions to correct this.
-          $form['sort_by']['#bef_path'] = $this->displayHandler->getUrlInfo();
-          $form['sort_order']['#bef_path'] = $this->displayHandler->getUrlInfo();
+          $form['sort_by']['#bef_path'] = $this->displayHandler->getUrl();
+          $form['sort_order']['#bef_path'] = $this->displayHandler->getUrl();
         }
 
         if ($collapse) {
@@ -757,7 +757,7 @@ Off|No
             // the view results appear on. This can cause problems with
             // select_as_links options as they will use the wrong path. We
             // provide a hint for theme functions to correct this.
-            $form['items_per_page']['#bef_path'] = $this->displayHandler->getUrlInfo();
+            $form['items_per_page']['#bef_path'] = $this->displayHandler->getUrl();
           }
           break;
       }
@@ -1000,7 +1000,7 @@ Off|No
           // the view results appear on. This can cause problems with
           // select_as_links options as they will use the wrong path. We provide
           // a hint for theme functions to correct this.
-          $form[$field_id]['#bef_path'] = $this->displayHandler->getUrlInfo();
+          $form[$field_id]['#bef_path'] = $this->displayHandler->getUrl();
           break;
 
         case 'bef_single':
