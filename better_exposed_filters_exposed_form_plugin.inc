@@ -1741,11 +1741,11 @@ dateFormat: "dd-mm-yy"
             // Some elements can have multiple children, for example min/max
             // fields on an in-between filter. In those cases Add the label
             // to the first element.
-            $secondary[$identifier][$children[0]]['#title'] = $form['#info'][$filter_key]['label'];
+            $secondary[$identifier][$children[0]]['#title'] = isset($form['#info'][$filter_key]['label']) ? $form['#info'][$filter_key]['label'] : '';
             unset($form['#info'][$filter_key]);
           }
           else {
-            $secondary[$identifier]['#title'] = $form['#info'][$filter_key]['label'];
+            $secondary[$identifier]['#title'] = isset($form['#info'][$filter_key]['label']) ? $form['#info'][$filter_key]['label'] : '';
             unset($form['#info'][$filter_key]);
           }
 
