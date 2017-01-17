@@ -1069,19 +1069,21 @@ Off|No
           break;
 
         case 'bef_hidden':
-          // Hide the label.
-          $form['#info']["filter-$label"]['label'] = '';
           if (empty($form[$field_id]['#multiple'])) {
+            // Single entry filters can simple be changed to a different element
+            // type.
             $form[$field_id]['#type'] = 'hidden';
           }
           else {
-            $form[$field_id]['#theme'] = 'select_as_hidden';
+            // Hide the label.
+            $form['#info']["filter-$label"]['label'] = '';
+
+            // Use BEF's preprocess and template to output the hidden elements.
+            $form[$field_id]['#theme'] = 'bef_hidden';
           }
           break;
 
         default:
-          // Handle functionality for exposed filters that are not limited to
-          // BEF only filters.
           $show_apply = TRUE;
           break;
       }
