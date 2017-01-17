@@ -84,12 +84,6 @@ function template_preprocess_bef_hidden(&$variables) {
   $variables['selected'] = empty($element['#value']) ? $element['#default_value'] : $element['#value'];
   $variables['hiddenElements'] = [];
   foreach ($element['#options'] as $value => $label) {
-    // Check for Taxonomy-based filters.
-    if (is_object($label)) {
-      // @todo:
-      //$slice = array_slice($elem->option, 0, 1, TRUE);
-      //list($option, $elem) = each($slice);
-    }
     $variables['hiddenElements'][$value] = [
       '#type' => 'hidden',
       '#value' => $value,
