@@ -325,7 +325,7 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
 
       // Add a description to the exposed filter
       if (!empty($options['more_options']['bef_filter_description'])) {
-        $form[$field_id]['#description'] = $options['more_options']['bef_filter_description'];
+        $form[$field_id]['#description'] = filter_xss_admin($options['more_options']['bef_filter_description']);
       }
       
       switch ($options['bef_format']) {
