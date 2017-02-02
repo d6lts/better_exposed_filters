@@ -381,9 +381,9 @@ class better_exposed_filters_exposed_form_plugin extends views_plugin_exposed_fo
               
               // Pass the description and title along in a way such that it doesn't get rendered as part of
               // the exposed form widget.  We'll render them as part of the fieldset.
-              $form[$field_id]['#bef_description'] = $form[$field_id]['#description'];
+              $form[$field_id]['#bef_description'] = filter_xss_admin($form[$field_id]['#description']);
               unset($form[$field_id]['#description']);
-              $form[$field_id]['#bef_title'] = $form[$field_id]['#title'];
+              $form[$field_id]['#bef_title'] = check_plain($form[$field_id]['#title']);
               unset($form[$field_id]['#title']);
               
               // Take care of adding the fieldset in the theme layer
